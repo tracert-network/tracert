@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output / generated artifacts (regenerable)
+registry/dist/
+router/dist/
+site/.next/
+site/out/
+*.tsbuildinfo
+
+# Runtime data (append-only, regenerable)
+router/data/
+router/test-tmp/
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,87 @@
+{
+  "capability": "ai-directory.publish-listing",
+  "note": "Reproducible request/expectation pairs for the validation stage. None of these reach the live submit API — they exercise input validation and rejection mapping only. The two 'accept' vectors are the shapes a live submission would use.",
+  "vectors": [
+    {
+      "id": "valid-minimal",
+      "input": {
+        "name": "Example AI Tool",
+        "url": "https://example-ai-tool.com",
+        "description": "Generates example outputs from example inputs with configurable style presets.",
+        "category": "image-generation",
+        "pricing": "freemium",
+        "badge_url": "https://example-ai-tool.com"
+      },
+      "expect": { "validation": "accept" }
+    },
+    {
+      "id": "valid-full",
+      "input": {
+        "name": "Example AI Tool",
+        "url": "https://example-ai-tool.com",
+        "description": "Generates example outputs from example inputs with configurable style presets.",
+        "category": "image-generation",
+        "pricing": "freemium",
+        "badge_url": "https://example-ai-tool.com/about",
+        "tags": ["photo-editing", "portrait"],
+        "pricing_detail": "Free tier watermarked; Pro $12/mo for 1,000 credits.",
+        "key_features": [
+          "Text-to-image generation from a prompt",
+          "Inpainting and outpainting on a canvas",
+          "Batch export up to 4K"
+        ],
+        "works_with": ["chatgpt", "figma"],
+        "platforms": ["web", "api"],
+        "submitted_by": "example-maker"
+      },
+      "expect": { "validation": "accept" }
+    },
+    {
+      "id": "missing-badge-url",
+      "input": {
+        "name": "Example AI Tool",
+        "url": "https://example-ai-tool.com",
+        "description": "Generates example outputs from example inputs with configurable style presets.",
+        "category": "image-generation",
+        "pricing": "freemium"
+      },
+      "expect": { "validation": "reject", "reason_code": "invalid_input", "field": "badge_url" }
+    },
+    {
+      "id": "http-not-https",
+      "input": {
+        "name": "Example AI Tool",
+        "url": "http://example-ai-tool.com",
+        "description": "Generates example outputs from example inputs with configurable style presets.",
+        "category": "image-generation",
+        "pricing": "freemium",
+        "badge_url": "https://example-ai-tool.com"
+      },
+      "expect": { "validation": "reject", "reason_code": "invalid_url", "field": "url" }
+    },
+    {
+      "id": "bad-category",
+      "input": {
+        "name": "Example AI Tool",
+        "url": "https://example-ai-tool.com",
+        "description": "Generates example outputs from example inputs with configurable style presets.",
+        "category": "blockchain",
+        "pricing": "freemium",
+        "badge_url": "https://example-ai-tool.com"
+      },
+      "expect": { "validation": "reject", "reason_code": "invalid_input", "field": "category" }
+    },
+    {
+      "id": "description-too-short",
+      "input": {
+        "name": "Example AI Tool",
+        "url": "https://example-ai-tool.com",
+        "description": "An AI tool.",
+        "category": "image-generation",
+        "pricing": "freemium",
+        "badge_url": "https://example-ai-tool.com"
+      },
+      "expect": { "validation": "reject", "reason_code": "invalid_input", "field": "description" }
+    }
+  ]
+}

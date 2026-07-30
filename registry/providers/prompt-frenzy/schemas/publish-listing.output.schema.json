@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracert.site/providers/prompt-frenzy/schemas/publish-listing.output.schema.json",
+  "title": "ai-directory.publish-listing output",
+  "type": "object",
+  "required": ["listing_url", "pr_url"],
+  "additionalProperties": false,
+  "properties": {
+    "listing_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "description": "Canonical public URL of the listing page (https://www.promptfrenzy.com/directory/<slug>). Independently fetchable; the execution verifies it resolves and lists the submitted tool URL."
+    },
+    "pr_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "description": "The pull request in the public directory repository — the durable public evidence of the publication."
+    },
+    "pr_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Directory-side identifier of the listing."
+    },
+    "host_tier": {
+      "enum": ["full", "early-stage"],
+      "description": "Whether the submitted host earned a full listing or an early-stage flag."
+    }
+  }
+}

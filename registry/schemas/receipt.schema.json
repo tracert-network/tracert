@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracert.site/schemas/receipt/v0.1",
+  "title": "TRACE Receipt v0.1",
+  "description": "A portable execution record binding the capability version, quote, request commitment, result commitment and payment state. Evidence of a transaction state — not proof that the buyer liked the output. Verifiable without forcing private inputs or outputs into a public database: commitments are salted-or-plain sha256 hashes; raw artifacts are referenced only where the privacy policy allows.",
+  "type": "object",
+  "required": ["schema", "execution_id", "capability", "request", "result", "payment", "operator"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "https://tracert.site/schemas/receipt/v0.1"
+    },
+    "execution_id": {
+      "type": "string",
+      "pattern": "^tr_exec_[A-Za-z0-9_-]{6,}$"
+    },
+    "capability": {
+      "type": "object",
+      "required": ["id", "version", "manifest_hash"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$" },
+        "version": { "type": "string", "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-[0-9A-Za-z.-]+)?$" },
+        "manifest_hash": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "quote": {
+      "type": "object",
+      "description": "The exact, expiring terms the buyer accepted. Required except when the invocation was rejected before terms were issued.",
+      "required": ["id", "amount", "currency", "expires_at"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^tr_quote_[A-Za-z0-9_-]{6,}$" },
+        "amount": { "type": "string", "pattern": "^\\d+(\\.\\d+)?$" },
+        "currency": { "type": "string", "pattern": "^[A-Z0-9]{3,10}$" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "included_retries": { "type": "integer", "minimum": 0 },
+        "refund_rule": { "type": "string", "maxLength": 500 }
+      }
+    },
+    "request": {
+      "type": "object",
+      "required": ["received_at", "commitment"],
+      "additionalProperties": false,
+      "properties": {
+        "received_at": { "type": "string", "format": "date-time" },
+        "commitment": { "$ref": "#/$defs/sha256" },
+        "idempotency_key": { "type": "string", "minLength": 8, "maxLength": 128 }
+      }
+    },
+    "result": {
+      "type": "object",
+      "required": ["status"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": ["rejected", "quoted", "authorized", "running", "succeeded", "failed", "unknown", "cancelled"],
+          "description": "Terminal states: rejected, succeeded, failed, cancelled. Non-terminal: quoted, authorized, running, unknown (unknown must resolve — never silently retry or double charge)."
+        },
+        "completed_at": { "type": "string", "format": "date-time" },
+        "commitment": { "$ref": "#/$defs/sha256" },
+        "reasons": {
+          "type": "array",
+          "description": "Machine-actionable reasons for rejected/failed/cancelled states.",
+          "items": {
+            "type": "object",
+            "required": ["code", "message"],
+            "additionalProperties": false,
+            "properties": {
+              "code": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+              "message": { "type": "string", "maxLength": 500 },
+              "field": { "type": "string", "maxLength": 100 }
+            }
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "enum": ["url", "hash"] },
+              "url": { "type": "string", "format": "uri", "pattern": "^https://" },
+              "media_type": { "type": "string", "pattern": "^[a-z]+/[a-z0-9.+-]+$" },
+              "sha256": { "$ref": "#/$defs/sha256" },
+              "note": { "type": "string", "maxLength": 300 }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "succeeded" } }, "required": ["status"] },
+          "then": { "required": ["completed_at", "commitment"] }
+        },
+        {
+          "if": { "properties": { "status": { "enum": ["rejected", "failed", "cancelled"] } }, "required": ["status"] },
+          "then": { "required": ["reasons"] }
+        }
+      ]
+    },
+    "payment": {
+      "type": "object",
+      "required": ["mode", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "enum": ["free", "mpp", "x402", "prepaid_balance", "byok", "subscription", "invoice"] },
+        "status": { "enum": ["not_required", "pending", "reserved", "authorized", "settled", "refund_due", "refunded", "failed"] },
+        "evidence_ref": {
+          "type": "string",
+          "description": "Rail-specific settlement evidence: processor id, tx hash, ledger entry, entitlement reference."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "mode": { "const": "free" } }, "required": ["mode"] },
+          "then": { "properties": { "status": { "const": "not_required" } } }
+        }
+      ]
+    },
+    "evidence": {
+      "type": "array",
+      "description": "Inspectable observations that bind the promise, payment and outcome. Open-ended by design.",
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "url": { "type": "string", "format": "uri" },
+          "observed_status": { "type": "integer" },
+          "observed_at": { "type": "string", "format": "date-time" },
+          "hash": { "$ref": "#/$defs/sha256" },
+          "note": { "type": "string", "maxLength": 500 }
+        }
+      }
+    },
+    "operator": {
+      "type": "object",
+      "required": ["gateway_id"],
+      "additionalProperties": false,
+      "properties": {
+        "gateway_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,62}$" },
+        "signature": { "type": "string", "description": "Detached signature over the canonical receipt body. Optional until gateway keys exist; required for federation." },
+        "signed_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "result": { "type": "object", "properties": { "status": { "not": { "const": "rejected" } } } } }
+      },
+      "then": { "required": ["quote"] }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    }
+  }
+}

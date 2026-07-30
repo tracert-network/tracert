@@ -1,0 +1,145 @@
+# TRACE Manifest — ai-directory.publish-listing
+#
+# Tracert's first capability: the PromptFrenzy AI Directory as a free,
+# wallet-free, externally verifiable distribution action. The underlying
+# service is real and agent-native today: badge-verified submissions,
+# bot-merged PRs, public repository evidence.
+# Contract source: https://github.com/Prompt-Frenzy/ai-directory (README + schema.json).
+
+schema: https://tracert.site/schemas/manifest/v0.1
+
+provider:
+  id: prompt-frenzy
+  name: PromptFrenzy
+  url: https://www.promptfrenzy.com
+  operator: robin-blocks
+
+service:
+  id: ai-directory
+  name: PromptFrenzy AI Directory
+  url: https://www.promptfrenzy.com/directory
+
+capability:
+  id: ai-directory.publish-listing
+  version: 0.2.0
+  status: active
+  promise: >-
+    Submit an eligible AI tool website and receive a public directory listing
+    page with a dofollow backlink, plus public repository evidence of the
+    publication.
+  description: >-
+    Badge-required directory submission. Precondition: the tool's site must
+    display the PromptFrenzy directory badge (static HTML anchor to
+    https://www.promptfrenzy.com/directory, dofollow, on the domain being
+    submitted) before invoking — the badge is the directory's eligibility
+    mechanism; there is no human review queue and no payment. The execution
+    posts the listing payload to the directory's submit API, which verifies
+    the badge, opens a pull request in the public registry repository via the
+    directory bot, auto-merges on pass (typically under 60 seconds), and
+    publishes the listing page. Sites on their own durable domain get a full
+    listing; platform subdomains (*.vercel.app, *.netlify.app, *.github.io and
+    similar) are listed but flagged early-stage; raw IPs, tunnels and link
+    shorteners are rejected. Richer optional fields (tags, key features,
+    platforms, pricing detail) make the listing rank and get cited — thin
+    submissions still list but read as filler. The badge is re-verified daily
+    for the first week and weekly thereafter; removing it eventually moves the
+    listing to a public removed state.
+  tags:
+    - directory
+    - listing
+    - distribution
+    - backlink
+    - seo
+    - ai-tools
+    - free
+  excludes:
+    - Non-AI tools and websites
+    - Ranking placement, featuring or endorsement (no paid placements, no editorial scoring)
+    - Listing without the badge on the submitted site
+    - Removal or editing of existing listings (use the tracking issue / repository instead)
+  input:
+    schema_ref: ../schemas/publish-listing.input.schema.json
+    media_types: [application/json]
+    max_bytes: 16384
+    notes: >-
+      Mirrors the directory's own submit contract: name, url, description,
+      category, pricing and badge_url are required; tags, pricing_detail,
+      key_features, works_with, platforms, logo and submitted_by are optional
+      but strongly encouraged.
+  output:
+    schema_ref: ../schemas/publish-listing.output.schema.json
+    media_types: [application/json]
+    notes: >-
+      The listing URL is the canonical public artifact; the pull request URL is
+      the durable public repository evidence the receipt binds to.
+  errors:
+    - code: invalid_input
+      meaning: The payload failed field validation (the submit API returns HTTP 400 with field-level details, relayed verbatim).
+      retriable: false
+    - code: invalid_url
+      meaning: url, badge_url or logo is not a syntactically valid HTTPS URL.
+      retriable: false
+    - code: badge_not_found
+      meaning: The verifier could not find the badge anchor (static HTML, dofollow) at badge_url. Add the badge, then submit again.
+      retriable: true
+    - code: host_rejected
+      meaning: The submitted host is a raw IP, temporary tunnel, link shortener or placeholder host — not listable at any tier.
+      retriable: false
+    - code: unreachable_url
+      meaning: The site or badge page did not respond during validation.
+      retriable: true
+    - code: duplicate_listing
+      meaning: The canonical tool URL already has a live listing; the existing listing URL is returned in the rejection.
+      retriable: false
+    - code: publication_timeout
+      meaning: The pull request did not merge or the listing page did not go live within the execution timeout.
+      retriable: true
+  interfaces:
+    - type: native_api
+      endpoint: https://www.promptfrenzy.com/api/directory/submit
+      docs_url: https://github.com/Prompt-Frenzy/ai-directory
+      notes: >-
+        One-call JSON API (POST). Canonical host is www.promptfrenzy.com — the
+        apex 307-redirects. Returns 201 with pr_url and pr_number, or 400 with
+        field-level details. Alternative: open the pull request directly
+        against the repository. No authentication and no payment; the badge on
+        the submitted site is the gate.
+  pricing:
+    free: true
+    mode: free
+  operations:
+    expected_latency_seconds:
+      p50: 90
+      p95: 600
+    timeout_seconds: 900
+    idempotency: supported
+    availability_endpoint: https://www.promptfrenzy.com/.well-known/ai-tools.json
+  data_policy:
+    input_retention: >-
+      Submitted listing data is intended for publication: it becomes a public
+      YAML entry in the GitHub repository (permanent, version-controlled) and
+      a public listing page. Removed listings move to a public removed state
+      rather than disappearing.
+    training_use: >-
+      Submitted fields are sent to a text-generation model (Gemini 2.5 Flash
+      via AIMLAPI) once at submit time to auto-generate the listing's
+      sample_use_case paragraph; they are not otherwise used for training.
+    regions:
+      - public-internet
+    subprocessors:
+      - promptfrenzy.com submit API (badge verification, PR creation via directory bot)
+      - AIMLAPI / Gemini 2.5 Flash (sample_use_case generation at submit time)
+      - GitHub (public repository hosting)
+    notes: Do not submit anything that must stay private — the output is a public page and a public repository entry by design.
+  evidence:
+    public_examples: https://www.promptfrenzy.com/directory
+    recent_executions: https://github.com/Prompt-Frenzy/ai-directory/pulls?q=is%3Apr+is%3Amerged
+    test_vectors: ../evidence/test-vectors.json
+    repository: https://github.com/Prompt-Frenzy/ai-directory
+  provenance:
+    integration_status: first_party
+    adapter_operator: tracert
+    notes: >-
+      The directory and Tracert are operated by the same team (first party).
+      Dogfooding — distribution infrastructure distributed through
+      distribution infrastructure.

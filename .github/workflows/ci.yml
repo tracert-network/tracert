@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  registry:
+    name: registry — validate + build exports
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+        working-directory: registry
+      - run: npm run build
+        working-directory: registry
+
+  router:
+    name: router — build + end-to-end smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+        working-directory: router
+      # The smoke test spawns the stdio server, which reads ../registry — the
+      # whole repo is checked out, so the sibling path resolves in CI.
+      - run: npm test
+        working-directory: router
+
+  site:
+    name: site — static build from the registry
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+        working-directory: site
+      - run: npm run build
+        working-directory: site
