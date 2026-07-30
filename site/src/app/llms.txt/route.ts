@@ -30,7 +30,7 @@ ${capLines}
 
 ## For suppliers
 
-- [Publish a capability](${SITE_ORIGIN}/publish): one bounded promise per TRACE Manifest, submitted by pull request; free listings are first-class and the public registry repository opens imminently
+- [Publish a capability](${SITE_ORIGIN}/publish): one bounded promise per TRACE Manifest, submitted by pull request to the public registry at https://github.com/tracert-network/tracert; free listings are first-class
 
 ## For agent developers
 

@@ -65,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <li><Link href="/publish">Publish a capability</Link></li>
                 <li><Link href="/use">Connect an agent</Link></li>
                 <li><Link href="/about">Why Tracert exists</Link></li>
+                <li><a href="https://github.com/tracert-network/tracert">Source on GitHub</a></li>
               </ul>
             </div>
           </div>

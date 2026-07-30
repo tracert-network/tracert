@@ -88,7 +88,7 @@ export default function Agents() {
       <ol>
         <li>Fetch <a href="/schemas/manifest/v0.1" className="mono">/schemas/manifest/v0.1</a>.</li>
         <li>Author one manifest per bounded promise (YAML), with input/output JSON Schemas and a declared data policy. Required honesty: <span className="mono">data_policy.input_retention</span> and <span className="mono">training_use</span> have no safe defaults.</li>
-        <li>Submit as a pull request to the public registry repository (opening imminently — re-check this page or <span className="mono">/llms.txt</span>).</li>
+        <li>Submit as a pull request to the public registry: <a className="mono" href="https://github.com/tracert-network/tracert/tree/main/registry">github.com/tracert-network/tracert</a> (validation re-runs in CI; the merged PR is the durable public record).</li>
       </ol>
 
       <p className="small muted">

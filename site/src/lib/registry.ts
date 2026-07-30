@@ -7,6 +7,8 @@ import { dirname, join, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 
 export const SITE_ORIGIN = "https://tracert.site";
+export const REPO_URL = "https://github.com/tracert-network/tracert";
+export const REGISTRY_URL = `${REPO_URL}/tree/main/registry`;
 
 export interface ManifestDoc {
   schema: string;

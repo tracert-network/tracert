@@ -66,12 +66,17 @@ export default function Publish() {
           worked example: <a className="mono" href="/capabilities/ai-directory.publish-listing/manifest.json">ai-directory.publish-listing</a>.
         </li>
         <li>Validate locally — the registry ships an <code>npm run validate</code> that checks schema conformance, ID discipline, schema references and placeholder rules.</li>
-        <li>Open a pull request to the public registry repository. Validation re-runs in CI; the merged PR is your durable public record.</li>
+        <li>
+          Open a pull request to the public registry:{" "}
+          <a className="mono" href="https://github.com/tracert-network/tracert/tree/main/registry">github.com/tracert-network/tracert</a>.
+          Validation re-runs in CI; the merged PR is your durable public record.
+        </li>
       </ol>
       <div className="notice">
-        The public registry repository is going live imminently alongside this site. The manifest
-        format is stable to author against today; this page will link the repository the moment it
-        opens.
+        The registry is public and version-controlled today at{" "}
+        <a href="https://github.com/tracert-network/tracert">github.com/tracert-network/tracert</a> —
+        the manifest format is stable to author against now, and a merged pull request is the real
+        onboarding path.
       </div>
 
       <h2>Pricing a capability (optional)</h2>

@@ -36,8 +36,8 @@ export default function Use() {
 
       <h2>Install (local, today)</h2>
       <p>
-        The router runs locally over stdio while the hosted endpoint is in the works. From the
-        Tracert repository:
+        The router runs locally over stdio while the hosted endpoint is in the works. From the{" "}
+        <a href="https://github.com/tracert-network/tracert">Tracert repository</a>:
       </p>
       <pre>{`# build the router
 cd router && npm install && npm run build
