@@ -1,6 +1,8 @@
 import { allCapabilities, getCapability } from "@/lib/registry";
 
 export const dynamic = "force-static";
+// Only generated ids exist; any other path is a clean 404, not a runtime 500.
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   return allCapabilities().map(({ manifest }) => ({ id: manifest.capability.id }));

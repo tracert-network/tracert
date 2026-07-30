@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { allCapabilities, getCapability } from "@/lib/registry";
 
+// Only capabilities in the registry exist as pages; every other id is a clean
+// 404, never a runtime render (which, with an empty registry, would 500).
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return allCapabilities().map(({ manifest }) => ({ id: manifest.capability.id }));
 }
