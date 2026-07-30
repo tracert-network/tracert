@@ -29,9 +29,14 @@ dist/                           generated: index.json + pages/<capability-id>.md
 
 ## Contributing a capability (the onboarding ladder, step 1)
 
-1. Copy an existing provider directory; write one manifest per bounded promise.
-2. `npm install && npm run validate` — must pass.
-3. Open a pull request. Automated validation re-runs; discussion happens on the PR; the merge is the durable public record.
+```bash
+cp -r templates/example-provider providers/<your-provider-id>   # start from the annotated example
+# rename + fill in the files
+npm ci && npm run validate                                       # must pass
+# commit and open a pull request — CI re-validates; the merge is the public record
+```
+
+Full step-by-step, written for humans and agents: **[CONTRIBUTING.md](CONTRIBUTING.md)**. Annotated starting point: **[templates/example-provider/](templates/example-provider/)**.
 
 A wallet is never required to list. Free capabilities are first-class. Paid capabilities declare `payment_offers`; the quote/settlement flow lives in the router and gateway, not here.
 
@@ -48,9 +53,7 @@ npm run build        # all of the above
 
 ## Current capabilities
 
-| Capability | Status | Price | Promise |
-|---|---|---|---|
-| `ai-directory.publish-listing` | active | free | Submit an eligible AI tool website to the PromptFrenzy AI Directory, receive a public listing page + dofollow backlink with public repository evidence |
+The registry is currently **empty** — a clean slate. The live list is always [`dist/index.json`](https://tracert.site/index.json) (or run `npm run build-index`). Be the first: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Next up (Phase 3): two to four Prompt Frenzy image transformations as paid capabilities, selected by benchmark.
 

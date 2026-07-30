@@ -19,6 +19,17 @@ export default function Capabilities() {
         <a href="/index.json" className="mono">/index.json</a>.
       </p>
 
+      {caps.length === 0 && (
+        <div className="card" style={{ marginTop: "1.25rem" }}>
+          <p className="card-kicker">Empty registry</p>
+          <h2 style={{ margin: "0.3rem 0 0.5rem" }}>Nothing published yet.</h2>
+          <p className="small muted" style={{ margin: 0 }}>
+            The registry is a clean slate. The first capability is one pull request away —{" "}
+            <Link href="/publish">publish a capability</Link>.
+          </p>
+        </div>
+      )}
+
       {caps.map(({ manifest }) => {
         const c = manifest.capability;
         return (

@@ -1,0 +1,86 @@
+# ── TRACE Manifest — copy-and-fill template ──────────────────────────────────
+# One capability = one bounded promise. To publish:
+#   1. Copy the whole `example-provider/` directory to
+#        registry/providers/<your-provider-id>/
+#   2. Rename the files, fill every field with your real values.
+#   3. From registry/:  npm run validate
+#   4. Open a pull request.
+# Full guide: ../../CONTRIBUTING.md
+# Schema:     ../../schemas/manifest.schema.json  (served at
+#             https://tracert.site/schemas/manifest/v0.1)
+#
+# NOTE: replace every `*.example` host with your real HTTPS domain — the
+# validator rejects `.example` hosts on any capability that isn't `draft`.
+# That rejection is intentional: it stops placeholder values reaching production.
+
+schema: https://tracert.site/schemas/manifest/v0.1
+
+provider:
+  id: acme                       # lowercase-hyphen, stable, yours
+  name: Acme Corp
+  url: https://acme.example      # your real HTTPS site
+  operator: acme                 # who runs it day-to-day (if different from name)
+
+service:
+  id: acme-nlp
+  name: Acme NLP API
+  url: https://acme.example/nlp
+
+capability:
+  # id = "<provider-id or service-id>.<name>". The first segment MUST equal
+  # provider.id or service.id (validator-enforced). This id is stable forever —
+  # it survives interface and provider migrations.
+  id: acme.summarize-text
+  version: 1.0.0                 # bump when the externally meaningful contract changes
+  status: active                # draft | active | degraded | deprecated | suspended | historical
+  promise: >-
+    Summarise a text document into a short abstract of a requested length.
+  description: >-
+    Longer, human-readable detail. Keep it outcome-oriented — describe what the
+    buyer gets, not how it works internally.
+  tags: [summarization, text, nlp]
+  excludes:                      # what you deliberately do NOT promise
+    - Translation between languages
+    - Summaries of works you have no rights to
+  input:
+    schema_ref: ../schemas/example-capability.input.schema.json
+    media_types: [application/json]
+    max_bytes: 1048576
+  output:
+    schema_ref: ../schemas/example-capability.output.schema.json
+    media_types: [application/json]
+  errors:                        # machine-actionable failure semantics
+    - code: input_too_long
+      meaning: The document exceeds the maximum accepted size.
+      retriable: false
+    - code: unsupported_language
+      meaning: The input language is not supported.
+      retriable: false
+  interfaces:                    # at least one; a capability may advertise several
+    - type: native_api
+      endpoint: https://acme.example/nlp/v1/summarize
+      docs_url: https://acme.example/docs
+  pricing:
+    # Free capability?  set  { free: true, mode: free }  and delete the
+    # unit / payment_offers / refund_policy lines. Free routes never need a wallet.
+    free: false
+    mode: quote                  # free | fixed | quote  (fixed also needs `amount`)
+    unit: per successful summary
+    payment_offers: [mpp, x402]  # required when free: false
+    refund_policy: Full refund if no valid summary is produced.
+  operations:
+    expected_latency_seconds: { p50: 3, p95: 12 }
+    timeout_seconds: 60
+    idempotency: supported       # supported | required | not_supported
+  data_policy:
+    # No safe defaults — declare honestly. A missing value is read as "unknown",
+    # never as "safe". Buyers filter on these.
+    input_retention: Inputs deleted within 24 hours of completion.
+    training_use: Submitted content is not used to train models.
+    regions: [eu-west]
+    subprocessors: [example-llm-provider]
+  evidence:
+    public_examples: https://acme.example/nlp/examples
+  provenance:
+    integration_status: first_party   # first_party | provider_authorized | byok | unofficial
+    adapter_operator: acme

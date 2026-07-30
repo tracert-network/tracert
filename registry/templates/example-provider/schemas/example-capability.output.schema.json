@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "acme.summarize-text output",
+  "description": "Replace with your capability's real output contract. JSON Schema 2020-12.",
+  "type": "object",
+  "required": ["summary"],
+  "additionalProperties": false,
+  "properties": {
+    "summary": {
+      "type": "string",
+      "description": "The abstract."
+    },
+    "word_count": {
+      "type": "integer",
+      "description": "Length of the produced summary in words."
+    }
+  }
+}

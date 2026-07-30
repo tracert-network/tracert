@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "acme.summarize-text input",
+  "description": "Replace with your capability's real input contract. JSON Schema 2020-12.",
+  "type": "object",
+  "required": ["text"],
+  "additionalProperties": false,
+  "properties": {
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100000,
+      "description": "The document to summarise."
+    },
+    "max_words": {
+      "type": "integer",
+      "minimum": 10,
+      "maximum": 500,
+      "description": "Target maximum length of the summary."
+    }
+  }
+}

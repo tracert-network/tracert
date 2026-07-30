@@ -53,6 +53,13 @@ export default function Agents() {
       </p>
 
       <h2>Active capabilities, right now</h2>
+      {caps.length === 0 && (
+        <p className="notice">
+          The registry is currently empty — <span className="mono">/index.json</span> returns zero
+          capabilities. This is a fresh network; if you operate a service, you can publish the first
+          capability (see &ldquo;To publish a capability&rdquo; below).
+        </p>
+      )}
       {caps.map(({ manifest }) => {
         const c = manifest.capability;
         const native = c.interfaces.find((i) => i.type === "native_api");
@@ -86,9 +93,9 @@ export default function Agents() {
 
       <h2>To publish a capability</h2>
       <ol>
-        <li>Fetch <a href="/schemas/manifest/v0.1" className="mono">/schemas/manifest/v0.1</a>.</li>
-        <li>Author one manifest per bounded promise (YAML), with input/output JSON Schemas and a declared data policy. Required honesty: <span className="mono">data_policy.input_retention</span> and <span className="mono">training_use</span> have no safe defaults.</li>
-        <li>Submit as a pull request to the public registry: <a className="mono" href="https://github.com/tracert-network/tracert/tree/main/registry">github.com/tracert-network/tracert</a> (validation re-runs in CI; the merged PR is the durable public record).</li>
+        <li>Copy the annotated template <a className="mono" href="https://github.com/tracert-network/tracert/tree/main/registry/templates/example-provider">registry/templates/example-provider</a> to <span className="mono">registry/providers/&lt;your-id&gt;</span>; author against <a href="/schemas/manifest/v0.1" className="mono">/schemas/manifest/v0.1</a>.</li>
+        <li>One manifest per bounded promise (YAML) with input/output JSON Schemas and a declared data policy. Required honesty: <span className="mono">data_policy.input_retention</span> and <span className="mono">training_use</span> have no safe defaults.</li>
+        <li>Run <span className="mono">npm run validate</span>, then open a pull request to <a className="mono" href="https://github.com/tracert-network/tracert">github.com/tracert-network/tracert</a> — CI re-validates; the merged PR is the durable public record. Full guide: <a href="https://github.com/tracert-network/tracert/blob/main/registry/CONTRIBUTING.md">CONTRIBUTING.md</a>.</li>
       </ol>
 
       <p className="small muted">

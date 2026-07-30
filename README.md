@@ -54,7 +54,9 @@ The router's live adapter is **off by default**: invoking a capability that writ
 
 ## Contributing a capability
 
-Author one manifest per bounded promise against [`registry/schemas/manifest.schema.json`](registry/schemas/manifest.schema.json), validate with `npm run build` in `registry/`, and open a pull request. Free capabilities are first-class and need no wallet. See [`registry/README.md`](registry/README.md) and [`site/publish`](https://tracert.site/publish).
+Copy [`registry/templates/example-provider/`](registry/templates/example-provider/) to `registry/providers/<your-id>/`, fill it in, run `npm run validate` in `registry/`, and open a pull request. Free capabilities are first-class and need no wallet. Full guide: [`registry/CONTRIBUTING.md`](registry/CONTRIBUTING.md) · also [`registry/README.md`](registry/README.md) and [tracert.site/publish](https://tracert.site/publish).
+
+The registry ships **empty** — a clean slate. The first capability is one pull request away.
 
 ## Status
 

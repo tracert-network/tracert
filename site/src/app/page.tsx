@@ -95,28 +95,38 @@ curl -sL https://tracert.site/llms.txt`}</pre>
       <section className="section" aria-label="Live capabilities">
         <div className="container">
           <h2>In the registry now</h2>
-          {caps.map(({ manifest }) => {
-            const c = manifest.capability;
-            return (
-              <div className="card" key={c.id} style={{ marginTop: "1rem" }}>
-                <p className="card-kicker">
-                  {manifest.provider.name} · <span className="mono">{c.id}</span>{" "}
-                  <span className={`pill pill-${c.status === "active" ? "active" : "draft"}`}>{c.status}</span>{" "}
-                  {c.pricing.free && <span className="pill pill-free">free</span>}
-                </p>
-                <h3 style={{ marginTop: "0.2rem" }}>{c.promise}</h3>
-                <p className="small">
-                  <Link href={`/capabilities/${c.id}`}>Capability page</Link>
-                  {" · "}
-                  <a className="mono" href={`/capabilities/${c.id}/manifest.json`}>manifest.json</a>
-                </p>
-              </div>
-            );
-          })}
+          {caps.length === 0 ? (
+            <div className="card" style={{ marginTop: "1rem" }}>
+              <p className="card-kicker">Empty registry</p>
+              <h3 style={{ marginTop: "0.2rem" }}>No capabilities published yet.</h3>
+              <p className="small muted" style={{ marginBottom: 0 }}>
+                The network is brand new. Be the first — <Link href="/publish">publish a capability</Link>{" "}
+                with a single pull request; free listings need no wallet.
+              </p>
+            </div>
+          ) : (
+            caps.map(({ manifest }) => {
+              const c = manifest.capability;
+              return (
+                <div className="card" key={c.id} style={{ marginTop: "1rem" }}>
+                  <p className="card-kicker">
+                    {manifest.provider.name} · <span className="mono">{c.id}</span>{" "}
+                    <span className={`pill pill-${c.status === "active" ? "active" : "draft"}`}>{c.status}</span>{" "}
+                    {c.pricing.free && <span className="pill pill-free">free</span>}
+                  </p>
+                  <h3 style={{ marginTop: "0.2rem" }}>{c.promise}</h3>
+                  <p className="small">
+                    <Link href={`/capabilities/${c.id}`}>Capability page</Link>
+                    {" · "}
+                    <a className="mono" href={`/capabilities/${c.id}/manifest.json`}>manifest.json</a>
+                  </p>
+                </div>
+              );
+            })
+          )}
           <p className="small muted" style={{ marginTop: "1rem" }}>
-            Deliberately small: the network grows by proving the loop end-to-end, not by bulk
-            listings. Next up: pay-per-call image transformations behind a method-agnostic payment
-            adapter.
+            Deliberately small by design: the network grows by proving the discovery-to-outcome loop
+            end to end, not by bulk listings.
           </p>
         </div>
       </section>

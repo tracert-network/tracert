@@ -42,12 +42,18 @@ function assertReceiptValid(name, receipt) {
     ok ? undefined : JSON.stringify(validateReceipt.errors, null, 2));
 }
 
+// The router is tested against a self-contained fixture registry, not the live
+// one — the live registry's contents change (and may be empty) without the
+// router's behavior changing. The fixture holds a known-good capability so the
+// full search/quote/invoke/receipt flow stays exercised.
+const fixtureRegistry = join(routerRoot, "test", "fixtures", "registry");
+
 function cleanEnv(extra) {
   const env = {};
   for (const [k, v] of Object.entries(process.env)) if (v !== undefined) env[k] = v;
   delete env.TRACERT_DEV_FAKE_EXECUTE;
   delete env.TRACERT_ENABLE_LIVE_SUBMIT;
-  return { ...env, TRACERT_DATA_DIR: tmpData, ...extra };
+  return { ...env, TRACERT_DATA_DIR: tmpData, TRACERT_REGISTRY_DIR: fixtureRegistry, ...extra };
 }
 
 async function connect(extraEnv) {

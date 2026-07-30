@@ -1,0 +1,4 @@
+# Capabilities live here, one directory per provider:
+#   providers/<provider-id>/capabilities/<name>.yaml
+# The registry is intentionally empty — publish the first capability via PR.
+# See ../CONTRIBUTING.md and ../templates/.

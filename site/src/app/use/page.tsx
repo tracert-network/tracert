@@ -53,9 +53,10 @@ claude mcp add tracert -- node /path/to/tracert/router/dist/server.js`}</pre>
       <pre>{`"Submit this AI website to a directory that accepts programmatic
 submissions. Do not pay anything, and return proof of the published page."`}</pre>
       <p className="small muted">
-        Your agent should search, pick <span className="mono">ai-directory.publish-listing</span>,
-        read the contract, invoke, and hand you a receipt whose evidence (a pull request and a live
-        page) you can check yourself.
+        Your agent should search, pick the matching capability, read the contract, invoke, and hand
+        you a receipt whose evidence (e.g. a pull request and a live page) you can check yourself.
+        (Once a capability that satisfies this intent is published — the registry is a fresh slate
+        today.)
       </p>
 
       <h2>Your policies stay yours</h2>

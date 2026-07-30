@@ -27,8 +27,10 @@ let errorCount = 0;
 let warnCount = 0;
 
 if (files.length === 0) {
-  console.error("No manifests found under providers/*/capabilities/ — nothing to validate.");
-  process.exit(1);
+  // An empty registry is a valid state — a fresh network (or a fresh fork)
+  // has no capabilities yet. Nothing to validate, nothing wrong.
+  console.log("0 manifests under providers/*/capabilities/ — empty registry, OK.");
+  process.exit(0);
 }
 
 for (const file of files) {

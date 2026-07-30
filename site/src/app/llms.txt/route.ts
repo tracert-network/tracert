@@ -4,12 +4,15 @@ export const dynamic = "force-static";
 
 export function GET() {
   const caps = allCapabilities();
-  const capLines = caps
-    .map(({ manifest }) => {
-      const c = manifest.capability;
-      return `- [${c.id}](${SITE_ORIGIN}/capabilities/${c.id}): ${c.promise} (${c.status}, ${c.pricing.free ? "free" : "paid"}; manifest: ${SITE_ORIGIN}/capabilities/${c.id}/manifest.json)`;
-    })
-    .join("\n");
+  const capLines =
+    caps.length === 0
+      ? "_The registry is currently empty — a fresh network. If you operate a service, publish the first capability (see “For suppliers” below)._"
+      : caps
+          .map(({ manifest }) => {
+            const c = manifest.capability;
+            return `- [${c.id}](${SITE_ORIGIN}/capabilities/${c.id}): ${c.promise} (${c.status}, ${c.pricing.free ? "free" : "paid"}; manifest: ${SITE_ORIGIN}/capabilities/${c.id}/manifest.json)`;
+          })
+          .join("\n");
 
   const body = `# Tracert
 
@@ -31,6 +34,8 @@ ${capLines}
 ## For suppliers
 
 - [Publish a capability](${SITE_ORIGIN}/publish): one bounded promise per TRACE Manifest, submitted by pull request to the public registry at https://github.com/tracert-network/tracert; free listings are first-class
+- Start from the annotated template: https://github.com/tracert-network/tracert/tree/main/registry/templates/example-provider — copy it to registry/providers/<your-id>/, fill it in, run \`npm run validate\`, open a PR
+- Step-by-step guide (written for agents too): https://github.com/tracert-network/tracert/blob/main/registry/CONTRIBUTING.md
 
 ## For agent developers
 

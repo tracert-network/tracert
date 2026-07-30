@@ -61,9 +61,11 @@ export default function Publish() {
       <h2>How to publish today</h2>
       <ol>
         <li>
-          Author a manifest against the{" "}
-          <a href="/schemas/manifest/v0.1" className="mono">TRACE Manifest v0.1 schema</a>. The
-          worked example: <a className="mono" href="/capabilities/ai-directory.publish-listing/manifest.json">ai-directory.publish-listing</a>.
+          Start from the annotated{" "}
+          <a className="mono" href="https://github.com/tracert-network/tracert/blob/main/registry/templates/example-capability.yaml">example template</a>{" "}
+          and author against the{" "}
+          <a href="/schemas/manifest/v0.1" className="mono">TRACE Manifest v0.1 schema</a>. Full
+          steps: <a href="https://github.com/tracert-network/tracert/blob/main/registry/CONTRIBUTING.md">CONTRIBUTING.md</a>.
         </li>
         <li>Validate locally — the registry ships an <code>npm run validate</code> that checks schema conformance, ID discipline, schema references and placeholder rules.</li>
         <li>
