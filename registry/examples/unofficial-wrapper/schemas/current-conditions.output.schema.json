@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "example-weather.current-conditions output",
+  "type": "object",
+  "required": ["temperature", "conditions"],
+  "additionalProperties": false,
+  "properties": {
+    "temperature": { "type": "number" },
+    "conditions": { "type": "string", "description": "Short description, e.g. 'partly cloudy'." },
+    "humidity_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+    "observed_at": { "type": "string", "format": "date-time" }
+  }
+}

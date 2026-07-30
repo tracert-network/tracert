@@ -28,7 +28,13 @@ export interface ManifestDoc {
     interfaces: { type: string; endpoint?: string; docs_url?: string; openapi_url?: string; server_url?: string; install_url?: string; agent_card?: string; notes?: string }[];
     pricing: { free: boolean; mode: string; amount?: { value: string; currency: string }; unit?: string; payment_offers?: string[]; refund_policy?: string };
     operations: { idempotency: string; expected_latency_seconds?: { p50: number; p95?: number }; timeout_seconds?: number; rate_limits?: string; availability_endpoint?: string };
-    data_policy: { input_retention: string; training_use: string; regions?: string[]; subprocessors?: string[]; notes?: string };
+    data_policy: {
+      input_retention: { policy: "none" | "ephemeral" | "fixed_window" | "indefinite" | "undisclosed"; max_hours?: number; notes?: string };
+      training_use: "none" | "opt_out" | "opt_in" | "yes" | "undisclosed";
+      regions?: string[];
+      subprocessors?: string[];
+      notes?: string;
+    };
     evidence?: { public_examples?: string; recent_executions?: string; test_vectors?: string; repository?: string };
     provenance: { integration_status: string; adapter_operator?: string; notes?: string };
   };

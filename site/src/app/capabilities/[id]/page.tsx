@@ -2,6 +2,26 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { allCapabilities, getCapability } from "@/lib/registry";
 
+function retentionText(r: { policy: string; max_hours?: number }): string {
+  switch (r.policy) {
+    case "none": return "Not retained";
+    case "ephemeral": return "Held only for the duration of the request";
+    case "fixed_window": return `Deleted after ${r.max_hours}h`;
+    case "indefinite": return "Retained indefinitely";
+    default: return "Undisclosed";
+  }
+}
+
+function trainingText(t: string): string {
+  switch (t) {
+    case "none": return "Not used for training";
+    case "opt_out": return "Used for training unless you opt out";
+    case "opt_in": return "Used for training only if you opt in";
+    case "yes": return "May be used for training";
+    default: return "Undisclosed";
+  }
+}
+
 // Only capabilities in the registry exist as pages; every other id is a clean
 // 404, never a runtime render (which, with an empty registry, would 500).
 export const dynamicParams = false;
@@ -156,9 +176,14 @@ export default async function CapabilityPage({ params }: { params: Promise<{ id:
       <h2>Data handling (declared)</h2>
       <dl className="fact-list">
         <dt>Input retention</dt>
-        <dd>{c.data_policy.input_retention}</dd>
+        <dd>
+          {retentionText(c.data_policy.input_retention)}
+          {c.data_policy.input_retention.notes ? (
+            <span className="muted"> — {c.data_policy.input_retention.notes}</span>
+          ) : null}
+        </dd>
         <dt>Training use</dt>
-        <dd>{c.data_policy.training_use}</dd>
+        <dd>{trainingText(c.data_policy.training_use)}</dd>
         {c.data_policy.subprocessors && (
           <>
             <dt>Subprocessors</dt>

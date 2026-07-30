@@ -1,0 +1,76 @@
+# Reference example — an UNOFFICIAL, BYOK wrapper of a third-party API.
+# Reading material, not the copy-me template (that's ../../templates/example-provider).
+# Shows: provenance.integration_status "unofficial" with a distinct adapter_operator,
+# BYOK pricing (buyer supplies their own key), input_retention policy "ephemeral",
+# and honest labelling that it is not affiliated with or endorsed by the provider.
+schema: https://tracert.site/schemas/manifest/v0.1
+
+provider:
+  id: example-weather
+  name: Example Weather Service
+  url: https://example-weather.example
+
+service:
+  id: example-weather-api
+  name: Example Weather API
+  url: https://example-weather.example/api
+
+capability:
+  id: example-weather.current-conditions
+  version: 0.3.0
+  status: active
+  promise: Return current weather conditions for a set of coordinates.
+  description: >-
+    Community-maintained adapter over the public Example Weather API. The buyer
+    supplies their own Example Weather API key; Tracert normalises the request
+    and response and issues a receipt. Not affiliated with or endorsed by
+    Example Weather Service.
+  tags: [weather, conditions, byok, wrapper]
+  excludes:
+    - Forecasts beyond the current observation
+    - Historical weather data
+  input:
+    schema_ref: ../schemas/current-conditions.input.schema.json
+    media_types: [application/json]
+    max_bytes: 2048
+  output:
+    schema_ref: ../schemas/current-conditions.output.schema.json
+    media_types: [application/json]
+  errors:
+    - code: unauthorized
+      meaning: The supplied provider API key was missing or rejected.
+      retriable: false
+    - code: rate_limited
+      meaning: The provider rate-limited the supplied key.
+      retriable: true
+    - code: unavailable
+      meaning: The upstream provider API was unreachable.
+      retriable: true
+  interfaces:
+    - type: tracert_gateway
+      endpoint: https://gateway.tracert.site/v1/invoke/example-weather.current-conditions
+  pricing:
+    free: false
+    mode: quote
+    unit: per successful call (buyer pays the provider directly via their key)
+    payment_offers: [byok]
+    refund_policy: No Tracert charge; provider charges per their own terms.
+  operations:
+    expected_latency_seconds: { p50: 2, p95: 8 }
+    timeout_seconds: 30
+    idempotency: supported
+  data_policy:
+    input_retention:
+      policy: ephemeral
+      notes: Coordinates and the supplied key are held only for the duration of the request.
+    training_use: none
+    regions: [global]
+    subprocessors:
+      - Example Weather Service API (the upstream provider)
+  provenance:
+    integration_status: unofficial
+    adapter_operator: community-labs
+    notes: >-
+      Unofficial wrapper. Example Weather Service is the underlying provider;
+      community-labs operates this adapter. Technical compatibility is not a
+      commercial endorsement.

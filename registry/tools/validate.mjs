@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Registry validator — the automated check every contribution passes before publication.
 //
-// Checks, per manifest:
+// Live manifests (providers/*/capabilities/*.yaml), per file:
 //   1. Schema conformance against schemas/manifest.schema.json (ajv, draft 2020-12).
 //   2. Capability ID discipline: first segment must equal provider.id or service.id.
 //   3. schema_ref / test_vectors resolution: relative refs must exist; referenced
@@ -10,7 +10,13 @@
 //      while capability.status is "draft".
 //   5. Filename convention (warning): <capability-id-after-first-dot>.yaml.
 //
-// Exit 0 = all manifests valid (warnings allowed). Exit 1 = errors, listed per file.
+// Reference manifests (templates/ and examples/) are checked too — schema, id
+// discipline and schema_ref resolution — so they can't silently rot. They are
+// intentionally illustrative, so the placeholder rule (4) and the filename
+// warning (5) are skipped for them.
+//
+// Exit 0 = everything valid (warnings allowed) or an empty registry.
+// Exit 1 = errors, listed per file.
 import { existsSync } from "node:fs";
 import { relative } from "node:path";
 import {
@@ -22,18 +28,36 @@ const validateManifest = ajv.compile(loadJson(`${REGISTRY_ROOT}/schemas/manifest
 // Receipt schema isn't instantiated in the registry, but it must always compile.
 ajv.compile(loadJson(`${REGISTRY_ROOT}/schemas/receipt.schema.json`));
 
-const files = findManifestFiles();
+const providerFiles = findManifestFiles();
+const referenceFiles = [
+  ...findManifestFiles(REGISTRY_ROOT, "templates"),
+  ...findManifestFiles(REGISTRY_ROOT, "examples"),
+];
+
 let errorCount = 0;
 let warnCount = 0;
 
-if (files.length === 0) {
+if (providerFiles.length === 0) {
   // An empty registry is a valid state — a fresh network (or a fresh fork)
   // has no capabilities yet. Nothing to validate, nothing wrong.
   console.log("0 manifests under providers/*/capabilities/ — empty registry, OK.");
-  process.exit(0);
+} else {
+  for (const file of providerFiles) checkFile(file, { reference: false });
 }
 
-for (const file of files) {
+if (referenceFiles.length) {
+  console.log("\nReference manifests (templates/, examples/):");
+  for (const file of referenceFiles) checkFile(file, { reference: true });
+}
+
+const total = providerFiles.length + referenceFiles.length;
+console.log(
+  `\n${total} manifest(s) checked (${providerFiles.length} live, ${referenceFiles.length} reference): ` +
+    `${errorCount} with errors, ${warnCount} warning(s).`,
+);
+process.exit(errorCount ? 1 : 0);
+
+function checkFile(file, { reference }) {
   const rel = relative(REGISTRY_ROOT, file);
   const errors = [];
   const warnings = [];
@@ -44,7 +68,7 @@ for (const file of files) {
   } catch (e) {
     report(rel, [`YAML parse failure: ${e.message}`], []);
     errorCount++;
-    continue;
+    return;
   }
 
   if (!validateManifest(manifest)) {
@@ -61,9 +85,11 @@ for (const file of files) {
         `identity: capability id prefix "${prefix}" matches neither provider.id "${manifest.provider.id}" nor service.id "${manifest.service.id}"`,
       );
     }
-    const expectedName = cap.id.slice(prefix.length + 1);
-    if (!new RegExp(`(^|/)${expectedName}\\.ya?ml$`).test(file)) {
-      warnings.push(`naming: expected filename ${expectedName}.yaml for capability ${cap.id}`);
+    if (!reference) {
+      const expectedName = cap.id.slice(prefix.length + 1);
+      if (!new RegExp(`(^|/)${expectedName}\\.ya?ml$`).test(file)) {
+        warnings.push(`naming: expected filename ${expectedName}.yaml for capability ${cap.id}`);
+      }
     }
   }
 
@@ -94,7 +120,9 @@ for (const file of files) {
     }
   }
 
-  if (cap?.status && cap.status !== "draft") {
+  // Placeholder discipline applies to live manifests only — reference manifests
+  // under templates/ and examples/ are deliberately illustrative.
+  if (!reference && cap?.status && cap.status !== "draft") {
     walkStrings(manifest, (path, value) => {
       // $.schema pins the registry's own version URI — it flips registry-wide
       // when the production domain lands, not per manifest.
@@ -112,11 +140,6 @@ for (const file of files) {
   errorCount += errors.length ? 1 : 0;
   warnCount += warnings.length;
 }
-
-console.log(
-  `\n${files.length} manifest(s): ${files.length - errorCount} valid, ${errorCount} with errors, ${warnCount} warning(s).`,
-);
-process.exit(errorCount ? 1 : 0);
 
 function report(rel, errors, warnings) {
   if (!errors.length && !warnings.length) {

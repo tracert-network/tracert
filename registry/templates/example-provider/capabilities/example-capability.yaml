@@ -73,12 +73,15 @@ capability:
     timeout_seconds: 60
     idempotency: supported       # supported | required | not_supported
   data_policy:
-    # No safe defaults — declare honestly. A missing value is read as "unknown",
-    # never as "safe". Buyers filter on these.
-    input_retention: Inputs deleted within 24 hours of completion.
-    training_use: Submitted content is not used to train models.
+    # No safe defaults — declare honestly, and STRUCTURED so buyers can filter
+    # (e.g. "retains <= 24h and never trains"). Nuance goes in notes.
+    input_retention:
+      policy: fixed_window       # none | ephemeral | fixed_window | indefinite | undisclosed
+      max_hours: 24              # required only when policy is fixed_window
+    training_use: none           # none | opt_out | opt_in | yes | undisclosed
     regions: [eu-west]
     subprocessors: [example-llm-provider]
+    notes: Inputs encrypted at rest; deleted on completion or after 24h, whichever is sooner.
   evidence:
     public_examples: https://acme.example/nlp/examples
   provenance:

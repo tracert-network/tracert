@@ -20,13 +20,15 @@ export function loadJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
 }
 
-// Every providers/<provider>/capabilities/*.yaml|yml file is a manifest.
-export function findManifestFiles(root = REGISTRY_ROOT) {
-  const providersDir = join(root, "providers");
-  if (!existsSync(providersDir)) return [];
+// Every <container>/<provider>/capabilities/*.yaml|yml file is a manifest.
+// container defaults to "providers" (the live registry); pass "templates" or
+// "examples" to find the reference manifests.
+export function findManifestFiles(root = REGISTRY_ROOT, container = "providers") {
+  const base = join(root, container);
+  if (!existsSync(base)) return [];
   const files = [];
-  for (const provider of readdirSync(providersDir)) {
-    const capsDir = join(providersDir, provider, "capabilities");
+  for (const provider of readdirSync(base)) {
+    const capsDir = join(base, provider, "capabilities");
     if (!existsSync(capsDir) || !statSync(capsDir).isDirectory()) continue;
     for (const f of readdirSync(capsDir)) {
       if (/\.ya?ml$/.test(f)) files.push(join(capsDir, f));

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "example-weather.current-conditions input",
+  "type": "object",
+  "required": ["lat", "lon", "provider_api_key"],
+  "additionalProperties": false,
+  "properties": {
+    "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+    "lon": { "type": "number", "minimum": -180, "maximum": 180 },
+    "provider_api_key": {
+      "type": "string",
+      "minLength": 8,
+      "description": "The buyer's own Example Weather API key (BYOK). Held only for the request."
+    },
+    "units": { "enum": ["metric", "imperial"], "description": "Output unit system." }
+  }
+}

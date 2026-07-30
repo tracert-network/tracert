@@ -62,7 +62,7 @@ export default function Publish() {
       <ol>
         <li>
           Start from the annotated{" "}
-          <a className="mono" href="https://github.com/tracert-network/tracert/blob/main/registry/templates/example-capability.yaml">example template</a>{" "}
+          <a className="mono" href="https://github.com/tracert-network/tracert/tree/main/registry/templates/example-provider">example template</a>{" "}
           and author against the{" "}
           <a href="/schemas/manifest/v0.1" className="mono">TRACE Manifest v0.1 schema</a>. Full
           steps: <a href="https://github.com/tracert-network/tracert/blob/main/registry/CONTRIBUTING.md">CONTRIBUTING.md</a>.

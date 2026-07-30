@@ -1,0 +1,64 @@
+# Reference example — a FREE, first-party capability.
+# Reading material, not the copy-me template (that's ../../templates/example-provider).
+# Shows: pricing.free, no payment fields, input_retention policy "none".
+schema: https://tracert.site/schemas/manifest/v0.1
+
+provider:
+  id: opendata
+  name: OpenData Labs
+  url: https://opendata.example
+
+service:
+  id: opendata-geo
+  name: OpenData Geocoding
+  url: https://opendata.example/geo
+
+capability:
+  id: opendata.geocode-address
+  version: 1.0.0
+  status: active
+  promise: Convert a street address into latitude/longitude coordinates.
+  description: >-
+    Forward geocoding over an open address dataset. Returns the best-match
+    coordinate and a normalised display name.
+  tags: [geocoding, maps, address, free]
+  excludes:
+    - Reverse geocoding (coordinates → address)
+    - Routing or distance calculation
+  input:
+    schema_ref: ../schemas/geocode-address.input.schema.json
+    media_types: [application/json]
+    max_bytes: 4096
+  output:
+    schema_ref: ../schemas/geocode-address.output.schema.json
+    media_types: [application/json]
+  errors:
+    - code: not_found
+      meaning: No coordinate could be matched to the address.
+      retriable: false
+    - code: rate_limited
+      meaning: The free per-caller rate limit was exceeded.
+      retriable: true
+  interfaces:
+    - type: native_api
+      endpoint: https://opendata.example/geo/v1/geocode
+      docs_url: https://opendata.example/geo/docs
+  pricing:
+    free: true
+    mode: free
+  operations:
+    expected_latency_seconds: { p50: 1, p95: 4 }
+    timeout_seconds: 20
+    idempotency: supported
+    rate_limits: 60 requests/minute per caller
+  data_policy:
+    input_retention:
+      policy: none
+    training_use: none
+    regions: [global]
+    notes: Queried addresses are processed in memory and not stored.
+  evidence:
+    public_examples: https://opendata.example/geo/examples
+  provenance:
+    integration_status: first_party
+    adapter_operator: opendata

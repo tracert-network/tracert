@@ -108,7 +108,11 @@
             "required": ["code", "meaning"],
             "additionalProperties": false,
             "properties": {
-              "code": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+              "code": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Machine-actionable error code. Reuse a recommended common code where it fits (invalid_input, unauthorized, payment_required, rate_limited, unavailable, timeout, not_found, unsupported, internal_error) so agents can write generic handlers; capability-specific codes are allowed for anything not covered."
+              },
               "meaning": { "type": "string", "maxLength": 300 },
               "retriable": { "type": "boolean" }
             }
@@ -241,13 +245,39 @@
         },
         "data_policy": {
           "type": "object",
-          "description": "Declarations with provenance. Absence is never interpreted as a safe default — retention and training use are mandatory.",
+          "description": "Declarations with provenance. Absence is never interpreted as a safe default — retention and training use are mandatory and structured so buyers can filter on them.",
           "required": ["input_retention", "training_use"],
           "additionalProperties": false,
           "properties": {
-            "input_retention": { "type": "string", "minLength": 3, "maxLength": 500 },
-            "training_use": { "type": "string", "minLength": 3, "maxLength": 500 },
-            "regions": { "type": "array", "items": { "type": "string" } },
+            "input_retention": {
+              "type": "object",
+              "description": "How long submitted inputs are kept. Structured so an agent can filter (e.g. retains ≤ 24h).",
+              "required": ["policy"],
+              "additionalProperties": false,
+              "properties": {
+                "policy": {
+                  "enum": ["none", "ephemeral", "fixed_window", "indefinite", "undisclosed"],
+                  "description": "none = not retained at all; ephemeral = only for the duration of the request; fixed_window = deleted after max_hours; indefinite = kept until deletion is requested; undisclosed = provider has not declared (honest unknown, never a safe default)."
+                },
+                "max_hours": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Upper bound on retention in hours. Required when policy is fixed_window."
+                },
+                "notes": { "type": "string", "maxLength": 500 }
+              },
+              "allOf": [
+                {
+                  "if": { "required": ["policy"], "properties": { "policy": { "const": "fixed_window" } } },
+                  "then": { "required": ["max_hours"] }
+                }
+              ]
+            },
+            "training_use": {
+              "enum": ["none", "opt_out", "opt_in", "yes", "undisclosed"],
+              "description": "Whether submitted content may be used to train models. none = never used; opt_out = used unless the buyer opts out; opt_in = only if the buyer opts in; yes = may be used; undisclosed = provider has not declared. Free-text nuance goes in data_policy.notes."
+            },
+            "regions": { "type": "array", "items": { "type": "string" }, "description": "Processing regions, e.g. 'eu-west'." },
             "subprocessors": { "type": "array", "items": { "type": "string" } },
             "notes": { "type": "string", "maxLength": 1000 }
           }

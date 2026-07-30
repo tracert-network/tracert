@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "opendata.geocode-address output",
+  "type": "object",
+  "required": ["lat", "lon"],
+  "additionalProperties": false,
+  "properties": {
+    "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+    "lon": { "type": "number", "minimum": -180, "maximum": 180 },
+    "display_name": { "type": "string", "description": "Normalised human-readable address." }
+  }
+}

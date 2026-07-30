@@ -115,15 +115,14 @@ capability:
     idempotency: supported
     availability_endpoint: https://www.promptfrenzy.com/.well-known/ai-tools.json
   data_policy:
-    input_retention: >-
-      Submitted listing data is intended for publication: it becomes a public
-      YAML entry in the GitHub repository (permanent, version-controlled) and
-      a public listing page. Removed listings move to a public removed state
-      rather than disappearing.
-    training_use: >-
-      Submitted fields are sent to a text-generation model (Gemini 2.5 Flash
-      via AIMLAPI) once at submit time to auto-generate the listing's
-      sample_use_case paragraph; they are not otherwise used for training.
+    input_retention:
+      policy: indefinite
+      notes: >-
+        Listing data is intended for publication: it becomes a permanent,
+        version-controlled public YAML entry in the GitHub repository plus a
+        public listing page. Removed listings move to a public removed state
+        rather than disappearing.
+    training_use: none
     regions:
       - public-internet
     subprocessors:

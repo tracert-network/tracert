@@ -9,6 +9,9 @@ export interface ManifestDoc {
   capability: Capability;
 }
 
+export type RetentionPolicy = "none" | "ephemeral" | "fixed_window" | "indefinite" | "undisclosed";
+export type TrainingUse = "none" | "opt_out" | "opt_in" | "yes" | "undisclosed";
+
 export interface Capability {
   id: string;
   version: string;
@@ -36,7 +39,11 @@ export interface Capability {
     timeout_seconds?: number;
     [k: string]: unknown;
   };
-  data_policy: { input_retention: string; training_use: string; [k: string]: unknown };
+  data_policy: {
+    input_retention: { policy: RetentionPolicy; max_hours?: number; notes?: string };
+    training_use: TrainingUse;
+    [k: string]: unknown;
+  };
   evidence?: Record<string, unknown>;
   provenance: { integration_status: string; adapter_operator?: string; notes?: string };
 }
