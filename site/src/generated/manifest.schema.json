@@ -1,0 +1,368 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracert.site/schemas/manifest/v0.1",
+  "title": "TRACE Manifest v0.1",
+  "description": "The supplier's contract with the discovery layer: one bounded capability with its identity, promise, contract, interfaces, economics, operational facts, data handling, evidence and provenance. Specific enough for an agent to decide relevance and executability; small enough for a supplier to author. References external formats (JSON Schema, OpenAPI, A2A Agent Cards) rather than duplicating them.",
+  "type": "object",
+  "required": ["schema", "provider", "service", "capability"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "https://tracert.site/schemas/manifest/v0.1",
+      "description": "Manifest schema version identifier."
+    },
+    "provider": {
+      "type": "object",
+      "description": "The organization or operator responsible for the service.",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "url": { "$ref": "#/$defs/httpsUrl" },
+        "operator": {
+          "type": "string",
+          "description": "Who operates the service day to day, when different from the provider name."
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "description": "A product or API operated by the provider. Several capabilities can share one service.",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "name": { "type": "string", "maxLength": 120 },
+        "url": { "$ref": "#/$defs/httpsUrl" }
+      }
+    },
+    "capability": {
+      "type": "object",
+      "description": "One bounded promise with its own input, output and policy.",
+      "required": [
+        "id",
+        "version",
+        "status",
+        "promise",
+        "input",
+        "output",
+        "interfaces",
+        "pricing",
+        "operations",
+        "data_policy",
+        "provenance"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/capabilityId",
+          "description": "Stable identity. Survives interface or provider migrations. First segment must match the provider or service id (validator-enforced)."
+        },
+        "version": {
+          "$ref": "#/$defs/semver",
+          "description": "Changes when the externally meaningful contract changes."
+        },
+        "status": {
+          "enum": ["draft", "active", "degraded", "deprecated", "suspended", "historical"],
+          "description": "draft = being authored, not yet invocable (registry-side addition to the brief's lifecycle). active..historical per Pillar 1."
+        },
+        "promise": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 300,
+          "description": "Outcome-oriented, one or two sentences. The unit of relevance matching."
+        },
+        "description": { "type": "string", "maxLength": 2000 },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "uniqueItems": true,
+          "maxItems": 12
+        },
+        "excludes": {
+          "type": "array",
+          "description": "Explicit exclusions — what this capability deliberately does not promise.",
+          "items": { "type": "string", "maxLength": 200 }
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": { "type": "string", "maxLength": 120 },
+              "description": { "type": "string", "maxLength": 500 },
+              "input_url": { "$ref": "#/$defs/httpsUrl" },
+              "output_url": { "$ref": "#/$defs/httpsUrl" }
+            }
+          }
+        },
+        "input": { "$ref": "#/$defs/ioContract" },
+        "output": { "$ref": "#/$defs/ioContract" },
+        "errors": {
+          "type": "array",
+          "description": "Machine-actionable error semantics for this capability.",
+          "items": {
+            "type": "object",
+            "required": ["code", "meaning"],
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Machine-actionable error code. Reuse a recommended common code where it fits (invalid_input, unauthorized, payment_required, rate_limited, unavailable, timeout, not_found, unsupported, internal_error) so agents can write generic handlers; capability-specific codes are allowed for anything not covered."
+              },
+              "meaning": { "type": "string", "maxLength": 300 },
+              "retriable": { "type": "boolean" }
+            }
+          }
+        },
+        "interfaces": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Supported ways to discover or invoke the capability. Additive: a routed capability can later add a native route.",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "endpoint"],
+                "additionalProperties": false,
+                "properties": {
+                  "type": { "const": "tracert_gateway" },
+                  "endpoint": { "$ref": "#/$defs/httpsUrl" },
+                  "notes": { "type": "string" }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["type"],
+                "additionalProperties": false,
+                "anyOf": [
+                  { "required": ["endpoint"] },
+                  { "required": ["openapi_url"] },
+                  { "required": ["docs_url"] }
+                ],
+                "properties": {
+                  "type": { "const": "native_api" },
+                  "endpoint": { "$ref": "#/$defs/httpsUrl" },
+                  "openapi_url": { "$ref": "#/$defs/httpsUrl" },
+                  "docs_url": { "$ref": "#/$defs/httpsUrl" },
+                  "notes": { "type": "string" }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["type"],
+                "additionalProperties": false,
+                "anyOf": [
+                  { "required": ["server_url"] },
+                  { "required": ["install_url"] }
+                ],
+                "properties": {
+                  "type": { "const": "mcp" },
+                  "server_url": { "$ref": "#/$defs/httpsUrl" },
+                  "install_url": { "$ref": "#/$defs/httpsUrl" },
+                  "notes": { "type": "string" }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["type", "agent_card"],
+                "additionalProperties": false,
+                "properties": {
+                  "type": { "const": "a2a" },
+                  "agent_card": { "$ref": "#/$defs/httpsUrl" },
+                  "notes": { "type": "string" }
+                }
+              }
+            ]
+          }
+        },
+        "pricing": {
+          "type": "object",
+          "required": ["free", "mode"],
+          "additionalProperties": false,
+          "properties": {
+            "free": { "type": "boolean" },
+            "mode": { "enum": ["free", "fixed", "quote"] },
+            "amount": { "$ref": "#/$defs/money" },
+            "unit": {
+              "type": "string",
+              "description": "What one charge buys, e.g. 'per successful invocation'."
+            },
+            "quote_endpoint": { "$ref": "#/$defs/httpsUrl" },
+            "payment_offers": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": { "enum": ["mpp", "x402", "prepaid_balance", "byok", "subscription", "invoice"] }
+            },
+            "networks": {
+              "type": "array",
+              "description": "Network-agnostic identifiers for wallet rails, e.g. 'base', 'base-sepolia'. Never a registry-wide dependency.",
+              "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" }
+            },
+            "refund_policy": { "type": "string", "maxLength": 500 }
+          },
+          "allOf": [
+            {
+              "if": { "properties": { "free": { "const": true } } },
+              "then": { "properties": { "mode": { "const": "free" } } }
+            },
+            {
+              "if": { "properties": { "mode": { "const": "free" } } },
+              "then": { "properties": { "free": { "const": true } } }
+            },
+            {
+              "if": { "properties": { "mode": { "const": "fixed" } } },
+              "then": { "required": ["amount"] }
+            },
+            {
+              "if": { "properties": { "free": { "const": false } } },
+              "then": { "required": ["payment_offers"], "properties": { "payment_offers": { "type": "array", "minItems": 1 } } }
+            }
+          ]
+        },
+        "operations": {
+          "type": "object",
+          "required": ["idempotency"],
+          "additionalProperties": false,
+          "properties": {
+            "expected_latency_seconds": {
+              "type": "object",
+              "required": ["p50"],
+              "additionalProperties": false,
+              "properties": {
+                "p50": { "type": "number", "exclusiveMinimum": 0 },
+                "p95": { "type": "number", "exclusiveMinimum": 0 }
+              }
+            },
+            "timeout_seconds": { "type": "integer", "minimum": 1 },
+            "idempotency": { "enum": ["supported", "required", "not_supported"] },
+            "rate_limits": { "type": "string", "maxLength": 200 },
+            "availability_endpoint": { "$ref": "#/$defs/httpsUrl" }
+          }
+        },
+        "data_policy": {
+          "type": "object",
+          "description": "Declarations with provenance. Absence is never interpreted as a safe default — retention and training use are mandatory and structured so buyers can filter on them.",
+          "required": ["input_retention", "training_use"],
+          "additionalProperties": false,
+          "properties": {
+            "input_retention": {
+              "type": "object",
+              "description": "How long submitted inputs are kept. Structured so an agent can filter (e.g. retains ≤ 24h).",
+              "required": ["policy"],
+              "additionalProperties": false,
+              "properties": {
+                "policy": {
+                  "enum": ["none", "ephemeral", "fixed_window", "indefinite", "undisclosed"],
+                  "description": "none = not retained at all; ephemeral = only for the duration of the request; fixed_window = deleted after max_hours; indefinite = kept until deletion is requested; undisclosed = provider has not declared (honest unknown, never a safe default)."
+                },
+                "max_hours": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Upper bound on retention in hours. Required when policy is fixed_window."
+                },
+                "notes": { "type": "string", "maxLength": 500 }
+              },
+              "allOf": [
+                {
+                  "if": { "required": ["policy"], "properties": { "policy": { "const": "fixed_window" } } },
+                  "then": { "required": ["max_hours"] }
+                }
+              ]
+            },
+            "training_use": {
+              "enum": ["none", "opt_out", "opt_in", "yes", "undisclosed"],
+              "description": "Whether submitted content may be used to train models. none = never used; opt_out = used unless the buyer opts out; opt_in = only if the buyer opts in; yes = may be used; undisclosed = provider has not declared. Free-text nuance goes in data_policy.notes."
+            },
+            "regions": { "type": "array", "items": { "type": "string" }, "description": "Processing regions, e.g. 'eu-west'." },
+            "subprocessors": { "type": "array", "items": { "type": "string" } },
+            "notes": { "type": "string", "maxLength": 1000 }
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "description": "Records and sampling methods, not a platform score.",
+          "additionalProperties": false,
+          "properties": {
+            "public_examples": { "$ref": "#/$defs/httpsUrl" },
+            "recent_executions": { "$ref": "#/$defs/httpsUrl" },
+            "test_vectors": { "type": "string", "description": "URL or registry-relative path to reproducible input/output pairs." },
+            "repository": { "$ref": "#/$defs/httpsUrl" }
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "description": "Labelling rule: always distinguish the underlying provider, the adapter operator, and whether the integration is official.",
+          "required": ["integration_status"],
+          "additionalProperties": false,
+          "properties": {
+            "integration_status": { "enum": ["first_party", "provider_authorized", "byok", "unofficial"] },
+            "adapter_operator": { "$ref": "#/$defs/slug" },
+            "notes": { "type": "string", "maxLength": 500 }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,62}$"
+    },
+    "capabilityId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-[0-9A-Za-z.-]+)?$"
+    },
+    "httpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "mediaType": {
+      "type": "string",
+      "pattern": "^[a-z]+/[a-z0-9.+-]+$"
+    },
+    "money": {
+      "type": "object",
+      "required": ["value", "currency"],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "string",
+          "pattern": "^\\d+(\\.\\d+)?$",
+          "description": "Decimal string — never floats for money."
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z0-9]{3,10}$",
+          "description": "ISO 4217 code or token symbol, e.g. USD, USDC."
+        }
+      }
+    },
+    "ioContract": {
+      "type": "object",
+      "required": ["schema_ref"],
+      "additionalProperties": false,
+      "properties": {
+        "schema_ref": {
+          "type": "string",
+          "description": "JSON Schema for this side of the contract — registry-relative path or HTTPS URL."
+        },
+        "media_types": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/mediaType" }
+        },
+        "max_bytes": { "type": "integer", "minimum": 1 },
+        "notes": { "type": "string", "maxLength": 500 }
+      }
+    }
+  }
+}

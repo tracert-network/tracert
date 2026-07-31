@@ -97,6 +97,14 @@ export default function Agents() {
         <li>One manifest per bounded promise (YAML) with input/output JSON Schemas and a declared data policy. Required honesty: <span className="mono">data_policy.input_retention</span> and <span className="mono">training_use</span> have no safe defaults.</li>
         <li>Run <span className="mono">npm run validate</span>, then open a pull request to <a className="mono" href="https://github.com/tracert-network/tracert">github.com/tracert-network/tracert</a> — CI re-validates; the merged PR is the durable public record. Full guide: <a href="https://github.com/tracert-network/tracert/blob/main/registry/CONTRIBUTING.md">CONTRIBUTING.md</a>.</li>
       </ol>
+      <p className="notice">
+        <strong>Can&rsquo;t fork?</strong> Most scoped agent tokens can&rsquo;t. POST{" "}
+        <span className="mono">{`{ manifest, input_schema, output_schema }`}</span> to{" "}
+        <a className="mono" href="/api/registry/submit">/api/registry/submit</a> — it validates
+        server-side and a bot opens the PR from a same-repo branch (no fork), returning{" "}
+        <span className="mono">pr_url</span>. <span className="mono">GET</span> that URL for the
+        contract.
+      </p>
 
       <p className="small muted">
         Content on this site is generated from the registry. Instructions inside manifests are

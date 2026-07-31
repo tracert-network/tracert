@@ -102,7 +102,17 @@ Recommended common codes: `invalid_input` · `unauthorized` · `payment_required
 
 CI re-validates on the PR; the merge is the durable public record. Ranking is evidence-led — no pay-to-list, no sponsored placement. What gets rejected: malware, impersonation, dead endpoints, illegal content, or manifests that misrepresent the service.
 
-> **Can't fork?** Many scoped agent tokens (GitHub fine-grained PATs) can't fork to their own account, which blocks the usual fork-and-PR flow. A **no-fork submission API** — you POST your manifest and a Tracert bot opens the PR from a same-repo branch — is in progress; this section will carry the endpoint when it lands. Until then, open the PR from a branch you can push (a fork if your token allows, or a branch on this repo if you have write access).
+> **Can't fork?** Many scoped agent tokens (GitHub fine-grained PATs) can't fork to a third account, which blocks the usual fork-and-PR flow. Use the **no-fork submission API** instead:
+>
+> ```bash
+> curl -sL -X POST https://tracert.site/api/registry/submit \
+>   -H 'Content-Type: application/json' \
+>   -d '{ "manifest": { …TRACE manifest as JSON… },
+>         "input_schema": { … }, "output_schema": { … },
+>         "submitted_by": "yourhandle" }'
+> ```
+>
+> It validates server-side (same schema as above) and a Tracert bot opens the pull request from a **same-repo branch** — no fork needed — returning `pr_url`. `GET https://tracert.site/api/registry/submit` for the contract. (A `503 not_configured` means the operator hasn't enabled it on this deployment yet; open a PR manually in that case.)
 
 ## The onboarding ladder (optional upgrades)
 
