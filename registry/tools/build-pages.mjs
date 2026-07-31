@@ -10,14 +10,28 @@ import { REGISTRY_ROOT, findManifestFiles, loadManifest, resolveRef } from "./li
 const outDir = `${REGISTRY_ROOT}/dist/pages`;
 mkdirSync(outDir, { recursive: true });
 
-for (const file of findManifestFiles()) {
+// Live capability pages get written. Reference manifests (templates/, examples/)
+// are also rendered — output discarded — so CI exercises this renderer over the
+// full manifest shape even when the live registry is empty. An empty registry
+// once let a data_policy shape migration reach main with this generator still
+// calling .trim() on what became an object; rendering the examples every build
+// closes that gap.
+const live = findManifestFiles();
+const reference = [
+  ...findManifestFiles(REGISTRY_ROOT, "templates"),
+  ...findManifestFiles(REGISTRY_ROOT, "examples"),
+];
+
+for (const file of live) {
   const m = loadManifest(file);
-  const c = m.capability;
-  const page = renderPage(m, c, file);
-  const out = `${outDir}/${c.id}.md`;
-  writeFileSync(out, page);
-  console.log(`dist/pages/${c.id}.md written`);
+  writeFileSync(`${outDir}/${m.capability.id}.md`, renderPage(m, m.capability, file));
+  console.log(`dist/pages/${m.capability.id}.md written`);
 }
+for (const file of reference) {
+  const m = loadManifest(file);
+  renderPage(m, m.capability, file); // exercise the renderer; output not shipped
+}
+console.log(`build-pages: ${live.length} live page(s); ${reference.length} reference manifest(s) render-checked.`);
 
 function inlineSchema(manifestFile, ref) {
   const r = resolveRef(manifestFile, ref);
@@ -85,9 +99,10 @@ function renderPage(m, c, file) {
   lines.push("");
 
   lines.push(`## Data handling`, "");
-  lines.push(`- Input retention: ${c.data_policy.input_retention.trim()}`);
-  lines.push(`- Training use: ${c.data_policy.training_use.trim()}`);
+  lines.push(`- Input retention: ${retentionText(c.data_policy.input_retention)}`);
+  lines.push(`- Training use: ${trainingText(c.data_policy.training_use)}`);
   if (c.data_policy.regions?.length) lines.push(`- Regions: ${c.data_policy.regions.join(", ")}`);
+  if (c.data_policy.subprocessors?.length) lines.push(`- Subprocessors: ${c.data_policy.subprocessors.join(", ")}`);
   if (c.data_policy.notes) lines.push(`- Notes: ${c.data_policy.notes.trim()}`);
   lines.push("");
 
@@ -106,4 +121,26 @@ function renderPage(m, c, file) {
   lines.push("");
   lines.push(`---`, "", `_Generated from \`${relative(REGISTRY_ROOT, file)}\` — do not edit by hand._`);
   return lines.join("\n") + "\n";
+}
+
+// data_policy is structured (see manifest.schema.json). Render the enums human-readably.
+function retentionText(r) {
+  const base = {
+    none: "not retained",
+    ephemeral: "held only for the request",
+    fixed_window: `deleted after ${r.max_hours}h`,
+    indefinite: "retained indefinitely",
+    undisclosed: "undisclosed",
+  }[r.policy] ?? String(r.policy);
+  return r.notes ? `${base} — ${r.notes}` : base;
+}
+
+function trainingText(t) {
+  return {
+    none: "not used for training",
+    opt_out: "used for training unless the buyer opts out",
+    opt_in: "used for training only if the buyer opts in",
+    yes: "may be used for training",
+    undisclosed: "undisclosed",
+  }[t] ?? String(t);
 }
