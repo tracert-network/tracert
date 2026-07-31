@@ -1,0 +1,102 @@
+schema: https://tracert.site/schemas/manifest/v0.1
+provider:
+  id: promptfrenzy
+  name: PromptFrenzy
+  url: https://www.promptfrenzy.com
+  operator: promptfrenzy
+service:
+  id: promptfrenzy-ai-directory
+  name: PromptFrenzy AI Directory
+  url: https://www.promptfrenzy.com/directory
+capability:
+  id: promptfrenzy.list-ai-tool
+  version: 1.0.0
+  status: active
+  promise: "List an AI tool in the public PromptFrenzy AI Directory: verify a
+    required dofollow backlink badge on the tool's own domain and, if it passes,
+    open and auto-merge a permanent public directory entry."
+  description: Submit a single AI tool for inclusion in the PromptFrenzy AI
+    Directory, a badge-required public directory of AI tools built to be
+    submitted to by developers and coding agents. The service verifies that the
+    PromptFrenzy badge anchor is present and dofollow on the page you nominate,
+    classifies the host (a domain you control = full listing; platform
+    subdomains like *.vercel.app = early-stage; raw IPs, temporary tunnels and
+    link shorteners are rejected), and if it passes uses the directory bot to
+    open and auto-merge a public YAML entry in the Prompt-Frenzy/ai-directory
+    GitHub repository. Verification typically completes in under 60 seconds. No
+    human review queue, no fee. Listings are re-verified weekly and dropped if
+    the badge disappears.
+  tags:
+    - directory
+    - listing
+    - ai-tools
+    - backlink
+    - discovery
+  excludes:
+    - Tools on rejected hosts (raw IPs, temporary tunnels, link shorteners)
+    - Any tool without a verifiable dofollow badge on a domain you control
+    - Any guarantee of search ranking or traffic from the backlink
+    - Editing or removing a listing you did not submit
+  input:
+    schema_ref: ../schemas/list-ai-tool.input.schema.json
+    media_types:
+      - application/json
+    max_bytes: 16384
+  output:
+    schema_ref: ../schemas/list-ai-tool.output.schema.json
+    media_types:
+      - application/json
+  errors:
+    - code: validation_failed
+      meaning: A required field is missing or malformed; the response body lists the
+        offending fields.
+      retriable: false
+    - code: badge_verification_failed
+      meaning: The badge anchor was not found on badge_url, or it carries
+        rel="nofollow"/"sponsored", or badge_url is not on the same domain as
+        url. Add a static dofollow badge on your own domain and resubmit.
+      retriable: true
+    - code: host_ineligible
+      meaning: The url host is a raw IP, temporary tunnel, or link shortener and
+        cannot be listed.
+      retriable: false
+    - code: slug_taken
+      meaning: A tool with the derived slug already exists; supply a different slug.
+      retriable: false
+    - code: pr_open_failed
+      meaning: Badge verified but the directory bot failed to open the PR; retry.
+      retriable: true
+  interfaces:
+    - type: native_api
+      endpoint: https://www.promptfrenzy.com/api/directory/submit
+      docs_url: https://github.com/Prompt-Frenzy/ai-directory
+  pricing:
+    free: true
+    mode: free
+  operations:
+    expected_latency_seconds:
+      p50: 20
+      p95: 60
+    timeout_seconds: 90
+    idempotency: supported
+  data_policy:
+    input_retention:
+      policy: indefinite
+      notes: Submitted listing fields (name, url, description, category, pricing,
+        badge_url and any optional context) are published permanently as a
+        public record in the Prompt-Frenzy/ai-directory GitHub repository; that
+        publication is the purpose of the service, and entries are removable on
+        request. The nominated badge page is fetched only to verify the badge
+        and is not stored.
+    training_use: none
+    regions:
+      - global
+    subprocessors:
+      - github
+      - vercel
+      - aimlapi
+  evidence:
+    public_examples: https://github.com/Prompt-Frenzy/ai-directory
+  provenance:
+    integration_status: first_party
+    adapter_operator: promptfrenzy
