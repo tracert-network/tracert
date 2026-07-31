@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "promptfrenzy.list-ai-tool output",
+  "description": "HTTP 201 response from POST /api/directory/submit after the badge is verified and the directory PR is opened. Mirrors the live server contract.",
+  "type": "object",
+  "required": [
+    "status",
+    "slug",
+    "pr_url",
+    "pr_number",
+    "branch"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "type": "string",
+      "const": "verified",
+      "description": "Badge verified and directory entry opened."
+    },
+    "slug": {
+      "type": "string",
+      "description": "Slug the listing was created under."
+    },
+    "pr_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "GitHub pull request that adds (and auto-merges) the listing."
+    },
+    "pr_number": {
+      "type": "integer",
+      "description": "Pull request number."
+    },
+    "branch": {
+      "type": "string",
+      "description": "Branch the directory bot opened for the entry."
+    }
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "promptfrenzy.list-ai-tool input",
+  "description": "Payload for POST https://www.promptfrenzy.com/api/directory/submit — one AI tool to list in the PromptFrenzy AI Directory. Mirrors the live server contract.",
+  "type": "object",
+  "required": [
+    "name",
+    "url",
+    "description",
+    "category",
+    "pricing",
+    "badge_url"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 80,
+      "description": "Display name of the tool."
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "description": "Canonical homepage of the tool, on a durable domain you control. Raw IPs, temporary tunnels and link shorteners are rejected; platform subdomains (*.vercel.app etc.) list as early-stage."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 200,
+      "description": "One-sentence factual description. No superlatives or marketing copy."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "image-generation",
+        "video-generation",
+        "text-generation",
+        "audio-generation",
+        "prompt-tools",
+        "agents",
+        "chatbots",
+        "code-assist",
+        "productivity",
+        "data-analysis",
+        "voice-cloning",
+        "other"
+      ]
+    },
+    "pricing": {
+      "type": "string",
+      "enum": [
+        "free",
+        "freemium",
+        "paid",
+        "subscription"
+      ]
+    },
+    "badge_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "description": "Page on the same domain as url where the PromptFrenzy dofollow badge anchor is present in static HTML. The verifier fetches this page; JS-rendered badges are not seen."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]+$",
+        "maxLength": 30
+      },
+      "maxItems": 5,
+      "uniqueItems": true,
+      "description": "Up to 5 lowercase-hyphen tags. Optional but encouraged."
+    },
+    "pricing_detail": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 200,
+      "description": "Specific pricing beyond the tier, e.g. 'Free tier watermarked; Pro $12/mo for 1,000 credits'. Optional but encouraged."
+    },
+    "key_features": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 100
+      },
+      "maxItems": 6,
+      "description": "2-6 short factual capability bullets. Optional but encouraged."
+    },
+    "works_with": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9 .+-]{0,38}[a-z0-9]$"
+      },
+      "maxItems": 8,
+      "uniqueItems": true,
+      "description": "Tools, platforms or models this integrates with, e.g. ['chatgpt', 'figma']. Optional but encouraged."
+    },
+    "platforms": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "web",
+          "api",
+          "ios",
+          "android",
+          "windows",
+          "macos",
+          "linux",
+          "cli",
+          "browser-extension",
+          "discord",
+          "slack",
+          "self-hosted"
+        ]
+      },
+      "maxItems": 12,
+      "uniqueItems": true,
+      "description": "Where the tool runs / how it is accessed. Optional but encouraged."
+    },
+    "logo": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "description": "Optional logo URL."
+    },
+    "slug": {
+      "type": "string",
+      "maxLength": 80,
+      "description": "Optional explicit slug; otherwise derived from name. Must be unique in the directory."
+    }
+  }
+}
