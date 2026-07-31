@@ -46,3 +46,29 @@ jobs:
         working-directory: site
       - run: npm run build
         working-directory: site
+
+  # No humans in the loop: a submission PR (branch submit/*) that passes all
+  # three checks above is squash-merged automatically. Uses a PAT secret
+  # (TRACERT_MERGE_TOKEN, contents+PR write) rather than GITHUB_TOKEN, because
+  # the org locks the default workflow token to read-only. Skips safely — never
+  # blocks — until that secret is set. Same-repo submissions only (the no-fork
+  # submission API opens them); fork PRs don't receive secrets, so they can't
+  # trigger a merge.
+  automerge:
+    name: auto-merge validated submissions
+    needs: [registry, router, site]
+    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'submit/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Squash-merge if all checks passed
+        env:
+          GH_TOKEN: ${{ secrets.TRACERT_MERGE_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "TRACERT_MERGE_TOKEN not set — auto-merge disabled; leaving PR #$PR for manual merge."
+            exit 0
+          fi
+          echo "All checks green — squash-merging submission PR #$PR."
+          gh pr merge "$PR" --repo "$REPO" --squash --delete-branch

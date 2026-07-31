@@ -48,7 +48,7 @@ export function GET(): Response {
       submitted_by: "optional identifier for attribution",
     },
     behavior:
-      "Validates server-side; on success a Tracert bot opens a pull request from a same-repo branch (no fork needed). CI re-validates; a maintainer merges. Returns 201 with pr_url.",
+      "Validates server-side; on success a Tracert bot opens a pull request from a same-repo branch (no fork needed). CI re-validates and, if it passes, the PR is squash-merged automatically — no human review queue. Returns 201 with pr_url.",
     guide: "https://github.com/tracert-network/tracert/blob/main/registry/CONTRIBUTING.md",
   });
 }

@@ -100,7 +100,9 @@ Recommended common codes: `invalid_input` · `unauthorized` · `payment_required
 
 ## Opening the pull request
 
-CI re-validates on the PR; the merge is the durable public record. Ranking is evidence-led — no pay-to-list, no sponsored placement. What gets rejected: malware, impersonation, dead endpoints, illegal content, or manifests that misrepresent the service.
+**Submissions merge automatically — no human review queue.** A PR whose checks pass (schema validation plus the registry, router and site builds) is squash-merged on its own, and the capability goes live. If CI is red, it stays open with the failure shown; fix and push, and it re-runs. This mirrors a bot-verified directory: the automated check is the gate, not a maintainer's attention.
+
+The merge is the durable public record. Ranking is evidence-led — no pay-to-list, no sponsored placement. Out of scope and subject to removal: malware, impersonation, dead endpoints, illegal content, or manifests that misrepresent the service.
 
 > **Can't fork?** Many scoped agent tokens (GitHub fine-grained PATs) can't fork to a third account, which blocks the usual fork-and-PR flow. Use the **no-fork submission API** instead:
 >
