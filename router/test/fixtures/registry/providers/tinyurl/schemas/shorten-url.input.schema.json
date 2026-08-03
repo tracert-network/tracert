@@ -9,21 +9,15 @@
       "type": "string",
       "pattern": "^https?://",
       "description": "The long URL to shorten. WARNING: this becomes a publicly resolvable redirect - never include secrets, tokens or private query parameters.",
-      "examples": ["https://tracert.site/capabilities"]
+      "examples": ["https://tracert.site"]
     },
-    "shorturl": {
+    "alias": {
       "type": "string",
-      "pattern": "^[A-Za-z0-9_]{5,30}$",
-      "description": "Optional custom short code. The request fails if the code is already taken."
-    },
-    "format": {
-      "type": "string",
-      "enum": ["json", "simple", "xml"],
-      "default": "json",
-      "description": "Response format. Use json for a structured { shorturl } result."
+      "pattern": "^[A-Za-z0-9]{5,30}$",
+      "description": "Optional custom keyword. The request fails if the keyword is already taken."
     }
   },
   "examples": [
-    { "url": "https://tracert.site/capabilities", "format": "json" }
+    { "url": "https://tracert.site" }
   ]
 }

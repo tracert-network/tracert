@@ -209,7 +209,7 @@ const wrapperCases = [
   { id: "exchangerate-api.latest-rates", input: { base_code: "USD" }, key: "smoke-fx-0001", artifact: false },
   { id: "free-dictionary.define-word", input: { word: "serendipity" }, key: "smoke-dict-0001", artifact: false },
   { id: "qr-server.create-qr-code", input: { data: "https://tracert.site", size: "180x180", format: "png" }, key: "smoke-qr-0001", artifact: true },
-  { id: "is-gd.shorten-url", input: { url: "https://tracert.site/capabilities", format: "json" }, key: "smoke-isgd-0001", artifact: true },
+  { id: "tinyurl.shorten-url", input: { url: "https://tracert.site/capabilities" }, key: "smoke-tinyurl-0001", artifact: true },
 ];
 for (const wc of wrapperCases) {
   const r = parse(await a.callTool({
@@ -243,9 +243,9 @@ assertReceiptValid("gated", gated.receipt);
 
 const gatedWrite = parse(await b.callTool({
   name: "invoke_capability",
-  arguments: { capability_id: "is-gd.shorten-url", input: { url: "https://tracert.site" } },
+  arguments: { capability_id: "tinyurl.shorten-url", input: { url: "https://tracert.site" } },
 }));
-check("default build gates the is-gd public write",
+check("default build gates the tinyurl public write",
   gatedWrite.receipt?.result?.status === "rejected" &&
   gatedWrite.receipt?.result?.reasons?.[0]?.code === "live_write_disabled",
   JSON.stringify(gatedWrite.receipt?.result?.reasons));

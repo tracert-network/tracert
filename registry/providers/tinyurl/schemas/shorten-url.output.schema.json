@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Shorten URL - output (short link)",
+  "type": "string",
+  "pattern": "^https://tinyurl\\.com/",
+  "description": "The created short URL, returned as text/plain. The same long URL always yields the same short link (TinyURL dedupes identical URLs).",
+  "examples": ["https://tinyurl.com/28y67wky"]
+}

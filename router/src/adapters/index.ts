@@ -10,7 +10,7 @@ import { executePublishListing } from "./ai-directory.js";
 import { executeLatestRates } from "./exchangerate.js";
 import { executeDefineWord } from "./dictionary.js";
 import { executeCreateQrCode } from "./qr.js";
-import { executeShortenUrl } from "./is-gd.js";
+import { executeShortenUrl } from "./tinyurl.js";
 
 export type AdapterKind = "read" | "write";
 export type Adapter = (input: Record<string, unknown>, mode: AdapterMode) => Promise<AdapterOutcome>;
@@ -27,7 +27,7 @@ export const ADAPTERS = new Map<string, AdapterEntry>([
   ["exchangerate-api.latest-rates", { kind: "read", run: executeLatestRates }],
   ["free-dictionary.define-word", { kind: "read", run: executeDefineWord }],
   ["qr-server.create-qr-code", { kind: "read", run: executeCreateQrCode }],
-  ["is-gd.shorten-url", { kind: "write", run: executeShortenUrl }],
+  ["tinyurl.shorten-url", { kind: "write", run: executeShortenUrl }],
 ]);
 
 export function getAdapter(id: string): AdapterEntry | undefined {
