@@ -1,0 +1,4 @@
+{
+  "$comment": "Ownership re-verification state, maintained by tools/reverify-ownership.mjs (daily cron). Per capability: consecutive_failures, last_ok, last_checked, suspended. Do not edit by hand.",
+  "capabilities": {}
+}

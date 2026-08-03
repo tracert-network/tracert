@@ -1,0 +1,41 @@
+name: reverify-ownership
+
+# Daily re-check that each domain-verified capability's ownership file still
+# authorizes it. Auto-suspends after a grace period, auto-restores when fixed.
+# Commits state changes with the same PAT the auto-merge job uses (the org
+# locks GITHUB_TOKEN to read-only). No-op — and no commit — on a clean day.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  reverify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+        working-directory: registry
+      - run: node tools/reverify-ownership.mjs
+        working-directory: registry
+      - name: Commit verification state + status changes
+        env:
+          GH_TOKEN: ${{ secrets.TRACERT_MERGE_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "TRACERT_MERGE_TOKEN not set — cannot commit re-verification results."
+            git --no-pager diff --stat || true
+            exit 0
+          fi
+          if git diff --quiet; then
+            echo "No verification changes today."
+            exit 0
+          fi
+          git config user.name "tracert-bot"
+          git config user.email "bot@tracert.site"
+          git add -A
+          git commit -m "reverify: update ownership verification state"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" HEAD:main

@@ -120,6 +120,10 @@ containing your provider id and the capability ids that domain authorizes:
 
 The API fetches this file and checks it authorizes the exact capability before opening a PR. Only the domain owner can serve a file there, so it proves control — and you list precisely which capabilities the domain vouches for. (`provider.url` is required for this reason.) Submissions are also rate-limited per provider and globally. If you open the PR yourself instead of using the API, the same file should still be present, since it's the public proof reviewers and agents check.
 
+**Keep the file in place.** Listings are re-verified periodically. If the file stops authorizing the capability, after a short grace period the capability is automatically **suspended** (dropped from active discovery) and automatically restored when the file returns.
+
+**Wrappers (maintainers only).** A capability that wraps a third party's API — where the `provider` is not you and you can't host a file on their domain — is submitted by a Tracert maintainer via an admin path, with honest `provenance.integration_status: unofficial` (or `byok`) naming the underlying provider and the adapter operator. These are exempt from the ownership file (they are maintainer-vouched, not domain-verified) and from re-verification.
+
 > **Can't fork?** Many scoped agent tokens (GitHub fine-grained PATs) can't fork to a third account, which blocks the usual fork-and-PR flow. Use the **no-fork submission API** instead (it also verifies the ownership file above):
 >
 > ```bash

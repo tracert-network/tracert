@@ -15,6 +15,7 @@ import {
   type SubmissionBody,
 } from "@/lib/submit";
 import { checkDenylist, checkRateLimit, manifestHosts, verifyOwnership } from "@/lib/verify";
+import { timingSafeEqual } from "node:crypto";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -31,6 +32,18 @@ function json(status: number, obj: unknown): Response {
     status,
     headers: { "Content-Type": "application/json; charset=utf-8", ...CORS },
   });
+}
+
+// Maintainer path: an X-Tracert-Admin-Key header matching TRACERT_ADMIN_KEY
+// (constant-time compare) authorizes a submission to skip ownership + rate
+// limits. Used only by us, for wrappers we vouch for.
+function isAdmin(req: Request): boolean {
+  const provided = req.headers.get("x-tracert-admin-key") || "";
+  const expected = process.env.TRACERT_ADMIN_KEY || "";
+  if (expected.length === 0 || provided.length === 0) return false;
+  const a = Buffer.from(provided);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 export async function OPTIONS(): Promise<Response> {
@@ -54,6 +67,7 @@ export function GET(): Response {
       why: "One static file (no DNS needed) authorizes exactly the capabilities you list. It's checked before any PR is opened.",
     },
     limits: "Rate-limited per provider and globally. Payloads over 256 KB are rejected.",
+    admin_path: "Maintainers submit wrapper capabilities (provenance unofficial/byok, third-party provider) with an X-Tracert-Admin-Key header, which skips the ownership + rate-limit gates. Not available to the public.",
     behavior:
       "Validates server-side and verifies domain ownership; on success a Tracert bot opens a pull request from a same-repo branch (no fork needed). CI re-validates and, if it passes, the PR is squash-merged automatically — no human review queue. Returns 201 with pr_url.",
     guide: "https://github.com/tracert-network/tracert/blob/main/registry/CONTRIBUTING.md",
@@ -97,14 +111,21 @@ export async function POST(req: Request): Promise<Response> {
   const manifest = body.manifest as Record<string, unknown>;
   const providerUrl = (manifest.provider as { url?: string } | undefined)?.url;
 
+  // The denylist applies to everyone, admins included.
   const deny = await checkDenylist(result.providerId, manifestHosts(manifest), result.capabilityId);
   if (!deny.ok) return json(403, { error: { code: deny.code, message: deny.message } });
 
-  const rl = await checkRateLimit(token, result.providerId);
-  if (!rl.ok) return json(429, { error: { code: rl.code, message: rl.message } });
+  // Maintainer/admin path: a valid admin key skips the ownership + rate-limit
+  // gates. This is how we submit WRAPPER capabilities (provenance unofficial /
+  // byok) where the provider is a third party whose domain we don't control.
+  const admin = isAdmin(req);
+  if (!admin) {
+    const rl = await checkRateLimit(token, result.providerId);
+    if (!rl.ok) return json(429, { error: { code: rl.code, message: rl.message } });
 
-  const own = await verifyOwnership(providerUrl, result.providerId, result.capabilityId);
-  if (!own.ok) return json(403, { error: { code: own.code, message: own.message }, ...(own.detail ?? {}) });
+    const own = await verifyOwnership(providerUrl, result.providerId, result.capabilityId);
+    if (!own.ok) return json(403, { error: { code: own.code, message: own.message }, ...(own.detail ?? {}) });
+  }
 
   try {
     if (await capabilityExists(token, result.providerId, result.name)) {
@@ -119,7 +140,7 @@ export async function POST(req: Request): Promise<Response> {
       submittedBy: typeof body.submitted_by === "string" ? body.submitted_by : undefined,
       branch,
     });
-    return json(201, { ok: true, capability_id: result.capabilityId, ...pr });
+    return json(201, { ok: true, capability_id: result.capabilityId, ...pr, ...(admin ? { admin: true } : {}) });
   } catch (e) {
     const status = e instanceof GitHubError ? 502 : 500;
     return json(status, { error: { code: "submission_failed", message: e instanceof Error ? e.message : "unknown error" } });
