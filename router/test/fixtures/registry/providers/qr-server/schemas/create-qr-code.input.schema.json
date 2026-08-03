@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Create QR code - input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 900,
+      "description": "The text or URL to encode.",
+      "examples": ["https://tracert.site"]
+    },
+    "size": {
+      "type": "string",
+      "pattern": "^[0-9]{2,4}x[0-9]{2,4}$",
+      "default": "200x200",
+      "description": "Image dimensions WxH in pixels.",
+      "examples": ["200x200", "180x180"]
+    },
+    "format": {
+      "type": "string",
+      "enum": ["png", "gif", "jpeg", "svg", "eps"],
+      "default": "png",
+      "description": "Output image format."
+    }
+  },
+  "examples": [
+    { "data": "https://tracert.site", "size": "180x180", "format": "png" }
+  ]
+}

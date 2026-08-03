@@ -8,12 +8,8 @@ import { appendReceipt, findByIdempotencyKey, getReceipt, logSearchGap } from ".
 import { getQuoteById, issueQuote, quoteIsCurrent } from "./quotes.js";
 import { newAjv } from "./registry.js";
 import { newId, nowIso, sha256Commitment } from "./canonical.js";
-import {
-  AdapterFailure,
-  AdapterRejection,
-  adapterMode,
-  executePublishListing,
-} from "./adapters/ai-directory.js";
+import { AdapterFailure, AdapterRejection } from "./adapters/errors.js";
+import { getAdapter, resolveMode } from "./adapters/index.js";
 
 export class ToolError extends Error {
   constructor(public code: string, message: string) {
@@ -155,11 +151,12 @@ export async function toolInvokeCapability(args: InvokeArgs) {
     operator: { gateway_id: GATEWAY_ID },
   } satisfies Partial<Receipt> as Omit<Receipt, "result">;
 
-  // Adapter dispatch — the directory-submit adapter serves both the original
-  // ai-directory capability id and the registry's promptfrenzy.list-ai-tool
-  // (same submit contract). The dispatch table grows with supply.
-  const DIRECTORY_SUBMIT_CAPS = new Set(["ai-directory.publish-listing", "promptfrenzy.list-ai-tool"]);
-  if (!DIRECTORY_SUBMIT_CAPS.has(c.id)) {
+  // Adapter dispatch — each invocable capability maps to an adapter (read =
+  // executed live by default; write = gated off unless explicitly enabled). The
+  // receipt shape is identical regardless of which adapter ran, so growing
+  // supply is a one-line entry in adapters/index.ts, never a change here.
+  const adapter = getAdapter(c.id);
+  if (!adapter) {
     return finalize({
       ...base,
       result: {
@@ -170,7 +167,7 @@ export async function toolInvokeCapability(args: InvokeArgs) {
   }
 
   try {
-    const outcome = await executePublishListing(args.input, adapterMode());
+    const outcome = await adapter.run(args.input, resolveMode(adapter.kind));
     return finalize({
       ...base,
       result: {

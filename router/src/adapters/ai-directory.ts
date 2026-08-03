@@ -7,35 +7,14 @@
 //   simulated (TRACERT_DEV_FAKE_EXECUTE=1)   — pipeline shape, fabricated artifacts
 //   live      (TRACERT_ENABLE_LIVE_SUBMIT=1) — real API path
 import type { AdapterOutcome } from "../types.js";
+import type { AdapterMode } from "./errors.js";
+import { AdapterFailure, AdapterRejection } from "./errors.js";
 import { nowIso } from "../canonical.js";
 
 const SUBMIT_URL = "https://www.promptfrenzy.com/api/directory/submit";
 const TOOLS_INDEX_URL = "https://www.promptfrenzy.com/.well-known/ai-tools.json";
 const DIRECTORY_BASE = "https://www.promptfrenzy.com/directory";
 const REPO_API = "https://api.github.com/repos/Prompt-Frenzy/ai-directory";
-
-export type AdapterMode = "disabled" | "simulated" | "live";
-
-export function adapterMode(): AdapterMode {
-  if (process.env.TRACERT_ENABLE_LIVE_SUBMIT === "1") return "live";
-  if (process.env.TRACERT_DEV_FAKE_EXECUTE === "1") return "simulated";
-  return "disabled";
-}
-
-export class AdapterRejection extends Error {
-  constructor(public reasons: { code: string; message: string; field?: string }[]) {
-    super(reasons[0]?.message ?? "rejected");
-  }
-}
-
-export class AdapterFailure extends Error {
-  constructor(
-    public reasons: { code: string; message: string }[],
-    public evidence: { type: string; [k: string]: unknown }[] = [],
-  ) {
-    super(reasons[0]?.message ?? "failed");
-  }
-}
 
 export async function executePublishListing(
   input: Record<string, unknown>,

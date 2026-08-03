@@ -203,6 +203,31 @@ const gapLog = join(tmpData, "search-gaps.jsonl");
 check("zero-result search was logged as a demand gap",
   existsSync(gapLog) && readFileSync(gapLog, "utf8").includes(gapQuery));
 
+// ---- free wrapper adapters (simulated): FX + dictionary (reads),
+//      QR (transform), is.gd (write) all reach a succeeded receipt ----
+const wrapperCases = [
+  { id: "exchangerate-api.latest-rates", input: { base_code: "USD" }, key: "smoke-fx-0001", artifact: false },
+  { id: "free-dictionary.define-word", input: { word: "serendipity" }, key: "smoke-dict-0001", artifact: false },
+  { id: "qr-server.create-qr-code", input: { data: "https://tracert.site", size: "180x180", format: "png" }, key: "smoke-qr-0001", artifact: true },
+  { id: "is-gd.shorten-url", input: { url: "https://tracert.site/capabilities", format: "json" }, key: "smoke-isgd-0001", artifact: true },
+];
+for (const wc of wrapperCases) {
+  const r = parse(await a.callTool({
+    name: "invoke_capability",
+    arguments: { capability_id: wc.id, input: wc.input, idempotency_key: wc.key },
+  }));
+  check(`${wc.id} simulated invocation succeeds`,
+    r.receipt?.result?.status === "succeeded", JSON.stringify(r.receipt?.result));
+  check(`${wc.id} binds request + result commitments`,
+    r.receipt?.request?.commitment?.startsWith("sha256:") && r.receipt?.result?.commitment?.startsWith("sha256:"));
+  check(`${wc.id} marks the simulation in evidence`,
+    (r.receipt?.evidence ?? []).some((e) => e.type === "simulated_execution"));
+  if (wc.artifact) {
+    check(`${wc.id} exposes an artifact`, (r.receipt?.result?.artifacts?.length ?? 0) > 0);
+  }
+  assertReceiptValid(wc.id, r.receipt);
+}
+
 await a.close();
 
 // ---------- Server B: default safety gate (no live, no simulation) ----------
@@ -215,6 +240,16 @@ check("default build refuses live submission with instructions",
   gated.receipt?.result?.status === "rejected" &&
   gated.receipt?.result?.reasons?.[0]?.code === "live_submission_disabled");
 assertReceiptValid("gated", gated.receipt);
+
+const gatedWrite = parse(await b.callTool({
+  name: "invoke_capability",
+  arguments: { capability_id: "is-gd.shorten-url", input: { url: "https://tracert.site" } },
+}));
+check("default build gates the is-gd public write",
+  gatedWrite.receipt?.result?.status === "rejected" &&
+  gatedWrite.receipt?.result?.reasons?.[0]?.code === "live_write_disabled",
+  JSON.stringify(gatedWrite.receipt?.result?.reasons));
+assertReceiptValid("gated-write", gatedWrite.receipt);
 await b.close();
 
 rmSync(tmpData, { recursive: true, force: true });

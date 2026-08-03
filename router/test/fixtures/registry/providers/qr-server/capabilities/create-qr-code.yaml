@@ -1,0 +1,78 @@
+# Unofficial, FREE wrapper of a third-party public API. Maintained by Tracert;
+# not affiliated with or endorsed by goQR.me.
+schema: https://tracert.site/schemas/manifest/v0.1
+
+provider:
+  id: qr-server
+  name: QR Server (goQR.me)
+  url: https://goqr.me
+  operator: qr-server
+
+service:
+  id: qr-server-api
+  name: QR Server API
+  url: https://api.qrserver.com
+
+capability:
+  id: qr-server.create-qr-code
+  version: 0.1.0
+  status: active
+  promise: Generate a QR code image encoding a supplied piece of text or a URL.
+  description: >-
+    Community-maintained Tracert listing of the goQR.me QR Code API. Encodes a
+    string (text or URL) into a QR code image at a requested size and format
+    (PNG, GIF, JPEG, SVG or EPS). Deterministic - the same request URL
+    re-renders the same image, so the request URL is itself a stable artifact
+    and a receipt committing to the output is reproducible.
+    Example - GET /v1/create-qr-code/?data=https://tracert.site&size=180x180 returns an image/png.
+    Not affiliated with or endorsed by goQR.me.
+  tags: [qr-code, qr, image, generator, encoding, free, wrapper, unofficial]
+  excludes:
+    - Decoding or reading existing QR codes
+    - Scan tracking or analytics
+    - Guaranteed hosting or permanence of the generated image
+  input:
+    schema_ref: ../schemas/create-qr-code.input.schema.json
+    media_types: [application/json]
+    max_bytes: 2048
+    notes: Sent as URL query parameters on a GET (data, size, format), not a request body.
+  output:
+    schema_ref: ../schemas/create-qr-code.output.schema.json
+    media_types: [image/png, image/gif, image/jpeg, image/svg+xml]
+    notes: The response body is the QR image. The create-qr-code request URL is itself a stable, re-fetchable artifact.
+  errors:
+    - code: invalid_input
+      meaning: The data was empty or too long, or the size parameter was malformed.
+      retriable: false
+    - code: unavailable
+      meaning: The QR Server API was unreachable.
+      retriable: true
+  interfaces:
+    - type: native_api
+      endpoint: https://api.qrserver.com/v1/create-qr-code/
+      docs_url: https://goqr.me/api/doc/create-qr-code/
+      notes: GET with query params data (required), size (WxH, e.g. 200x200), format (png|gif|jpeg|svg|eps).
+  pricing:
+    free: true
+    mode: free
+  operations:
+    expected_latency_seconds: { p50: 0.3, p95: 1.5 }
+    timeout_seconds: 15
+    idempotency: supported
+    rate_limits: No hard limit; the provider asks to be notified above roughly 10,000 requests/day.
+  data_policy:
+    input_retention:
+      policy: undisclosed
+      notes: The data you submit is transmitted to goQR.me to render the image; the provider publishes no retention statement. Do not encode secrets you would not send to a third party.
+    training_use: undisclosed
+    regions: [global]
+    subprocessors:
+      - QR Server / goQR.me - api.qrserver.com (upstream provider)
+    notes: >-
+      Unofficial free wrapper. goQR.me documents the API as free for commercial
+      and non-commercial use with no account or key. Fields are marked
+      "undisclosed" where the provider has not declared them.
+  provenance:
+    integration_status: unofficial
+    adapter_operator: tracert-labs
+    notes: Listing maintained by Tracert. Not affiliated with or endorsed by goQR.me.

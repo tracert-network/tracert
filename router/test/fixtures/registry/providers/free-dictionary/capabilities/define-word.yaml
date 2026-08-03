@@ -1,0 +1,81 @@
+# Unofficial, FREE wrapper of a third-party public API. Maintained by Tracert;
+# not affiliated with or endorsed by the Free Dictionary API project.
+schema: https://tracert.site/schemas/manifest/v0.1
+
+provider:
+  id: free-dictionary
+  name: Free Dictionary API
+  url: https://dictionaryapi.dev
+  operator: free-dictionary
+
+service:
+  id: free-dictionary-api
+  name: Free Dictionary API v2
+  url: https://api.dictionaryapi.dev
+
+capability:
+  id: free-dictionary.define-word
+  version: 0.1.0
+  status: active
+  promise: Return dictionary definitions, part of speech, phonetics and pronunciation audio for an English word.
+  description: >-
+    Community-maintained Tracert listing of the Free Dictionary API. Given a
+    single English word, returns one or more entries with parts of speech,
+    definitions, synonyms and antonyms, phonetic spelling and links to
+    pronunciation audio. Underlying data is derived from Wiktionary (CC BY-SA).
+    Example - GET /api/v2/entries/en/serendipity returns [ { "word": "serendipity", "meanings": [ ... ] } ].
+    Not affiliated with or endorsed by the Free Dictionary API project.
+  tags: [dictionary, definitions, english, language, lexicon, free, wrapper, unofficial]
+  excludes:
+    - Languages other than English
+    - Translation between languages
+    - Guaranteed coverage (returns not_found when a word is absent)
+  input:
+    schema_ref: ../schemas/define-word.input.schema.json
+    media_types: [application/json]
+    max_bytes: 128
+    notes: Sent as a URL path segment on a GET - append the word to the endpoint (/entries/en/serendipity).
+  output:
+    schema_ref: ../schemas/define-word.output.schema.json
+    media_types: [application/json]
+  errors:
+    - code: not_found
+      meaning: No definition was found for the requested word.
+      retriable: false
+    - code: rate_limited
+      meaning: The caller was rate-limited by the provider.
+      retriable: true
+    - code: unavailable
+      meaning: The community endpoint was unreachable.
+      retriable: true
+  interfaces:
+    - type: native_api
+      endpoint: https://api.dictionaryapi.dev/api/v2/entries/en
+      docs_url: https://dictionaryapi.dev
+      notes: GET {endpoint}/{word}, e.g. /entries/en/serendipity. No account or key required.
+  pricing:
+    free: true
+    mode: free
+  operations:
+    expected_latency_seconds: { p50: 0.4, p95: 3 }
+    timeout_seconds: 15
+    idempotency: supported
+    rate_limits: Community endpoint - no published limit; best-effort availability.
+  data_policy:
+    input_retention:
+      policy: undisclosed
+      notes: The input is a single dictionary word (no user data). This community project publishes no retention statement.
+    training_use: undisclosed
+    regions: [global]
+    subprocessors:
+      - Free Dictionary API - api.dictionaryapi.dev (upstream provider)
+      - Wiktionary (underlying data source)
+    notes: >-
+      Unofficial free wrapper of a donation-funded community project with no
+      SLA or uptime guarantee. Definition data is derived from Wiktionary and
+      licensed CC BY-SA; retain attribution when redisplaying it. Fields are
+      marked "undisclosed" where the project has not declared them.
+  provenance:
+    integration_status: unofficial
+    adapter_operator: tracert-labs
+    notes: Listing maintained by Tracert. Not affiliated with or endorsed by the upstream project.

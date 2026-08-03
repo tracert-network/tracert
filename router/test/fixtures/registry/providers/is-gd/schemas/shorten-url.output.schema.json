@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Shorten URL - output (json format)",
+  "type": "object",
+  "properties": {
+    "shorturl": { "type": "string", "description": "The created short URL. Sample shape only; the actual code is assigned by is.gd." },
+    "errorcode": { "type": "integer", "description": "Present only on failure (e.g. 1 = bad URL, 2 = code already taken)." },
+    "errormessage": { "type": "string", "description": "Human-readable error, present only on failure." }
+  },
+  "examples": [
+    { "shorturl": "https://is.gd/exampl3" }
+  ]
+}

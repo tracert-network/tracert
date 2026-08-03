@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Latest exchange rates - input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["base_code"],
+  "properties": {
+    "base_code": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "ISO 4217 base currency code. Returned rates are expressed per one unit of this currency. Appended to the endpoint path: /v6/latest/{base_code}.",
+      "examples": ["USD", "EUR", "GBP"]
+    }
+  },
+  "examples": [
+    { "base_code": "USD" }
+  ]
+}
