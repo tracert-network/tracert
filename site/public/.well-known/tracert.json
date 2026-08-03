@@ -1,4 +1,0 @@
-{
-  "provider": "tracert-selftest",
-  "capabilities": ["tracert-selftest.owned"]
-}
