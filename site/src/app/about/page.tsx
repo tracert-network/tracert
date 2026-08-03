@@ -80,6 +80,30 @@ export default function About() {
         <li><strong>Next:</strong> hosted discovery endpoint · paid capabilities (image transformations) behind a method-agnostic payment adapter (MPP + x402 sandboxes first) · demand benchmarks across agent environments.</li>
       </ul>
 
+      <hr className="route" />
+      <h2>Listed on</h2>
+      <p className="small muted">
+        Tracert is listed on the PromptFrenzy AI Directory — added by using a capability from
+        Tracert&rsquo;s own registry (<span className="mono">promptfrenzy.list-ai-tool</span>) to
+        submit itself. Dogfooding the loop end to end.
+      </p>
+      <p>
+        <a
+          href="https://www.promptfrenzy.com/directory"
+          rel="noopener"
+          target="_blank"
+          title="Featured on PromptFrenzy AI Directory"
+        >
+          <img
+            src="https://www.promptfrenzy.com/badges/directory.svg"
+            alt="Featured on PromptFrenzy AI Directory"
+            width={220}
+            height={44}
+            loading="lazy"
+          />
+        </a>
+      </p>
+
       <p style={{ marginTop: "2rem" }}>
         <Link className="btn btn-primary" href="/publish">Publish a capability</Link>{" "}
         <Link className="btn" href="/use">Connect your agent</Link>
