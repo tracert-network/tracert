@@ -155,8 +155,11 @@ export async function toolInvokeCapability(args: InvokeArgs) {
     operator: { gateway_id: GATEWAY_ID },
   } satisfies Partial<Receipt> as Omit<Receipt, "result">;
 
-  // Adapter dispatch — one real adapter for now; the dispatch table grows with supply.
-  if (c.id !== "ai-directory.publish-listing") {
+  // Adapter dispatch — the directory-submit adapter serves both the original
+  // ai-directory capability id and the registry's promptfrenzy.list-ai-tool
+  // (same submit contract). The dispatch table grows with supply.
+  const DIRECTORY_SUBMIT_CAPS = new Set(["ai-directory.publish-listing", "promptfrenzy.list-ai-tool"]);
+  if (!DIRECTORY_SUBMIT_CAPS.has(c.id)) {
     return finalize({
       ...base,
       result: {
