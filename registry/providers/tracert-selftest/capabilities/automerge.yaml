@@ -1,0 +1,35 @@
+schema: https://tracert.site/schemas/manifest/v0.1
+provider:
+  id: tracert-selftest
+  name: Tracert Self-Test
+  url: https://tracert.site
+service:
+  id: tracert-selftest
+capability:
+  id: tracert-selftest.automerge
+  version: 0.0.1
+  status: draft
+  promise: Self-test capability to verify automatic merge of validated
+    submissions; safe to remove.
+  input:
+    schema_ref: ../schemas/automerge.input.schema.json
+    media_types:
+      - application/json
+  output:
+    schema_ref: ../schemas/automerge.output.schema.json
+    media_types:
+      - application/json
+  interfaces:
+    - type: native_api
+      endpoint: https://tracert.site/selftest
+  pricing:
+    free: true
+    mode: free
+  operations:
+    idempotency: supported
+  data_policy:
+    input_retention:
+      policy: none
+    training_use: none
+  provenance:
+    integration_status: first_party
