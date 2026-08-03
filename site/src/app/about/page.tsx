@@ -94,13 +94,19 @@ export default function About() {
           target="_blank"
           title="Featured on PromptFrenzy AI Directory"
         >
-          <img
-            src="https://www.promptfrenzy.com/badges/directory.svg"
-            alt="Featured on PromptFrenzy AI Directory"
-            width={220}
-            height={44}
-            loading="lazy"
-          />
+          <picture>
+            <source
+              media="(prefers-color-scheme: dark)"
+              srcSet="https://www.promptfrenzy.com/badges/directory-mono-light.svg"
+            />
+            <img
+              src="https://www.promptfrenzy.com/badges/directory-mono-dark.svg"
+              alt="Featured on PromptFrenzy AI Directory"
+              width={220}
+              height={44}
+              loading="lazy"
+            />
+          </picture>
         </a>
       </p>
 
