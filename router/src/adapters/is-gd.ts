@@ -11,6 +11,8 @@ import { nowIso } from "../canonical.js";
 
 const ENDPOINT = "https://is.gd/create.php";
 
+type IsGdBody = { shorturl?: string; errorcode?: number; errormessage?: string };
+
 export async function executeShortenUrl(
   input: Record<string, unknown>,
   mode: AdapterMode,
@@ -39,37 +41,67 @@ export async function executeShortenUrl(
   if (input.shorturl) params.set("shorturl", String(input.shorturl));
   const url = `${ENDPOINT}?${params.toString()}`;
 
-  let res: Response;
+  // is.gd occasionally answers with a transient plain-text "Error, database
+  // insert failed" (HTTP 200, ignores format=json). That means the row was NOT
+  // written, so a single retry is safe and usually succeeds.
+  let call: { status: number; json: IsGdBody | null; text: string };
   try {
-    res = await fetch(url, { redirect: "error", signal: AbortSignal.timeout(15_000) });
+    call = await callIsGd(url);
+    if (!call.json && /database insert failed/i.test(call.text)) {
+      await sleep(1500);
+      call = await callIsGd(url);
+    }
   } catch (e) {
     throw new AdapterFailure([{ code: "unavailable", message: `is.gd unreachable: ${String(e)}` }]);
   }
-  const body = (await res.json().catch(() => null)) as
-    | { shorturl?: string; errorcode?: number; errormessage?: string }
-    | null;
-  if (!body) {
-    throw new AdapterFailure([{ code: "unavailable", message: `is.gd returned a non-JSON body (${res.status})` }]);
+
+  const { json, text, status } = call;
+  if (!json) {
+    const snippet = text.replace(/\s+/g, " ").trim().slice(0, 160) || `HTTP ${status}`;
+    throw new AdapterFailure(
+      [{ code: "unavailable", message: `is.gd returned a non-JSON response: ${snippet}` }],
+      [{ type: "http_observation", url: ENDPOINT, observed_status: status, observed_at: nowIso() }],
+    );
   }
-  if (body.errorcode) {
-    const msg = body.errormessage ?? `error ${body.errorcode}`;
+  if (json.errorcode) {
+    const msg = json.errormessage ?? `error ${json.errorcode}`;
     // 1 = long URL invalid/disallowed, 2 = custom code invalid/taken → input problems (reject).
-    if (body.errorcode === 1 || body.errorcode === 2) {
+    if (json.errorcode === 1 || json.errorcode === 2) {
       throw new AdapterRejection([{ code: "invalid_input", message: `is.gd rejected the request: ${msg}` }]);
     }
     // 3 = throttled, 4 = service/maintenance → transient failures.
-    const code = body.errorcode === 3 ? "rate_limited" : "unavailable";
+    const code = json.errorcode === 3 ? "rate_limited" : "unavailable";
     throw new AdapterFailure(
       [{ code, message: `is.gd error: ${msg}` }],
-      [{ type: "http_observation", url: ENDPOINT, observed_status: res.status, observed_at: nowIso() }],
+      [{ type: "http_observation", url: ENDPOINT, observed_status: status, observed_at: nowIso() }],
     );
   }
-  if (!body.shorturl) {
+  if (!json.shorturl) {
     throw new AdapterFailure([{ code: "unavailable", message: "is.gd returned no shorturl" }]);
   }
   return {
-    output: { shorturl: body.shorturl, target: String(input.url ?? "") },
-    artifacts: [{ type: "url", url: body.shorturl, note: "public is.gd short link" }],
-    evidence: [{ type: "http_observation", url: ENDPOINT, observed_status: res.status, observed_at: nowIso() }],
+    output: { shorturl: json.shorturl, target: String(input.url ?? "") },
+    artifacts: [{ type: "url", url: json.shorturl, note: "public is.gd short link" }],
+    evidence: [{ type: "http_observation", url: ENDPOINT, observed_status: status, observed_at: nowIso() }],
   };
+}
+
+async function callIsGd(url: string): Promise<{ status: number; json: IsGdBody | null; text: string }> {
+  const res = await fetch(url, {
+    redirect: "error",
+    signal: AbortSignal.timeout(15_000),
+    headers: { "User-Agent": "TracertBot/0.1 (+https://tracert.site)", Accept: "application/json" },
+  });
+  const text = await res.text();
+  let json: IsGdBody | null = null;
+  try {
+    json = JSON.parse(text) as IsGdBody;
+  } catch {
+    // is.gd returns some errors as plain text; the caller maps `text`.
+  }
+  return { status: res.status, json, text };
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
 }
