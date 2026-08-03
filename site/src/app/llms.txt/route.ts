@@ -23,6 +23,7 @@ Free capabilities never require a wallet or account. Quotes are exact and expire
 ## Machine entry points
 
 - [Registry index](${SITE_ORIGIN}/index.json): every capability with status, pricing, media types and manifest URL
+- [MCP gateway](${SITE_ORIGIN}/api/mcp): hosted five-tool MCP server over Streamable HTTP (read-only) — free reads execute live and return a TRACE Receipt; writes run via the local router
 - [TRACE Manifest schema](${SITE_ORIGIN}/schemas/manifest/v0.1): JSON Schema 2020-12 for capability manifests
 - [TRACE Receipt schema](${SITE_ORIGIN}/schemas/receipt/v0.1): JSON Schema for verifiable execution records
 - [Agent guide](${SITE_ORIGIN}/agents): how to select, invoke and verify capabilities
@@ -40,7 +41,7 @@ ${capLines}
 
 ## For agent developers
 
-- [Connect your agent](${SITE_ORIGIN}/use): the five-tool MCP router (search_capabilities, get_capability, get_quote, invoke_capability, get_execution); local install today, hosted endpoint coming
+- [Connect your agent](${SITE_ORIGIN}/use): the five-tool MCP router (search_capabilities, get_capability, get_quote, invoke_capability, get_execution). Hosted MCP endpoint (read-only, Streamable HTTP): ${SITE_ORIGIN}/api/mcp — free reads execute live and return a TRACE Receipt with a reproducible output commitment; capabilities that write external state run via the local router.
 - [About the network](${SITE_ORIGIN}/about): lifecycle, trust model, standards posture (MCP, A2A, MPP, x402, AP2)
 `;
 

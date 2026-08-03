@@ -52,6 +52,9 @@ capability:
       endpoint: https://api.qrserver.com/v1/create-qr-code/
       docs_url: https://goqr.me/api/doc/create-qr-code/
       notes: GET with query params data (required), size (WxH, e.g. 200x200), format (png|gif|jpeg|svg|eps).
+    - type: mcp
+      server_url: https://tracert.site/api/mcp
+      notes: Invoke via the hosted Tracert gateway (Streamable HTTP); this transform executes live and returns a TRACE Receipt binding the image bytes' sha256.
   pricing:
     free: true
     mode: free

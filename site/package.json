@@ -4,21 +4,26 @@
   "private": true,
   "description": "tracert.site — the public face of Tracert: human routes, agent routes, capability pages and machine exports, all generated from the registry.",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "prebuild": "node scripts/copy-schema.mjs",
-    "predev": "node scripts/copy-schema.mjs",
+    "prebuild": "node scripts/copy-schema.mjs && node scripts/build-gateway-registry.mjs",
+    "predev": "node scripts/copy-schema.mjs && node scripts/build-gateway-registry.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
+    "@modelcontextprotocol/server": "^2.0.0",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
+    "mcp-handler": "^2.1.0",
     "next": "^16.2.12",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "yaml": "^2.5.0"
+    "yaml": "^2.5.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

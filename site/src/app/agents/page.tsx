@@ -42,14 +42,16 @@ export default function Agents() {
         <li>Verify: receipts carry sha256 commitments over canonical JSON of request and output, plus artifacts and evidence URLs you can fetch independently.</li>
       </ol>
 
-      <h2>MCP router</h2>
+      <h2>MCP gateway (hosted)</h2>
       <p className="small">
         Five tools: <span className="mono">search_capabilities · get_capability · get_quote ·
-        invoke_capability · get_execution</span>. Hosted endpoint: not yet published — the router
-        currently runs from source (see <a href="/use">/use</a>). This page will carry the connect
-        URL when the hosted endpoint ships. <span className="mono">invoke_capability</span> writes
-        external state: pass <span className="mono">idempotency_key</span> (8–128 chars) so retries
-        can never double-execute.
+        invoke_capability · get_execution</span>. Hosted endpoint (read-only), MCP over Streamable
+        HTTP: <a className="mono" href="/api/mcp">https://tracert.site/api/mcp</a>. Free reads
+        execute live and return a TRACE Receipt whose output commitment you can reproduce;
+        capabilities that write external state are refused here — run the local router (see{" "}
+        <a href="/use">/use</a>) to execute those. <span className="mono">invoke_capability</span>{" "}
+        accepts an <span className="mono">idempotency_key</span> (8–128 chars) so retries can never
+        double-execute.
       </p>
 
       <h2>Active capabilities, right now</h2>

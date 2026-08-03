@@ -53,6 +53,9 @@ capability:
       endpoint: https://api.dictionaryapi.dev/api/v2/entries/en
       docs_url: https://dictionaryapi.dev
       notes: GET {endpoint}/{word}, e.g. /entries/en/serendipity. No account or key required.
+    - type: mcp
+      server_url: https://tracert.site/api/mcp
+      notes: Invoke via the hosted Tracert gateway (Streamable HTTP); this read executes live and returns a TRACE Receipt.
   pricing:
     free: true
     mode: free

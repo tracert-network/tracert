@@ -34,9 +34,23 @@ export default function Use() {
         </table>
       </div>
 
-      <h2>Install (local, today)</h2>
+      <h2>Connect (hosted, read-only)</h2>
       <p>
-        The router runs locally over stdio while the hosted endpoint is in the works. From the{" "}
+        The hosted gateway is live at{" "}
+        <a className="mono" href="/api/mcp">https://tracert.site/api/mcp</a> — an MCP endpoint over
+        Streamable HTTP. Point any MCP client at that URL:
+      </p>
+      <pre>{`{ "mcpServers": { "tracert": { "url": "https://tracert.site/api/mcp" } } }`}</pre>
+      <p className="small muted">
+        The public gateway is <strong>read-only</strong>: free reads (exchange rates, dictionary, QR)
+        execute live and return a TRACE Receipt with a reproducible output commitment. Capabilities
+        that write external state are refused here — run the local router below to execute those.
+      </p>
+
+      <h2>Install (local — reads and writes)</h2>
+      <p>
+        The local router runs over stdio and can also execute writes (gated behind{" "}
+        <span className="mono">TRACERT_ENABLE_LIVE_SUBMIT=1</span>). From the{" "}
         <a href="https://github.com/tracert-network/tracert">Tracert repository</a>:
       </p>
       <pre>{`# build the router
@@ -45,8 +59,7 @@ cd router && npm install && npm run build
 # register it with Claude Code (any MCP host works)
 claude mcp add tracert -- node /path/to/tracert/router/dist/server.js`}</pre>
       <p className="small muted">
-        A hosted MCP endpoint plus a plain HTTPS search API ship with the discovery phase — this
-        page will carry the one-line connect string when they do.
+        A plain HTTPS search API for non-MCP callers is next on the discovery roadmap.
       </p>
 
       <h2>Then try the benchmark prompt</h2>

@@ -55,6 +55,9 @@ capability:
       endpoint: https://open.er-api.com/v6/latest
       docs_url: https://www.exchangerate-api.com/docs/free
       notes: GET {endpoint}/{base_code}, e.g. /v6/latest/USD. Keyless open endpoint; no account required.
+    - type: mcp
+      server_url: https://tracert.site/api/mcp
+      notes: Invoke via the hosted Tracert gateway (Streamable HTTP); this read executes live and returns a TRACE Receipt with a reproducible output commitment.
   pricing:
     free: true
     mode: free
