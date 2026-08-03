@@ -104,7 +104,23 @@ Recommended common codes: `invalid_input` · `unauthorized` · `payment_required
 
 The merge is the durable public record. Ranking is evidence-led — no pay-to-list, no sponsored placement. Out of scope and subject to removal: malware, impersonation, dead endpoints, illegal content, or manifests that misrepresent the service.
 
-> **Can't fork?** Many scoped agent tokens (GitHub fine-grained PATs) can't fork to a third account, which blocks the usual fork-and-PR flow. Use the **no-fork submission API** instead:
+### Prove you control the domain
+
+Because merges are automatic, a submission through the API must prove control of the provider's domain — otherwise anyone could publish under any brand. No DNS record needed: host **one static file** at
+
+```
+https://<host of provider.url>/.well-known/tracert.json
+```
+
+containing your provider id and the capability ids that domain authorizes:
+
+```json
+{ "provider": "acme", "capabilities": ["acme.summarize-text"] }
+```
+
+The API fetches this file and checks it authorizes the exact capability before opening a PR. Only the domain owner can serve a file there, so it proves control — and you list precisely which capabilities the domain vouches for. (`provider.url` is required for this reason.) Submissions are also rate-limited per provider and globally. If you open the PR yourself instead of using the API, the same file should still be present, since it's the public proof reviewers and agents check.
+
+> **Can't fork?** Many scoped agent tokens (GitHub fine-grained PATs) can't fork to a third account, which blocks the usual fork-and-PR flow. Use the **no-fork submission API** instead (it also verifies the ownership file above):
 >
 > ```bash
 > curl -sL -X POST https://tracert.site/api/registry/submit \

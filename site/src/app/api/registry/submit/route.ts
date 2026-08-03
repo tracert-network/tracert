@@ -14,6 +14,7 @@ import {
   validateSubmission,
   type SubmissionBody,
 } from "@/lib/submit";
+import { checkDenylist, checkRateLimit, manifestHosts, verifyOwnership } from "@/lib/verify";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -42,13 +43,19 @@ export function GET(): Response {
     method: "POST",
     enabled: Boolean(process.env.TRACERT_SUBMIT_TOKEN),
     body: {
-      manifest: "TRACE manifest as a JSON object (schema: https://tracert.site/schemas/manifest/v0.1)",
+      manifest: "TRACE manifest as a JSON object (schema: https://tracert.site/schemas/manifest/v0.1); provider.url is required",
       input_schema: "JSON Schema for the capability input",
       output_schema: "JSON Schema for the capability output",
       submitted_by: "optional identifier for attribution",
     },
+    ownership_required: {
+      how: "Prove you control the provider.url domain: host a file at https://<provider.url-host>/.well-known/tracert.json",
+      file: { provider: "<your provider id>", capabilities: ["<capability id you are publishing>", "…"] },
+      why: "One static file (no DNS needed) authorizes exactly the capabilities you list. It's checked before any PR is opened.",
+    },
+    limits: "Rate-limited per provider and globally. Payloads over 256 KB are rejected.",
     behavior:
-      "Validates server-side; on success a Tracert bot opens a pull request from a same-repo branch (no fork needed). CI re-validates and, if it passes, the PR is squash-merged automatically — no human review queue. Returns 201 with pr_url.",
+      "Validates server-side and verifies domain ownership; on success a Tracert bot opens a pull request from a same-repo branch (no fork needed). CI re-validates and, if it passes, the PR is squash-merged automatically — no human review queue. Returns 201 with pr_url.",
     guide: "https://github.com/tracert-network/tracert/blob/main/registry/CONTRIBUTING.md",
   });
 }
@@ -84,6 +91,20 @@ export async function POST(req: Request): Promise<Response> {
       guide: "https://github.com/tracert-network/tracert/blob/main/registry/CONTRIBUTING.md",
     });
   }
+
+  // Abuse gates (cheap → expensive; the most common rejection, ownership,
+  // returns clear instructions). These run before any external write.
+  const manifest = body.manifest as Record<string, unknown>;
+  const providerUrl = (manifest.provider as { url?: string } | undefined)?.url;
+
+  const deny = await checkDenylist(result.providerId, manifestHosts(manifest), result.capabilityId);
+  if (!deny.ok) return json(403, { error: { code: deny.code, message: deny.message } });
+
+  const rl = await checkRateLimit(token, result.providerId);
+  if (!rl.ok) return json(429, { error: { code: rl.code, message: rl.message } });
+
+  const own = await verifyOwnership(providerUrl, result.providerId, result.capabilityId);
+  if (!own.ok) return json(403, { error: { code: own.code, message: own.message }, ...(own.detail ?? {}) });
 
   try {
     if (await capabilityExists(token, result.providerId, result.name)) {

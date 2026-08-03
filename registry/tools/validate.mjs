@@ -28,6 +28,35 @@ const validateManifest = ajv.compile(loadJson(`${REGISTRY_ROOT}/schemas/manifest
 // Receipt schema isn't instantiated in the registry, but it must always compile.
 ajv.compile(loadJson(`${REGISTRY_ROOT}/schemas/receipt.schema.json`));
 
+// Moderation denylist — a matched live manifest is a hard error, so a
+// denylisted provider/domain/capability can never merge by any path.
+const denylist = existsSync(`${REGISTRY_ROOT}/moderation/denylist.json`)
+  ? loadJson(`${REGISTRY_ROOT}/moderation/denylist.json`)
+  : { providers: [], domains: [], capabilities: [] };
+const lc = (a) => (a ?? []).map((s) => String(s).toLowerCase());
+const denyProviders = new Set(lc(denylist.providers));
+const denyCaps = new Set(lc(denylist.capabilities));
+const denyDomains = lc(denylist.domains);
+
+function denylistHits(manifest) {
+  const hits = [];
+  const capId = manifest?.capability?.id;
+  const provId = manifest?.provider?.id;
+  if (capId && denyCaps.has(capId.toLowerCase())) hits.push(`capability id "${capId}" is denylisted`);
+  if (provId && denyProviders.has(provId.toLowerCase())) hits.push(`provider id "${provId}" is denylisted`);
+  const hosts = new Set();
+  walkStrings(manifest, (_p, v) => {
+    const m = /^https:\/\/([^/:]+)/i.exec(v);
+    if (m) hosts.add(m[1].toLowerCase());
+  });
+  for (const host of hosts) {
+    for (const d of denyDomains) {
+      if (host === d || host.endsWith("." + d)) hits.push(`host "${host}" matches denylisted domain "${d}"`);
+    }
+  }
+  return hits;
+}
+
 const providerFiles = findManifestFiles();
 const referenceFiles = [
   ...findManifestFiles(REGISTRY_ROOT, "templates"),
@@ -118,6 +147,11 @@ function checkFile(file, { reference }) {
     if (r.kind === "file" && !existsSync(r.target)) {
       errors.push(`evidence.test_vectors does not resolve: ${tv}`);
     }
+  }
+
+  // Moderation denylist applies to live manifests only.
+  if (!reference) {
+    for (const hit of denylistHits(manifest)) errors.push(`denylist: ${hit}`);
   }
 
   // Placeholder discipline applies to live manifests only — reference manifests

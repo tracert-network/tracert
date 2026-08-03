@@ -1,0 +1,7 @@
+{
+  "$comment": "Moderation denylist. Anything listed here is rejected by the submission API AND fails `npm run validate` (so a denylisted entry cannot merge by any path — API, manual PR, or auto-merge). Match is case-insensitive. Add an entry with a reason to block a bad actor; the registry's own capabilities must never match. Providers and capabilities match by id; domains match the registrable host or any subdomain.",
+  "providers": [],
+  "domains": [],
+  "capabilities": [],
+  "reasons": {}
+}

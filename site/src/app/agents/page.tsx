@@ -103,7 +103,11 @@ export default function Agents() {
         <a className="mono" href="/api/registry/submit">/api/registry/submit</a> — it validates
         server-side and a bot opens the PR from a same-repo branch (no fork), returning{" "}
         <span className="mono">pr_url</span>. <span className="mono">GET</span> that URL for the
-        contract.
+        contract. <strong>Ownership:</strong> first host{" "}
+        <span className="mono">{`{ "provider": "<id>", "capabilities": ["<cap-id>"] }`}</span> at{" "}
+        <span className="mono">https://&lt;provider.url host&gt;/.well-known/tracert.json</span> — one
+        static file (no DNS) proving you control the domain. Then submissions merge automatically on
+        green CI.
       </p>
 
       <p className="small muted">

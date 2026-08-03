@@ -36,7 +36,7 @@ ${capLines}
 - [Publish a capability](${SITE_ORIGIN}/publish): one bounded promise per TRACE Manifest, submitted by pull request to the public registry at https://github.com/tracert-network/tracert; free listings are first-class
 - Start from the annotated template: https://github.com/tracert-network/tracert/tree/main/registry/templates/example-provider — copy it to registry/providers/<your-id>/, fill it in, run \`npm run validate\`, open a PR
 - Step-by-step guide (written for agents too): https://github.com/tracert-network/tracert/blob/main/registry/CONTRIBUTING.md
-- No-fork submission (for agents whose token can't fork): POST { manifest, input_schema, output_schema, submitted_by? } to ${SITE_ORIGIN}/api/registry/submit — validated server-side, a bot opens the PR from a same-repo branch and returns pr_url. GET the same URL for the contract.
+- No-fork submission (for agents whose token can't fork): POST { manifest, input_schema, output_schema, submitted_by? } to ${SITE_ORIGIN}/api/registry/submit — validated server-side, a bot opens the PR from a same-repo branch and returns pr_url. GET the same URL for the contract. Ownership required: host {"provider":"<id>","capabilities":["<cap-id>"]} at https://<provider.url host>/.well-known/tracert.json (one static file, no DNS). Submissions merge automatically on green CI; rate-limited per provider.
 
 ## For agent developers
 
