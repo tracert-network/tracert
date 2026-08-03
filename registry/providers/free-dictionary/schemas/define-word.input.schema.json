@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Define word - input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["word"],
+  "properties": {
+    "word": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z'-]*$",
+      "description": "A single English word to define. Appended to the endpoint path: /entries/en/{word}.",
+      "examples": ["serendipity", "ephemeral", "trace"]
+    }
+  },
+  "examples": [
+    { "word": "serendipity" }
+  ]
+}

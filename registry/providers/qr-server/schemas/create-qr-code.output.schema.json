@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Create QR code - output (image bytes)",
+  "type": "string",
+  "contentEncoding": "base64",
+  "contentMediaType": "image/png",
+  "description": "The response body is the generated QR code image (PNG by default; GIF, JPEG, SVG or EPS per the requested format). The create-qr-code request URL re-renders the same image on each GET, so it is itself a stable, verifiable artifact."
+}

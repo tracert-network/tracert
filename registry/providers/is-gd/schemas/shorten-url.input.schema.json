@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Shorten URL - input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["url"],
+  "properties": {
+    "url": {
+      "type": "string",
+      "pattern": "^https?://",
+      "description": "The long URL to shorten. WARNING: this becomes a publicly resolvable redirect - never include secrets, tokens or private query parameters.",
+      "examples": ["https://tracert.site/capabilities"]
+    },
+    "shorturl": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_]{5,30}$",
+      "description": "Optional custom short code. The request fails if the code is already taken."
+    },
+    "format": {
+      "type": "string",
+      "enum": ["json", "simple", "xml"],
+      "default": "json",
+      "description": "Response format. Use json for a structured { shorturl } result."
+    }
+  },
+  "examples": [
+    { "url": "https://tracert.site/capabilities", "format": "json" }
+  ]
+}

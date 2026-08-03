@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Latest exchange rates - output",
+  "type": "object",
+  "required": ["result", "base_code", "rates"],
+  "properties": {
+    "result": { "type": "string", "enum": ["success", "error"], "description": "Upstream call status." },
+    "base_code": { "type": "string", "description": "Echoes the requested base currency." },
+    "time_last_update_utc": { "type": "string", "description": "When the provider last refreshed rates (RFC 1123). Bind a receipt to this value for day-stable reproducibility." },
+    "time_next_update_utc": { "type": "string", "description": "When the provider's next refresh is due." },
+    "rates": {
+      "type": "object",
+      "description": "Map of ISO 4217 currency code to the rate per one unit of base_code.",
+      "additionalProperties": { "type": "number" }
+    }
+  },
+  "examples": [
+    {
+      "result": "success",
+      "base_code": "USD",
+      "time_last_update_utc": "Mon, 03 Aug 2026 00:02:32 +0000",
+      "time_next_update_utc": "Tue, 04 Aug 2026 00:23:42 +0000",
+      "rates": { "USD": 1, "EUR": 0.866698, "GBP": 0.741656, "JPY": 158.015481, "CAD": 1.401293, "AED": 3.6725 }
+    }
+  ]
+}

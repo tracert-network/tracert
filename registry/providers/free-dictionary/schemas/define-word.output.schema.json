@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Define word - output",
+  "type": "array",
+  "description": "One or more dictionary entries for the word.",
+  "items": {
+    "type": "object",
+    "properties": {
+      "word": { "type": "string" },
+      "phonetic": { "type": "string", "description": "Primary phonetic spelling, when available." },
+      "phonetics": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "text": { "type": "string" },
+            "audio": { "type": "string", "description": "URL to a pronunciation audio clip (may be empty)." }
+          }
+        }
+      },
+      "meanings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "partOfSpeech": { "type": "string" },
+            "definitions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "definition": { "type": "string" },
+                  "synonyms": { "type": "array", "items": { "type": "string" } },
+                  "antonyms": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    [
+      {
+        "word": "serendipity",
+        "phonetic": "/ˌsɛ.ɹən.ˈdɪ.pɪ.ti/",
+        "phonetics": [
+          { "text": "/ˌsɛ.ɹən.ˈdɪ.pɪ.ti/", "audio": "https://api.dictionaryapi.dev/media/pronunciations/en/serendipity-us.mp3" }
+        ],
+        "meanings": [
+          {
+            "partOfSpeech": "noun",
+            "definitions": [
+              {
+                "definition": "A combination of events which have come together by chance to make a surprisingly good or wonderful outcome.",
+                "synonyms": ["chance", "luck"],
+                "antonyms": ["Murphy's law", "perfect storm"]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  ]
+}

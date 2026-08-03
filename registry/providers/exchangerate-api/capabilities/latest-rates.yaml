@@ -1,0 +1,84 @@
+# Unofficial, FREE wrapper of a third-party public API. Maintained by Tracert;
+# not affiliated with or endorsed by Exchange Rate API. Lists the keyless open
+# endpoint so an agent can discover it, read the contract, and call it directly.
+schema: https://tracert.site/schemas/manifest/v0.1
+
+provider:
+  id: exchangerate-api
+  name: Exchange Rate API
+  url: https://www.exchangerate-api.com
+  operator: exchangerate-api
+
+service:
+  id: exchangerate-api-open
+  name: Open Access Endpoint
+  url: https://open.er-api.com
+
+capability:
+  id: exchangerate-api.latest-rates
+  version: 0.1.0
+  status: active
+  promise: Return the latest reference exchange rates for a base currency against every supported currency.
+  description: >-
+    Community-maintained Tracert listing of Exchange Rate API's keyless open
+    endpoint. Given an ISO 4217 base currency, returns the current rate for
+    ~160 currencies plus the upstream's own last/next update timestamps. Rates
+    refresh about once every 24h, so a result is stable for the day: a receipt
+    committing to the output can be reproduced by re-fetching and re-hashing.
+    Example - GET /v6/latest/USD returns { "base_code": "USD", "rates": { "EUR": 0.8667, "GBP": 0.7417, ... } }.
+    Not affiliated with or endorsed by Exchange Rate API.
+  tags: [currency, exchange-rates, forex, finance, free, wrapper, unofficial]
+  excludes:
+    - Historical rates for past dates
+    - Converting a specific amount (returns rates, not a computed total)
+    - Real-time tick or interbank rates (data refreshes roughly once every 24h)
+  input:
+    schema_ref: ../schemas/latest-rates.input.schema.json
+    media_types: [application/json]
+    max_bytes: 64
+    notes: Sent as a URL path segment on a GET, not a request body - append the base code to the endpoint (/v6/latest/USD).
+  output:
+    schema_ref: ../schemas/latest-rates.output.schema.json
+    media_types: [application/json]
+  errors:
+    - code: unsupported
+      meaning: The requested base currency code is not supported by the provider.
+      retriable: false
+    - code: rate_limited
+      meaning: The provider rate-limited the caller's IP (HTTP 429); cooldown is roughly 20 minutes.
+      retriable: true
+    - code: unavailable
+      meaning: The upstream endpoint was unreachable.
+      retriable: true
+  interfaces:
+    - type: native_api
+      endpoint: https://open.er-api.com/v6/latest
+      docs_url: https://www.exchangerate-api.com/docs/free
+      notes: GET {endpoint}/{base_code}, e.g. /v6/latest/USD. Keyless open endpoint; no account required.
+  pricing:
+    free: true
+    mode: free
+  operations:
+    expected_latency_seconds: { p50: 0.5, p95: 2 }
+    timeout_seconds: 15
+    idempotency: supported
+    rate_limits: Per-IP; roughly once/hour is safe. HTTP 429 with a ~20-minute cooldown when throttled.
+  data_policy:
+    input_retention:
+      policy: undisclosed
+      notes: The input is only a base-currency code (no user data). The provider publishes no request-retention statement to Tracert.
+    training_use: undisclosed
+    regions: [global]
+    subprocessors:
+      - Exchange Rate API - open.er-api.com (upstream provider)
+    notes: >-
+      Unofficial free wrapper. The provider requires attribution ("Rates By
+      Exchange Rate API") wherever the rates are displayed and prohibits bulk
+      redistribution of the dataset; a Tracert receipt binds a hash of the
+      output (a commitment), not the dataset itself. Values are marked
+      "undisclosed" where the provider has not declared them - an honest
+      unknown, never a safe default.
+  provenance:
+    integration_status: unofficial
+    adapter_operator: tracert-labs
+    notes: Listing maintained by Tracert. Technical compatibility is not a commercial endorsement.
