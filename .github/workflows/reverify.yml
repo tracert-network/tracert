@@ -14,6 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        # Don't persist the default GITHUB_TOKEN as a git credential: the org
+        # locks it to read-only, and its extraheader would override the PAT in
+        # the push URL below (authenticating as github-actions[bot] → 403).
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
