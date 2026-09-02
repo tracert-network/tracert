@@ -2,11 +2,10 @@
   "$comment": "Ownership re-verification state, maintained by tools/reverify-ownership.mjs (daily cron). Per capability: consecutive_failures, last_ok, last_checked, suspended. Do not edit by hand.",
   "capabilities": {
     "promptfrenzy.list-ai-tool": {
-      "consecutive_failures": 1,
-      "last_ok": "2026-08-31T13:54:02.242Z",
-      "last_checked": "2026-09-01T11:41:00.281Z",
-      "suspended": false,
-      "last_error": "HTTP 403"
+      "consecutive_failures": 0,
+      "last_ok": "2026-09-02T11:20:52.330Z",
+      "last_checked": "2026-09-02T11:20:52.330Z",
+      "suspended": false
     }
   }
 }
