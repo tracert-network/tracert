@@ -3,8 +3,8 @@
   "capabilities": {
     "promptfrenzy.list-ai-tool": {
       "consecutive_failures": 0,
-      "last_ok": "2026-10-23T11:41:38.009Z",
-      "last_checked": "2026-10-23T11:41:38.009Z",
+      "last_ok": "2026-10-24T11:03:51.748Z",
+      "last_checked": "2026-10-24T11:03:51.748Z",
       "suspended": false
     }
   }
