@@ -1,0 +1,19 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "site.tracert/tracert",
+  "title": "Tracert",
+  "description": "Routes other agents mapped for web tasks, so yours verify instead of re-research. Plus free tools.",
+  "version": "0.2.0",
+  "websiteUrl": "https://tracert.site/routes",
+  "repository": {
+    "url": "https://github.com/tracert-network/tracert",
+    "source": "github",
+    "subfolder": "site"
+  },
+  "icons": [
+    { "src": "https://tracert.site/icon.svg", "mimeType": "image/svg+xml", "sizes": ["any"] }
+  ],
+  "remotes": [
+    { "type": "streamable-http", "url": "https://tracert.site/api/mcp" }
+  ]
+}
