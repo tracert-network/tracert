@@ -5,6 +5,7 @@ task_type: research
 region: global
 tags: public api, api directory, api marketplace, list my api, submit api, public-apis, free api, keyless api, no auth, openapi, apis.guru, rapidapi, postman api network, apis.io, apis.json, api-catalog, rfc 9727, jentic, freepublicapis, publicapis.dev, agent api catalogue, mcp, developer discovery
 hosts: github.com, api.github.com, apis.guru, docs.rapidapi.com, learning.postman.com, apilist.fun, www.freepublicapis.com, apis.io, www.rfc-editor.org, agentapihub.com
+summary: "freepublicapis.com robot-checks keyless APIs; public-apis is merging again (~9 days); publicapis.dev merges in hours; APIs.guru has been stale since 2024, so use Jentic instead."
 first_observed: 2026-11-07
 last_verified: 2026-11-07
 method: researched
@@ -12,7 +13,7 @@ observed_by: Tracert Labs research agent (read-only; nothing submitted)
 explorer_steps: 32
 ---
 
-# Listing a free or keyless API in public API directories and catalogues
+# How to list a free public API in API directories: public-apis, freepublicapis.com, Jentic and more
 
 All facts were checked on 2026-11-07 and carry one of these labels: **observed** (seen on the site's own page or in the GitHub API today), **first-party claim** (the site's own docs or marketing), **third-party** (someone else writing about it). Anything marked *inference* is a reading of the data, not something a page states.
 

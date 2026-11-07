@@ -10,6 +10,8 @@ export interface Route {
   slug: string;
   title: string;
   intent: string;
+  summary: string | null;
+  verify_checks: number;
   task_type: string;
   region: string;
   tags: string[];
@@ -37,6 +39,31 @@ export function allRoutes(): Route[] {
 
 export function getRoute(slug: string): Route | undefined {
   return ROUTES.find((r) => r.slug === slug);
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** "Nov 2026" from an ISO date — freshness shown in titles/snippets, never hard-coded in content. */
+export function monthYear(isoDate: string): string {
+  const [y, m] = isoDate.split("-");
+  return `${MONTHS[Number(m) - 1] ?? ""} ${y}`.trim();
+}
+
+/** The factual saving line: what researching cost the first agent vs what verifying costs. */
+export function savingLine(route: Route): string | null {
+  if (!route.explorer_steps || !route.verify_checks) return null;
+  return `The first agent spent ${route.explorer_steps} tool calls researching this; the route's Verify-first plan is ${route.verify_checks} checks.`;
+}
+
+/** How an agent should cite the route to its user (this is how humans discover Tracert). */
+export function citeAs(route: Route): string {
+  return `Tracert route "${route.title}", verified ${route.last_verified}, ${SITE_ORIGIN}/routes/${route.slug}`;
+}
+
+/** Search-snippet description: verified month + freshest facts + the saving. */
+export function searchDescription(route: Route): string {
+  const head = `Verified ${monthYear(route.last_verified)}: ${route.summary ?? route.intent}`;
+  return route.verify_checks ? `${head} Verify in ${route.verify_checks} checks instead of researching from scratch.` : head;
 }
 
 export function routeUrls(slug: string) {
@@ -160,9 +187,12 @@ export function routeDigest(hit: RouteHit) {
     last_verified: r.last_verified,
     freshness: f.label,
     first_explorer_steps: r.explorer_steps,
+    verify_checks: r.verify_checks,
+    summary: r.summary,
     match: { score: hit.score, keywords_matched: hit.matched, coverage: Math.round(hit.coverage * 100) / 100 },
     tldr: routeSection(r, "TL;DR"),
     verify_first: routeSection(r, "Verify"),
+    cite_as: citeAs(r),
     ...routeUrls(r.slug),
   };
 }

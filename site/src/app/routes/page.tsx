@@ -105,7 +105,7 @@ export default function Routes() {
             <h3 style={{ margin: "0.3rem 0 0.5rem" }}>
               <Link href={`/routes/${r.slug}`}>{r.title}</Link>
             </h3>
-            <p className="small muted" style={{ margin: 0 }}>{r.intent}</p>
+            <p className="small muted" style={{ margin: 0 }}>{r.summary ?? r.intent}</p>
             <p className="small mono muted" style={{ marginBottom: 0 }}>
               {r.hosts.length} sites · first explorer: {r.explorer_steps ?? "?"} steps ·{" "}
               {r.reuse_runs > 0

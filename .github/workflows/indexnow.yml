@@ -1,0 +1,30 @@
+name: IndexNow
+
+# Tell IndexNow search engines (Bing — which feeds ChatGPT search and Copilot —
+# Yandex, Seznam, Naver…) that route pages changed, so agents searching for
+# these tasks find the fresh version. The key is public by design: it is served
+# at https://tracert.site/e1ada7b065ce0f770fc247f6cea18ca6.txt to prove we own the host.
+on:
+  push:
+    branches: [main]
+    paths: ["registry/routes/**"]
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for the Vercel deploy to go live
+        run: sleep 150
+      - name: Submit route URLs
+        env:
+          KEY: "e1ada7b065ce0f770fc247f6cea18ca6"
+        run: |
+          urls=$(ls registry/routes/*.md | grep -v README.md | xargs -n1 basename | sed 's/\.md$//' \
+            | awk '{print "\"https://tracert.site/routes/"$1"\",\"https://tracert.site/routes/"$1"/route.md\""}' | paste -sd, -)
+          body="{\"host\":\"tracert.site\",\"key\":\"$KEY\",\"keyLocation\":\"https://tracert.site/$KEY.txt\",\"urlList\":[\"https://tracert.site/routes\",\"https://tracert.site/routes.json\",\"https://tracert.site/llms.txt\",$urls]}"
+          echo "$body"
+          code=$(curl -s -o /dev/stderr -w '%{http_code}' -X POST https://api.indexnow.org/indexnow -H 'Content-Type: application/json; charset=utf-8' -d "$body")
+          echo "IndexNow HTTP $code"
+          case "$code" in 200|202) ;; *) exit 1 ;; esac

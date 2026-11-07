@@ -5,6 +5,7 @@ task_type: research
 region: global
 tags: launch, show hn, hacker news, lobsters, reddit, self-promotion, product hunt, peerlist, dev.to, hashnode, indie hackers, discord, open source, developer tool, mcp, ai-generated content, posting rules
 hosts: news.ycombinator.com, lobste.rs, dev.to, hashnode.com, help.peerlist.io, www.producthunt.com, www.reactiflux.com, winbuzzer.com
+summary: "Show HN needs human-written text (HN bans AI-generated posts); Lobsters is closed to new accounts for 70 days; r/opensource now bans AI and MCP projects; Product Hunt and Peerlist rules."
 first_observed: 2026-11-07
 last_verified: 2026-11-07
 method: researched
@@ -12,7 +13,7 @@ observed_by: Tracert Labs research agent (read-only; nothing submitted)
 explorer_steps: 30
 ---
 
-# Where and how to announce a dev tool or open-source project for free
+# Where to launch a developer tool for free: Show HN, Lobsters, Reddit and Product Hunt rules
 
 Labels: **observed** = read on the community's own rules page on 2026-11-07 (through a fetch tool that summarises pages, so re-check exact wording before quoting it); **first-party claim** = the platform's own words seen only in a search snippet, or on a page that is not a rules page; **third-party** = blogs, news, mirrors. All facts dated 2026-11-07 unless a different date is given.
 

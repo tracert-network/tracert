@@ -5,6 +5,7 @@ task_type: research
 region: global
 tags: ai, tool, directory, directories, submit, submission, listing, free, launch, launchpad, backlink, badge, api, agent, mcp, product hunt, saas
 hosts: neuronfeed.com, azn8.com, aiagentslisting.com, futuretools.io, aivalley.ai, producthunt.com, uneed.best, dang.ai, fazier.com, saashub.com, betalist.com, theresanaiforthat.com, wired.business, aidirs.best, twelve.tools, witscode.com, stork.ai
+summary: "Ten free AI tool directories with submit URLs, backlink rules and review times; NeuronFeed and AZN8 accept API submissions; paid-only directories and stale 'free' claims flagged."
 first_observed: 2026-11-07
 last_verified: 2026-11-07
 method: researched
@@ -13,7 +14,7 @@ explorer_steps: 39
 reuse_runs: 1
 ---
 
-# Free directories to list a new AI tool (and which take agent/API submissions)
+# Free AI tool directories to submit your tool, including ones that take API or agent submissions
 
 Context of first run: UK maker preparing to launch an AI tool. Wanted 10 free listings, research only.
 

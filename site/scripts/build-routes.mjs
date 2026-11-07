@@ -30,10 +30,16 @@ if (dir && existsSync(dir)) {
     const fm = parseYaml(m[1]) ?? {};
     const body = m[2].replace(/^\n+/, "");
     const title = (/^# (.+)$/m.exec(body)?.[1] ?? fm.slug).trim();
+    // Number of Verify-first checks (numbered items in that section) — the
+    // "cost to verify" an agent compares with explorer_steps.
+    const verifySection = /^## Verify first[^\n]*\n([\s\S]*?)(?=^## |(?![\s\S]))/m.exec(body)?.[1] ?? "";
+    const verify_checks = (verifySection.match(/^\d+\.\s/gm) ?? []).length;
     routes.push({
       slug: fm.slug,
       title,
       intent: fm.intent,
+      summary: typeof fm.summary === "string" ? fm.summary : null,
+      verify_checks,
       task_type: fm.task_type,
       region: fm.region,
       tags: list(fm.tags),

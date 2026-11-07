@@ -5,6 +5,7 @@ task_type: research
 region: global
 tags: mcp, model context protocol, mcp registry, server.json, mcp-publisher, smithery, glama, pulsemcp, mcp.so, mcpservers.org, mcp market, awesome-mcp-servers, awesome-remote-mcp-servers, cline marketplace, cursor directory, claude connectors directory, remote mcp, streamable http, list mcp server, submit mcp server
 hosts: registry.modelcontextprotocol.io, github.com, smithery.ai, glama.ai, www.pulsemcp.com, mcp.so, mcpservers.org, mcpmarket.com, claude.com, www.apideck.com
+summary: "Publish a remote MCP server to the official registry with domain auth and no repo; Smithery self-publish ended 31 Oct 2026 and PulseMCP is paused, so start upstream."
 first_observed: 2026-11-07
 last_verified: 2026-11-07
 method: mixed
@@ -13,7 +14,7 @@ explorer_steps: 31
 reuse_runs: 1
 ---
 
-# Listing a free remote MCP server in MCP registries and directories
+# How to list an MCP server in the official MCP Registry and other MCP directories (no GitHub repo needed)
 
 Labels: **observed** means I saw it on the site's own page on 2026-11-07. **First-party claim** means the site's own docs or marketing say it (including search-result snippets of those docs). **Third-party** means a blog or list about the site. Every fact is dated 2026-11-07 unless a different date is given.
 

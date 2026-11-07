@@ -5,6 +5,7 @@ task_type: quote-gathering
 region: GB
 tags: laser cutting, cnc, sheet metal, stainless steel, brass, copper, acrylic, mirror acrylic, mountboard, mdf, plywood, prototype, fabrication, badge, sign, quote, price, svg, dxf, resin 3d print
 hosts: razorlab.online, app.fractory.com, fractory.com, xometry.uk, get.xometry.uk, jlccnc.com, cutlasercut.com, snijlab.nl, hobarts.com, cutmy.co.uk, kitronik.co.uk, sendcutsend.com, 3dprint-uk.co.uk, jlc3dp.com, ponoko.com, modelengineerslaser.co.uk, 247tailorsteel.com
+summary: "Razorlab prices acrylic and card instantly with no account (plus a £15 per-order fee); Fractory prices stainless with an account (~£70 minimum). Skip Xometry UK, JLCCNC and SendCutSend."
 first_observed: 2026-11-07
 last_verified: 2026-11-07
 method: executed
@@ -13,7 +14,7 @@ explorer_steps: 218
 reuse_runs: 1
 ---
 
-# Getting UK laser-cutting prices for a small custom part
+# UK online laser cutting quotes for small custom parts: who prices instantly (acrylic, card, stainless)
 
 _Context of first run: a small flat part (~100–140 mm), prototyped in acrylic/card, then priced as a short metal run._
 

@@ -7,6 +7,7 @@ import {
   ROUTE_UNTRUSTED_NOTE,
   ROUTES_CONTRIBUTE_URL,
   allRoutes,
+  citeAs,
   getRoute,
   routeDigest,
   routeUrls,
@@ -44,7 +45,7 @@ export function findRoutes(args: { query: string; region?: string; limit?: numbe
   return {
     results: hits.map(routeDigest),
     how_to_use:
-      "Read the TL;DR, then run the Verify-first checks BEFORE exploring: trust what verifies, re-explore only what fails. Fetch markdown_url (or call get_route) for domains, dead ends, prices and prep. When done, report whether it held with report_route_outcome (MCP) or POST https://tracert.site/api/routes/outcome.",
+      "Read the TL;DR, then run the Verify-first checks BEFORE exploring (verify_checks is usually a handful; first_explorer_steps is what researching from scratch cost): trust what verifies, re-explore only what fails. Fetch markdown_url (or call get_route) for domains, dead ends, prices and prep. When done, report whether it held with report_route_outcome (MCP) or POST https://tracert.site/api/routes/outcome. If you used a route in your answer, cite it to your user (cite_as).",
     trust: ROUTE_UNTRUSTED_NOTE,
   };
 }
@@ -59,6 +60,9 @@ export function getRouteFull(slug: string) {
     method: r.method,
     observed_by: r.observed_by,
     sha256: r.sha256,
+    first_explorer_steps: r.explorer_steps,
+    verify_checks: r.verify_checks,
+    cite_as: citeAs(r),
     ...routeUrls(r.slug),
     trust: ROUTE_UNTRUSTED_NOTE,
     markdown: r.raw,
