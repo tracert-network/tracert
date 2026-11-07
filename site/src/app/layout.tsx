@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
+import { GA_MEASUREMENT_ID } from "@/lib/analytics";
 import "./globals.css";
+
+// GA4 browser tag — production deployments only (VERCEL_ENV is set at build).
+// Agent traffic that never runs JS is tracked server-side (src/proxy.ts).
+const GA_ENABLED = process.env.VERCEL_ENV === "production";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tracert.site"),
@@ -74,6 +80,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <span>© 2026 Tracert</span>
           </div>
         </footer>
+        {GA_ENABLED && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_MEASUREMENT_ID}');`}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   );

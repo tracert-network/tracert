@@ -3,8 +3,11 @@
 // (exchange rates, dictionary, QR) execute live and return TRACE Receipts;
 // capabilities that write external state are refused here and run via the local
 // router. Tool logic lives in @/lib/gateway (a trimmed port of the router).
+import { AsyncLocalStorage } from "node:async_hooks";
+import { after } from "next/server";
 import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
+import { callerFromHeaders, sendServerEvents } from "@/lib/analytics";
 import {
   ToolError,
   toolGetCapability,
@@ -16,6 +19,23 @@ import {
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
+
+// Caller (IP + user agent) for analytics, carried into tool callbacks. Request
+// counts and tool names are tracked in src/proxy.ts; here we add the one thing
+// only the tool knows: a search that found nothing (demand evidence for supply).
+const callerStore = new AsyncLocalStorage<{ ip: string; ua: string }>();
+
+function trackSearchGap(query: string, result: unknown) {
+  const results = (result as { results?: unknown[] })?.results;
+  if (!Array.isArray(results) || results.length > 0) return;
+  const caller = callerStore.getStore() ?? { ip: "", ua: "" };
+  const send = () => sendServerEvents(caller, [{ name: "search_gap", params: { query } }]);
+  try {
+    after(send);
+  } catch {
+    void send();
+  }
+}
 
 const PAYMENT_MODES = ["mpp", "x402", "prepaid_balance", "byok", "subscription", "invoice"] as const;
 
@@ -53,7 +73,12 @@ const handler = createMcpHandler((server) => {
         limit: z.number().int().min(1).max(20).optional().describe("Max candidates (default 5)"),
       }),
     },
-    async (args) => run(() => toolSearchCapabilities(args as Parameters<typeof toolSearchCapabilities>[0])),
+    async (args) =>
+      run(() => {
+        const result = toolSearchCapabilities(args as Parameters<typeof toolSearchCapabilities>[0]);
+        trackSearchGap((args as { query: string }).query, result);
+        return result;
+      }),
   );
 
   server.registerTool(
@@ -114,4 +139,8 @@ const handler = createMcpHandler((server) => {
   serverInfo: { name: "tracert-gateway", version: "0.1.0" },
 });
 
-export { handler as GET, handler as POST, handler as DELETE };
+function tracked(req: Request) {
+  return callerStore.run(callerFromHeaders(req.headers), () => handler(req));
+}
+
+export { tracked as GET, tracked as POST, tracked as DELETE };
