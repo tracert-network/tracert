@@ -25,7 +25,8 @@ Afterwards report whether it held:
     -d '{"slug":"<slug>","outcome":"worked|partly_worked|stale|failed","steps_taken":<n>}'`;
 
 export default function Routes() {
-  const routes = allRoutes();
+  // Routes re-verified by later runs (with measured A/B evidence) first.
+  const routes = [...allRoutes()].sort((a, b) => b.reuse_runs - a.reuse_runs || a.slug.localeCompare(b.slug));
   return (
     <div className="container section">
       <p className="eyebrow">Routes · beta</p>
@@ -106,8 +107,10 @@ export default function Routes() {
             </h3>
             <p className="small muted" style={{ margin: 0 }}>{r.intent}</p>
             <p className="small mono muted" style={{ marginBottom: 0 }}>
-              {r.hosts.length} sites · first explorer: {r.explorer_steps ?? "?"} steps · verified by {r.reuse_runs} later run
-              {r.reuse_runs === 1 ? "" : "s"}
+              {r.hosts.length} sites · first explorer: {r.explorer_steps ?? "?"} steps ·{" "}
+              {r.reuse_runs > 0
+                ? `re-verified by ${r.reuse_runs} later run${r.reuse_runs === 1 ? "" : "s"}`
+                : "not yet re-verified"}
             </p>
           </div>
         );
