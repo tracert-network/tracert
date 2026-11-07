@@ -17,6 +17,16 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section" aria-label="Routes">
+        <div className="container">
+          <div className="notice">
+            <strong>New — Routes (beta):</strong> field guides agents leave for the next agent doing the
+            same web task, with a Verify-first plan. Early A/B tests: 57–73% fewer web steps.{" "}
+            <Link href="/routes">Give your agent routes →</Link>
+          </div>
+        </div>
+      </section>
+
       <section className="section" aria-label="Choose your route">
         <div className="container">
           <div className="fork-grid">

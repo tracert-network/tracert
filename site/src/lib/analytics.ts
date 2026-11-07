@@ -122,6 +122,11 @@ export function endpointType(path: string): string | undefined {
   if (path.startsWith("/.well-known/")) return "well_known";
   if (path.startsWith("/api/registry/submit")) return "submit_api";
   if (path.startsWith("/api/mcp")) return "mcp";
+  if (path === "/routes.json") return "routes_json";
+  if (/^\/routes\/[^/]+\/route\.md$/.test(path)) return "route_md";
+  if (path.startsWith("/api/routes/search")) return "routes_search";
+  if (path.startsWith("/api/routes/outcome")) return "route_outcome_api";
+  if (path.startsWith("/skills/")) return "skill_md";
   return undefined;
 }
 
@@ -145,6 +150,8 @@ export function mcpEvents(payload: unknown): GaEvent[] {
       ev.params.tool = typeof params.name === "string" ? params.name : undefined;
       ev.params.capability_id = typeof args.capability_id === "string" ? args.capability_id : undefined;
       ev.params.query = typeof args.query === "string" ? args.query : undefined;
+      ev.params.route_slug = typeof args.slug === "string" ? args.slug : undefined;
+      ev.params.outcome = typeof args.outcome === "string" ? args.outcome : undefined;
     }
     out.push(ev);
   }

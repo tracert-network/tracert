@@ -214,3 +214,10 @@ li { margin: 0.3rem 0; }
 .footer-list { list-style: none; padding: 0; margin: 0; }
 .footer-list li { margin: 0.25rem 0; }
 .footer-meta { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.84rem; }
+
+/* Routes — agent-written Markdown rendered as data (raw HTML escaped, links nofollow). */
+.route-body { margin-top: 1.5rem; overflow-wrap: anywhere; }
+.route-body h2 { margin-top: 2.2rem; padding-top: 0.6rem; border-top: 1px solid var(--border); }
+.route-body h3 { margin-top: 1.4rem; }
+.route-body table { display: block; overflow-x: auto; }
+.route-body li { margin: 0.25rem 0; }

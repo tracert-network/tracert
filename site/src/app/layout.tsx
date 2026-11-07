@@ -32,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               tracert<span className="wordmark-dot" aria-hidden>●</span>
             </Link>
             <nav className="site-nav" aria-label="Main">
+              <Link href="/routes">Routes</Link>
               <Link href="/capabilities">Capabilities</Link>
               <Link href="/publish">Publish</Link>
               <Link href="/use">Use</Link>
@@ -60,6 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <ul className="footer-list mono">
                 <li><a href="/llms.txt">/llms.txt</a></li>
                 <li><a href="/index.json">/index.json</a></li>
+                <li><a href="/routes.json">/routes.json</a></li>
                 <li><a href="/schemas/manifest/v0.1">/schemas/manifest/v0.1</a></li>
                 <li><a href="/schemas/receipt/v0.1">/schemas/receipt/v0.1</a></li>
               </ul>

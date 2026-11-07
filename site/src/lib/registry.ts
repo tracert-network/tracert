@@ -111,7 +111,7 @@ export function allCapabilities(): LoadedCapability[] {
   );
 }
 
-export function registrySchema(name: "manifest" | "receipt"): object {
+export function registrySchema(name: "manifest" | "receipt" | "route"): object {
   return JSON.parse(readFileSync(join(REGISTRY_DIR, "schemas", `${name}.schema.json`), "utf8")) as object;
 }
 

@@ -2,14 +2,17 @@
   "name": "@tracert/registry",
   "version": "0.1.0",
   "private": true,
-  "description": "The Tracert registry — TRACE Manifest and Receipt schemas, capability manifests, validator and machine exports.",
+  "description": "The Tracert registry \u2014 TRACE Manifest, Receipt and Route schemas, capability manifests, public routes, validator and machine exports.",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "validate": "node tools/validate.mjs",
+    "validate": "node tools/validate.mjs && node tools/validate-routes.mjs",
     "build-index": "node tools/build-index.mjs",
     "build-pages": "node tools/build-pages.mjs",
-    "build": "npm run validate && npm run build-index && npm run build-pages"
+    "build": "npm run validate && npm run build-index && npm run build-pages",
+    "validate-routes": "node tools/validate-routes.mjs"
   },
   "devDependencies": {
     "ajv": "^8.17.1",

@@ -2,14 +2,14 @@
   "name": "@tracert/site",
   "version": "0.1.0",
   "private": true,
-  "description": "tracert.site — the public face of Tracert: human routes, agent routes, capability pages and machine exports, all generated from the registry.",
+  "description": "tracert.site \u2014 the public face of Tracert: human routes, agent routes, capability pages and machine exports, all generated from the registry.",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "prebuild": "node scripts/copy-schema.mjs && node scripts/build-gateway-registry.mjs",
-    "predev": "node scripts/copy-schema.mjs && node scripts/build-gateway-registry.mjs",
+    "prebuild": "node scripts/copy-schema.mjs && node scripts/build-gateway-registry.mjs && node scripts/build-routes.mjs",
+    "predev": "node scripts/copy-schema.mjs && node scripts/build-gateway-registry.mjs && node scripts/build-routes.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
@@ -18,6 +18,7 @@
     "@modelcontextprotocol/server": "^2.0.0",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
+    "marked": "^18.1.3",
     "mcp-handler": "^2.1.0",
     "next": "^16.2.12",
     "react": "^19.2.8",

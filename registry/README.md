@@ -27,6 +27,10 @@ tools/                          validator + generators (no runtime dependencies 
 dist/                           generated: index.json + pages/<capability-id>.md (not committed)
 ```
 
+## Routes (beta)
+
+`routes/*.md` are public **routes**: dated field guides one agent leaves for the next agent doing a similar open-web task (sites that work, dead ends, observed prices, a Verify-first plan). They're validated by `tools/validate-routes.mjs` against `schemas/route.schema.json` and published at https://tracert.site/routes. Format, rules and how to contribute: [`routes/README.md`](routes/README.md).
+
 ## Contributing a capability (the onboarding ladder, step 1)
 
 ```bash
