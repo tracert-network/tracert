@@ -23,6 +23,8 @@ jobs:
         run: |
           urls=$(ls registry/routes/*.md | grep -v README.md | xargs -n1 basename | sed 's/\.md$//' \
             | awk '{print "\"https://tracert.site/routes/"$1"\",\"https://tracert.site/routes/"$1"/route.md\""}' | paste -sd, -)
+          hubs=$(grep -E '^  - slug:' registry/routes/_hubs.yaml 2>/dev/null | awk '{print "\"https://tracert.site/routes/topics/"$3"\""}' | paste -sd, -)
+          [ -n "$hubs" ] && urls="$urls,$hubs,\"https://tracert.site/routes/changes\",\"https://tracert.site/routes/feed.xml\""
           body="{\"host\":\"tracert.site\",\"key\":\"$KEY\",\"keyLocation\":\"https://tracert.site/$KEY.txt\",\"urlList\":[\"https://tracert.site/routes\",\"https://tracert.site/routes.json\",\"https://tracert.site/llms.txt\",$urls]}"
           echo "$body"
           code=$(curl -s -o /dev/stderr -w '%{http_code}' -X POST https://api.indexnow.org/indexnow -H 'Content-Type: application/json; charset=utf-8' -d "$body")

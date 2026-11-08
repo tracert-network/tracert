@@ -103,6 +103,41 @@ for (const f of files) {
   warned += warnings.length;
 }
 
+// Topic hubs (routes/_hubs.yaml): every referenced route must exist; editorial fields bounded.
+const hubsPath = join(ROUTES_DIR, "_hubs.yaml");
+if (existsSync(hubsPath)) {
+  const errors = [];
+  let hubs = [];
+  try {
+    hubs = parseYaml(readFileSync(hubsPath, "utf8"))?.hubs ?? [];
+  } catch (e) {
+    errors.push(`YAML: ${e.message}`);
+  }
+  const slugs = new Set(files.map((f) => f.replace(/\.md$/, "")));
+  const seen = new Set();
+  for (const h of hubs) {
+    const where = `hub "${h?.slug ?? "?"}"`;
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(h?.slug ?? "")) errors.push(`${where}: bad slug`);
+    if (seen.has(h?.slug)) errors.push(`${where}: duplicate slug`);
+    seen.add(h?.slug);
+    if (!h?.title || h.title.length > 160) errors.push(`${where}: title missing or > 160 chars`);
+    if (!h?.summary || h.summary.length < 40 || h.summary.length > 220) errors.push(`${where}: summary must be 40–220 chars`);
+    if (!h?.intro || h.intro.length < 80) errors.push(`${where}: intro missing or too thin (< 80 chars)`);
+    const sections = Array.isArray(h?.sections) ? h.sections : [];
+    if (!sections.length) errors.push(`${where}: no sections`);
+    for (const s of sections) {
+      for (const r of s?.routes ?? []) {
+        if (!slugs.has(r?.slug)) errors.push(`${where}: unknown route "${r?.slug}"`);
+        if (!r?.why || r.why.length > 240) errors.push(`${where}: route "${r?.slug}" needs a why (≤ 240 chars)`);
+      }
+    }
+    if (/<\s*(script|iframe|style)\b/i.test(JSON.stringify(h))) errors.push(`${where}: raw HTML not allowed`);
+  }
+  report("_hubs.yaml", errors, []);
+  if (errors.length) failed++;
+  console.log(`${hubs.length} hub(s) checked.`);
+}
+
 console.log(`\n${files.length} route(s) checked: ${failed} with errors, ${warned} warning(s).`);
 process.exit(failed ? 1 : 0);
 

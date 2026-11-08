@@ -9,6 +9,7 @@ import {
   citeAs,
   freshness,
   getRoute,
+  hubsForRoute,
   monthYear,
   renderRouteHtml,
   savingLine,
@@ -76,6 +77,17 @@ export default async function RoutePage({ params }: { params: Promise<{ slug: st
         <Link href="/routes">Routes</Link> · {r.task_type} · {r.region} · verified {monthYear(r.last_verified)}
       </p>
       <h1>{r.title}</h1>
+      {hubsForRoute(r.slug).length > 0 && (
+        <p className="small muted" style={{ margin: "-0.4rem 0 0.6rem" }}>
+          Part of:{" "}
+          {hubsForRoute(r.slug).map((h, i) => (
+            <span key={h.slug}>
+              {i > 0 ? " · " : ""}
+              <Link href={`/routes/topics/${h.slug}`}>{h.title}</Link>
+            </span>
+          ))}
+        </p>
+      )}
       <p className="lede">{r.summary ?? r.intent}</p>
       <p className="small">
         <span className="pill pill-active">{r.method}</span>{" "}

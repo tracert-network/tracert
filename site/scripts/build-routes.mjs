@@ -34,6 +34,11 @@ if (dir && existsSync(dir)) {
     // "cost to verify" an agent compares with explorer_steps.
     const verifySection = /^## Verify first[^\n]*\n([\s\S]*?)(?=^## |(?![\s\S]))/m.exec(body)?.[1] ?? "";
     const verify_checks = (verifySection.match(/^\d+\.\s/gm) ?? []).length;
+    // Changelog lines "- YYYY-MM-DD — text" → [{date, text}], newest first.
+    const changeSection = /^## Changelog[^\n]*\n([\s\S]*?)(?=^## |(?![\s\S]))/m.exec(body)?.[1] ?? "";
+    const changelog = [...changeSection.matchAll(/^- (\d{4}-\d{2}-\d{2})\s*[—–:-]+\s*(.+)$/gm)]
+      .map((m) => ({ date: m[1], text: m[2].trim() }))
+      .sort((a, b) => b.date.localeCompare(a.date));
     routes.push({
       slug: fm.slug,
       title,
@@ -50,12 +55,32 @@ if (dir && existsSync(dir)) {
       observed_by: fm.observed_by,
       explorer_steps: typeof fm.explorer_steps === "number" ? fm.explorer_steps : null,
       reuse_runs: typeof fm.reuse_runs === "number" ? fm.reuse_runs : 0,
+      changelog,
       body,
       raw: text,
       sha256: "sha256:" + createHash("sha256").update(text).digest("hex"),
     });
   }
 }
+
+// Topic hubs (validated in the registry); kept in their own snapshot.
+let hubs = [];
+const hubsFile = dir ? join(dir, "_hubs.yaml") : null;
+if (hubsFile && existsSync(hubsFile)) {
+  const known = new Set(routes.map((r) => r.slug));
+  hubs = (parseYaml(readFileSync(hubsFile, "utf8"))?.hubs ?? []).map((h) => ({
+    slug: h.slug,
+    title: h.title,
+    summary: h.summary,
+    intro: h.intro.trim(),
+    sections: (h.sections ?? []).map((s) => ({
+      heading: s.heading,
+      routes: (s.routes ?? []).filter((r) => known.has(r.slug)).map((r) => ({ slug: r.slug, why: r.why })),
+    })),
+  }));
+}
+writeFileSync(resolve(process.cwd(), "src/generated/route-hubs.json"), JSON.stringify(hubs) + "\n");
+console.log(`routes: ${hubs.length} hub(s) -> src/generated/route-hubs.json`);
 
 const out = resolve(process.cwd(), "src/generated/routes.json");
 mkdirSync(dirname(out), { recursive: true });
