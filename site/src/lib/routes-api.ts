@@ -2,7 +2,7 @@
 // the hosted MCP gateway (find_routes, get_route, report_route_outcome), so an
 // agent gets the same answer whichever way it calls.
 import { after } from "next/server";
-import { sendServerEvents, type GaEvent } from "@/lib/analytics";
+import { sendServerEvents, type Caller, type GaEvent } from "@/lib/analytics";
 import {
   ROUTE_UNTRUSTED_NOTE,
   ROUTES_CONTRIBUTE_URL,
@@ -17,7 +17,6 @@ import {
 export const OUTCOMES = ["worked", "partly_worked", "stale", "failed"] as const;
 export type Outcome = (typeof OUTCOMES)[number];
 
-type Caller = { ip: string; ua: string };
 
 /** Fire analytics after the response; never let it affect the answer. */
 export function track(caller: Caller, events: GaEvent[]) {

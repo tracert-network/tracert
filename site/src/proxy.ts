@@ -1,15 +1,19 @@
 // Server-side usage analytics for traffic that never runs JavaScript: agents
 // and tools fetching machine endpoints (/llms.txt, /index.json, manifests,
-// schemas, /api/mcp) and non-browser fetches of ordinary pages. Browsers are
-// counted by the gtag.js tag instead, so they're skipped on pages here.
+// schemas, /api/mcp) and non-browser fetches of ordinary pages. Browser page
+// loads are recorded as page_request (gtag.js records page_view separately for
+// browsers that run it), so ad-blocked and headless visitors are visible too.
 // Sending happens in event.waitUntil — it never delays or alters the response.
 import { NextResponse } from "next/server";
 import type { NextFetchEvent, NextRequest } from "next/server";
 import {
   callerFromHeaders,
   endpointType,
+  isDocumentLoad,
   isLikelyBrowser,
   mcpEvents,
+  recallMcpClient,
+  rememberMcpClient,
   sendServerEvents,
   serverAnalyticsEnabled,
   type GaEvent,
@@ -32,10 +36,18 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
     } else {
       events = [{ name: "mcp_request", params: { rpc_method: `http_${request.method.toLowerCase()}` } }];
     }
+    // Stateless transport: only initialize names the client. Carry it forward.
+    for (const e of events) {
+      const named = typeof e.params.mcp_client === "string" ? e.params.mcp_client : undefined;
+      if (named) rememberMcpClient(caller, named);
+      else e.params.mcp_client = recallMcpClient(caller);
+    }
   } else if (kind) {
     events = [{ name: "agent_fetch", params: { endpoint_type: kind, path, method: request.method } }];
   } else if (!isLikelyBrowser(caller.ua)) {
     events = [{ name: "agent_fetch", params: { endpoint_type: "page", path, method: request.method } }];
+  } else if (isDocumentLoad(request)) {
+    events = [{ name: "page_request", params: { endpoint_type: "page", path } }];
   }
 
   if (events.length) event.waitUntil(sendServerEvents(caller, events));
