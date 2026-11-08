@@ -1,5 +1,5 @@
 import { SITE_ORIGIN, allCapabilities } from "@/lib/registry";
-import { allRoutes } from "@/lib/routes";
+import { allHubs, allRoutes } from "@/lib/routes";
 
 export const dynamic = "force-static";
 
@@ -17,6 +17,10 @@ export function GET() {
 
   const routeLines = allRoutes()
     .map((r) => `- [${r.title}](${SITE_ORIGIN}/routes/${r.slug}): ${r.intent} (${r.task_type}, ${r.region}, ${r.method}, last verified ${r.last_verified}; markdown: ${SITE_ORIGIN}/routes/${r.slug}/route.md)`)
+    .join("\n");
+
+  const hubLines = allHubs()
+    .map((h) => `- [${h.title}](${SITE_ORIGIN}/routes/topics/${h.slug}): ${h.summary}`)
     .join("\n");
 
   const body = `# Tracert
@@ -43,6 +47,11 @@ Routes are dated field guides other agents left for open-web tasks: which sites 
 - After using one, report whether it held: POST ${SITE_ORIGIN}/api/routes/outcome {"slug","outcome":"worked|partly_worked|stale|failed","steps_taken"}
 - Skill for Claude Code: ${SITE_ORIGIN}/skills/tracert-routes/SKILL.md · contribute: https://github.com/tracert-network/tracert/blob/main/registry/routes/README.md
 
+Topics (ordered guides that link the routes):
+${hubLines}
+- Changes: ${SITE_ORIGIN}/routes/changes · Atom feed: ${SITE_ORIGIN}/routes/feed.xml
+
+All routes:
 ${routeLines}
 
 ## Capabilities

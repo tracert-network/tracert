@@ -1,0 +1,88 @@
+# Topic hubs: editorial, ordered groupings of routes, published at
+# https://tracert.site/routes/topics/<slug>. Each hub must add judgement
+# (order, when/why), not just list links; facts stay in the routes themselves,
+# so hubs never go stale on their own. Validated by tools/validate-routes.mjs
+# (every slug must be an existing route).
+hubs:
+  - slug: launch-a-software-product
+    title: "How to launch a software product: where to list it, and in what order"
+    summary: "A sequenced launch checklist: get indexed, claim review-site profiles, start launch-directory queues, then communities and the stores for your product type."
+    intro: >-
+      Launching mostly means getting listed in the places people and AI agents already
+      search, in an order that respects their queues and rules. Many "free" listings cost a
+      long wait or a link back, review sites take days to verify, and communities want
+      something people can try right now and posts written by a human. Each step below
+      links to a route: a dated field guide with a short Verify-first plan.
+    sections:
+      - heading: "The launch sequence"
+        routes:
+          - slug: new-site-search-indexing
+            why: "First, make the site findable. Directories and listings point at a site search engines can already crawl, and AI search tools draw on the same indexes."
+          - slug: saas-review-sites-free-listing
+            why: "Claim free review-site profiles early, because verification takes days and some sites reject unreleased products."
+          - slug: startup-launch-directories
+            why: "Start launch-platform queues now: most free tiers mean waiting weeks or adding a backlink."
+          - slug: free-ai-tool-directories
+            why: "For an AI product, add AI-tool directories. A few accept submissions over an API."
+          - slug: dev-tool-launch-communities
+            why: "Communities come last, once there's something people can try. Posts there must be written by a human."
+      - heading: "By product type"
+        routes:
+          - slug: chrome-web-store-publishing
+            why: "Browser extensions: developer account, Manifest V3 and review rules for Chrome, Edge and Firefox."
+          - slug: vscode-extension-publishing
+            why: "Editor extensions: the Microsoft Marketplace for VS Code, and Open VSX for Cursor, Windsurf and VSCodium."
+          - slug: mcp-server-registries
+            why: "MCP servers: publish to the official MCP Registry first; other directories read from it."
+          - slug: agent-skill-directories
+            why: "Agent skills and plugins: one public repo covers most skill directories."
+          - slug: ai-agent-marketplaces
+            why: "Agents, GPTs and chatbots: what's still open to publish on, and who can publish."
+          - slug: public-api-directories
+            why: "Public or free APIs: the lists and catalogues developers and agents actually use."
+          - slug: podcast-directory-submission
+            why: "A podcast to go with the launch: submit to Apple first, because several apps pull from it."
+
+  - slug: free-tiers-for-builders
+    title: "Free tiers for builders: hosting, LLM APIs, transactional email and domains"
+    summary: "What is actually free right now for hosting, LLM APIs, transactional email and domains, and the catch in each: commercial-use rules, training on your data, sandboxes, renewal prices."
+    intro: >-
+      Free tiers change often, and the catch is usually in the conditions rather than the
+      headline number: commercial-use bans, free-tier data used for training, sandbox gates
+      before you can send, and first-year prices that triple at renewal. These routes quote
+      providers' own pages, dated, so an agent can check the current numbers in a few fetches
+      instead of trusting a stale blog post.
+    sections:
+      - heading: "The stack"
+        routes:
+          - slug: free-static-hosting-limits
+            why: "Hosting: free-tier limits, whether commercial use is allowed, and what happens at the limit (paused or billed)."
+          - slug: llm-api-free-tiers
+            why: "LLM APIs: which providers are free to prototype on, their rate limits, and whether they train on your data."
+          - slug: transactional-email-free-tiers
+            why: "Email: free sending allowances, sandbox and approval gates, and the setup steps that keep mail out of spam."
+          - slug: domain-registrar-prices
+            why: "Domains: compare renewal prices, not first-year deals, and note minimum terms for some TLDs."
+
+  - slug: uk-make-and-ship-small-parts
+    title: "Getting small custom parts made and shipped in the UK: laser cutting, 3D printing, PCBs and couriers"
+    summary: "Who prices instantly without an account, minimum orders, how UK VAT and import charges land, and the cheapest tracked way to post the result."
+    intro: >-
+      Quote-gathering is one of the most expensive web tasks for an agent. Most suppliers
+      only price after a file upload or a sign-up, and VAT and import handling differ by
+      supplier and order value. Start with suppliers that quote instantly without an account,
+      know early which steps need a human, and check minimum-order charges before comparing
+      unit prices.
+    sections:
+      - heading: "Make it"
+        routes:
+          - slug: uk-laser-cutting-quotes
+            why: "Laser cutting in acrylic, card and metal. Mapped from a real quoting run with live prices."
+          - slug: uk-3d-printing-quotes
+            why: "3D printing in FDM, resin and nylon: minimum orders, instant-quote options and UK VAT."
+          - slug: uk-pcb-fabrication-quotes
+            why: "PCBs: published entry prices and how UK VAT is collected (at checkout or on delivery)."
+      - heading: "Ship it"
+        routes:
+          - slug: uk-parcel-courier-prices
+            why: "Small UK parcels: published prices for carriers, lockers and brokers, including size limits."

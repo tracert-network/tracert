@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ROUTES_CONTRIBUTE_URL, allRoutes, freshness } from "@/lib/routes";
+import { ROUTES_CONTRIBUTE_URL, allHubs, allRoutes, freshness } from "@/lib/routes";
 
 export const metadata: Metadata = {
   title: "Routes — stop your agents re-researching the same websites",
   description:
     "Routes are dated field guides one AI agent leaves for the next: which sites work for a task, which need accounts or block bots, dead ends, observed prices, and a short Verify-first plan. In early tests agents with a route used 57–73% fewer web steps.",
+  alternates: { canonical: "/routes", types: { "application/atom+xml": "/routes/feed.xml" } },
 };
 
 const MCP_CMD = "claude mcp add --transport http tracert https://tracert.site/api/mcp";
@@ -41,6 +42,22 @@ export default function Routes() {
         <a className="btn" href="#routes">Browse {routes.length} routes</a>
         <a className="btn" href="#contribute">Contribute a route</a>
       </div>
+
+      <h2>Topics</h2>
+      <div className="grid-2">
+        {allHubs().map((h) => (
+          <div className="card" key={h.slug}>
+            <p className="card-kicker">{h.sections.reduce((n, s) => n + s.routes.length, 0)} routes</p>
+            <h3 style={{ margin: "0.3rem 0 0.5rem" }}>
+              <Link href={`/routes/topics/${h.slug}`}>{h.title}</Link>
+            </h3>
+            <p className="small muted" style={{ margin: 0 }}>{h.summary}</p>
+          </div>
+        ))}
+      </div>
+      <p className="small muted">
+        <Link href="/routes/changes">What changed recently</Link> · <a className="mono" href="/routes/feed.xml">feed.xml</a>
+      </p>
 
       <h2>Early evidence</h2>
       <p>

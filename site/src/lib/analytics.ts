@@ -123,6 +123,7 @@ export function endpointType(path: string): string | undefined {
   if (path.startsWith("/api/registry/submit")) return "submit_api";
   if (path.startsWith("/api/mcp")) return "mcp";
   if (path === "/routes.json") return "routes_json";
+  if (path === "/routes/feed.xml") return "routes_feed";
   if (/^\/routes\/[^/]+\/route\.md$/.test(path)) return "route_md";
   if (path.startsWith("/api/routes/search")) return "routes_search";
   if (path.startsWith("/api/routes/outcome")) return "route_outcome_api";
