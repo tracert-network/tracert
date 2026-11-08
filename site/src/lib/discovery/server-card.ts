@@ -33,6 +33,7 @@ export function serverCard() {
     registries: [{ name: "Official MCP Registry", id: "site.tracert/tracert" }],
     also: {
       llms_txt: `${SITE_ORIGIN}/llms.txt`,
+      llms_full_txt: `${SITE_ORIGIN}/llms-full.txt`,
       openapi: `${SITE_ORIGIN}/openapi.json`,
       routes_index: `${SITE_ORIGIN}/routes.json`,
       capabilities_index: `${SITE_ORIGIN}/index.json`,

@@ -36,6 +36,7 @@ Free capabilities never require a wallet or account. Quotes are exact and expire
 - [MCP gateway](${SITE_ORIGIN}/api/mcp): hosted MCP server over Streamable HTTP (read-only): the five capability tools plus find_routes / get_route / report_route_outcome — free reads execute live and return a TRACE Receipt; writes run via the local router
 - [MCP server card](${SITE_ORIGIN}/.well-known/mcp/server-card.json): the gateway's tools, transport and auth (none) without connecting
 - [OpenAPI 3.1](${SITE_ORIGIN}/openapi.json): the plain-HTTP surface (route search, outcome reports, registry exports, submission)
+- [llms-full.txt](${SITE_ORIGIN}/llms-full.txt): every route's full text in one file
 - [TRACE Manifest schema](${SITE_ORIGIN}/schemas/manifest/v0.1): JSON Schema 2020-12 for capability manifests
 - [TRACE Receipt schema](${SITE_ORIGIN}/schemas/receipt/v0.1): JSON Schema for verifiable execution records
 - [Agent guide](${SITE_ORIGIN}/agents): how to select, invoke and verify capabilities

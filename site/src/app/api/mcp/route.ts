@@ -18,6 +18,8 @@ import {
   toolSearchCapabilities,
 } from "@/lib/gateway/tools";
 import { GATEWAY_INSTRUCTIONS, GATEWAY_SERVER_INFO, TOOL_META } from "@/lib/gateway/tool-catalog";
+import * as OUT from "@/lib/gateway/output-schemas";
+import { routeUrls, searchRoutes } from "@/lib/routes";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -41,8 +43,30 @@ function trackSearchGap(query: string, result: unknown) {
 
 const PAYMENT_MODES = ["mpp", "x402", "prepaid_balance", "byok", "subscription", "invoice"] as const;
 
+// Every result goes out twice: as structuredContent (validated against the
+// tool's outputSchema) and as JSON text for clients that only read content.
 function textResult(result: unknown) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+  return {
+    content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
+    structuredContent: result as Record<string, unknown>,
+  };
+}
+
+// A capability search that found nothing may still be an open-web task a route
+// covers ("laser cutting quote uk") — point there instead of a dead end.
+function withRelatedRoutes(query: string, result: { results: unknown[] }) {
+  if (result.results.length > 0) return result;
+  const { hits } = searchRoutes(query, { limit: 3 });
+  if (!hits.length) return result;
+  return {
+    ...result,
+    related_routes: hits.map((h) => ({
+      slug: h.route.slug,
+      title: h.route.title,
+      last_verified: h.route.last_verified,
+      ...routeUrls(h.route.slug),
+    })),
+  };
 }
 
 async function run(fn: () => unknown | Promise<unknown>) {
@@ -64,6 +88,7 @@ const handler = createMcpHandler((server) => {
     "search_capabilities",
     {
       ...TOOL_META.search_capabilities,
+      outputSchema: OUT.searchCapabilitiesOutput,
       inputSchema: z.object({
         query: z.string().min(2).describe("The intended outcome in natural language, e.g. 'convert USD to EUR'"),
         free_only: z.boolean().optional().describe("Only capabilities that cost nothing"),
@@ -77,7 +102,7 @@ const handler = createMcpHandler((server) => {
       run(() => {
         const result = toolSearchCapabilities(args as Parameters<typeof toolSearchCapabilities>[0]);
         trackSearchGap((args as { query: string }).query, result);
-        return result;
+        return withRelatedRoutes((args as { query: string }).query, result);
       }),
   );
 
@@ -85,6 +110,7 @@ const handler = createMcpHandler((server) => {
     "get_capability",
     {
       ...TOOL_META.get_capability,
+      outputSchema: OUT.getCapabilityOutput,
       inputSchema: z.object({
         capability_id: z.string().describe("e.g. 'exchangerate-api.latest-rates'"),
       }),
@@ -96,6 +122,7 @@ const handler = createMcpHandler((server) => {
     "get_quote",
     {
       ...TOOL_META.get_quote,
+      outputSchema: OUT.getQuoteOutput,
       inputSchema: z.object({
         capability_id: z.string(),
       }),
@@ -107,6 +134,7 @@ const handler = createMcpHandler((server) => {
     "invoke_capability",
     {
       ...TOOL_META.invoke_capability,
+      outputSchema: OUT.invokeCapabilityOutput,
       inputSchema: z.object({
         capability_id: z.string(),
         input: z.record(z.string(), z.unknown()).describe("Payload conforming to the capability's input schema (see get_capability)"),
@@ -121,6 +149,7 @@ const handler = createMcpHandler((server) => {
     "get_execution",
     {
       ...TOOL_META.get_execution,
+      outputSchema: OUT.getExecutionOutput,
       inputSchema: z.object({
         execution_id: z.string().describe("e.g. 'tr_exec_...' from invoke_capability"),
       }),
@@ -134,6 +163,7 @@ const handler = createMcpHandler((server) => {
     "find_routes",
     {
       ...TOOL_META.find_routes,
+      outputSchema: OUT.findRoutesOutput,
       inputSchema: z.object({
         query: z.string().min(2).max(300).describe("What you are trying to do, in plain words, e.g. 'laser cutting quote uk' or 'list an mcp server in registries'"),
         region: z.string().max(6).optional().describe("ISO country code to prefer, e.g. 'GB'; global routes always included"),
@@ -147,6 +177,7 @@ const handler = createMcpHandler((server) => {
     "get_route",
     {
       ...TOOL_META.get_route,
+      outputSchema: OUT.getRouteOutput,
       inputSchema: z.object({ slug: z.string().max(80).describe("Route slug from find_routes, e.g. 'uk-laser-cutting-quotes'") }),
     },
     async (args) =>
@@ -161,6 +192,7 @@ const handler = createMcpHandler((server) => {
     "report_route_outcome",
     {
       ...TOOL_META.report_route_outcome,
+      outputSchema: OUT.reportOutcomeOutput,
       inputSchema: z.object({
         slug: z.string().max(80),
         outcome: z.enum(OUTCOMES),

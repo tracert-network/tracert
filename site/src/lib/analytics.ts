@@ -256,6 +256,8 @@ export function isDocumentLoad(req: { method: string; headers: { get(name: strin
 /** Which kind of machine endpoint a path is, or undefined for ordinary pages. */
 export function endpointType(path: string): string | undefined {
   if (path === "/llms.txt") return "llms_txt";
+  if (path === "/llms-full.txt") return "llms_full_txt";
+  if (path === "/openapi.json") return "openapi";
   if (path === "/index.json") return "index_json";
   if (path === "/robots.txt") return "robots_txt";
   if (path === "/sitemap.xml") return "sitemap";

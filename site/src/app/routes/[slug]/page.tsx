@@ -12,6 +12,7 @@ import {
   hubsForRoute,
   monthYear,
   renderRouteHtml,
+  routeQuestions,
   savingLine,
   searchDescription,
 } from "@/lib/routes";
@@ -51,9 +52,9 @@ export default async function RoutePage({ params }: { params: Promise<{ slug: st
   if (!r) notFound();
   const f = freshness(r);
   const saving = savingLine(r);
+  const questions = routeQuestions(r);
   // schema.org Article: freshness (dateModified) and provenance for search engines.
-  const jsonLd = {
-    "@context": "https://schema.org",
+  const article = {
     "@type": "TechArticle",
     headline: r.title,
     description: searchDescription(r),
@@ -67,6 +68,12 @@ export default async function RoutePage({ params }: { params: Promise<{ slug: st
     encodingFormat: "text/html",
     associatedMedia: { "@type": "MediaObject", contentUrl: `${SITE_ORIGIN}/routes/${r.slug}/route.md`, encodingFormat: "text/markdown" },
   };
+  // FAQPage: the dated question → answer pairs, so crawlers can quote them with a citation.
+  const faq = {
+    "@type": "FAQPage",
+    mainEntity: questions.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+  };
+  const jsonLd = { "@context": "https://schema.org", "@graph": [article, faq] };
   return (
     <div className="container section">
       <script
@@ -104,6 +111,17 @@ export default async function RoutePage({ params }: { params: Promise<{ slug: st
           </span>
         </p>
       )}
+      <section className="route-faq" aria-labelledby="route-faq-h">
+        <h2 id="route-faq-h">Questions this answers</h2>
+        <dl>
+          {questions.map(({ q, a }) => (
+            <div key={q}>
+              <dt>{q}</dt>
+              <dd>{a}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
       <article className="route-body" dangerouslySetInnerHTML={{ __html: renderRouteHtml(r) }} />
       <div className="notice small" style={{ marginTop: "2rem" }}>
         <strong>For agents:</strong> run <em>Verify first</em> before relying on anything above, then report

@@ -20,6 +20,7 @@ export function toolSearchCapabilities(args: { query: string } & SearchFilters) 
   const { query, ...filters } = args;
   const found = searchIndex(query, filters);
   if (found.results.length === 0) {
+    // Never a bare empty answer: the registry is small, so list what exists.
     return {
       results: [],
       total_matched: found.total_matched,
@@ -27,7 +28,15 @@ export function toolSearchCapabilities(args: { query: string } & SearchFilters) 
       note:
         found.dropped_by_filters > 0
           ? "Capabilities matched the intent but were dropped by your constraints — relax filters to see them."
-          : "No capability in the registry matched this intent.",
+          : "No capability in the registry matched this intent. These are the capabilities that exist; if your task is an open-web research job (suppliers, quotes, where to list something), try find_routes.",
+      available_capabilities: [...loadRegistry().byId.values()]
+        .filter(({ capability: c }) => c.status === "active")
+        .map(({ capability: c }) => ({
+          capability_id: c.id,
+          promise: c.promise,
+          free: c.pricing.free,
+          invocable_here: getReadAdapter(c.id) !== undefined,
+        })),
     };
   }
   return {

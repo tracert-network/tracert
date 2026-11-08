@@ -110,6 +110,28 @@ export function routeUrls(slug: string) {
   };
 }
 
+/**
+ * Question → answer pairs a route answers, derived from its own fields (no
+ * extra authoring): the intent as a question with the dated summary as the
+ * answer, and which sites it covers. Shown on the route page and as FAQPage
+ * JSON-LD, so search and AI crawlers can quote a dated answer with a citation.
+ */
+export function routeQuestions(route: Route): { q: string; a: string }[] {
+  const intent = route.intent.trim().replace(/[.\s]+$/, "");
+  const lowerFirst = /^[A-Z][a-z]/.test(intent) ? intent[0].toLowerCase() + intent.slice(1) : intent;
+  const verified = `(verified ${route.last_verified})`;
+  const out = [{ q: `How do I ${lowerFirst}?`, a: `${route.summary ?? routeSection(route, "TL;DR").split("\n")[0] ?? ""} ${verified}`.trim() }];
+  if (route.hosts.length) {
+    const shown = route.hosts.slice(0, 12);
+    const more = route.hosts.length - shown.length;
+    out.push({
+      q: "Which sites does this route cover?",
+      a: `${shown.join(", ")}${more > 0 ? ` and ${more} more` : ""} ${verified}. Each has dated access, pricing and gotcha notes in the route.`,
+    });
+  }
+  return out;
+}
+
 /** "## Heading" → section text (until the next "## "), comments stripped. */
 export function routeSection(route: Route, prefix: string): string {
   const lines = route.body.split("\n");
@@ -166,10 +188,13 @@ export interface RouteHit {
 export function searchRoutes(query: string, opts: { region?: string; limit?: number } = {}): {
   hits: RouteHit[];
   dropped_weak: number;
+  /** The weak hits that were dropped, best first — "nearest" suggestions for a no-match answer. */
+  weak: RouteHit[];
 } {
   const q = [...new Set(tokens(query))];
-  if (!q.length) return { hits: [], dropped_weak: 0 };
+  if (!q.length) return { hits: [], dropped_weak: 0, weak: [] };
   const scored: RouteHit[] = [];
+  const weak: RouteHit[] = [];
   let droppedWeak = 0;
   for (const route of ROUTES) {
     if (opts.region && route.region !== "global" && route.region.toUpperCase() !== opts.region.toUpperCase()) continue;
@@ -199,6 +224,8 @@ export function searchRoutes(query: string, opts: { region?: string; limit?: num
     const coverage = matched.size / q.length;
     if (coverage < 0.34 || fieldScore === 0) {
       droppedWeak++;
+      // Body-only matches are noise even as suggestions ("world" in a footnote).
+      if (fieldScore > 0) weak.push({ route, score, coverage, matched: [...matched] });
       continue;
     }
     scored.push({ route, score, coverage, matched: [...matched] });
@@ -207,7 +234,34 @@ export function searchRoutes(query: string, opts: { region?: string; limit?: num
   const top = scored[0]?.score ?? 0;
   const strong = scored.filter((h) => h.score >= 0.3 * top);
   droppedWeak += scored.length - strong.length;
-  return { hits: strong.slice(0, Math.max(1, Math.min(opts.limit ?? 3, 10))), dropped_weak: droppedWeak };
+  weak.push(...scored.filter((h) => h.score < 0.3 * top));
+  weak.sort((a, b) => b.score - a.score || b.coverage - a.coverage);
+  return { hits: strong.slice(0, Math.max(1, Math.min(opts.limit ?? 3, 10))), dropped_weak: droppedWeak, weak };
+}
+
+/** Example queries that each return a route — offered when a search finds nothing. */
+export const EXAMPLE_ROUTE_QUERIES = [
+  "laser cutting quote uk",
+  "list an mcp server in registries",
+  "free llm api tiers",
+  "where to launch a developer tool",
+];
+
+/**
+ * What the routes cover, grouped by topic hub (plus any route in no hub) —
+ * so an agent whose query matched nothing can see whether its task is near
+ * something we have, instead of an empty answer.
+ */
+export function routeCoverage() {
+  const inHub = new Set<string>();
+  const topics = HUBS.map((h) => {
+    const slugs = h.sections.flatMap((s) => s.routes.map((r) => r.slug)).filter((slug) => getRoute(slug));
+    slugs.forEach((slug) => inHub.add(slug));
+    return { topic: h.title, url: `${SITE_ORIGIN}/routes/topics/${h.slug}`, route_slugs: [...new Set(slugs)] };
+  });
+  const other = ROUTES.map((r) => r.slug).filter((slug) => !inHub.has(slug));
+  if (other.length) topics.push({ topic: "Other routes", url: `${SITE_ORIGIN}/routes`, route_slugs: other });
+  return topics;
 }
 
 /** The concise digest agents get from search: enough to act on after verifying. */

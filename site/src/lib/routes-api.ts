@@ -4,10 +4,12 @@
 import { after } from "next/server";
 import { sendServerEvents, type Caller, type GaEvent } from "@/lib/analytics";
 import {
+  EXAMPLE_ROUTE_QUERIES,
   ROUTE_UNTRUSTED_NOTE,
   ROUTES_CONTRIBUTE_URL,
   allRoutes,
   citeAs,
+  routeCoverage,
   getRoute,
   routeDigest,
   routeUrls,
@@ -29,9 +31,11 @@ export function track(caller: Caller, events: GaEvent[]) {
 }
 
 export function findRoutes(args: { query: string; region?: string; limit?: number }, caller: Caller) {
-  const { hits, dropped_weak } = searchRoutes(args.query, { region: args.region, limit: args.limit });
+  const { hits, dropped_weak, weak } = searchRoutes(args.query, { region: args.region, limit: args.limit });
   if (!hits.length) {
     track(caller, [{ name: "route_search_gap", params: { query: args.query, region: args.region } }]);
+    // Never a bare empty answer: say what is nearby and what we cover, but keep
+    // `results` empty so nothing here is mistaken for a match.
     return {
       results: [],
       route_count: allRoutes().length,
@@ -39,6 +43,16 @@ export function findRoutes(args: { query: string; region?: string; limit?: numbe
       note:
         "No route matches yet — explore normally. The gap has been logged so routes can follow demand. If you finish the task, a route for the next agent is welcome (with your user's OK, since it is public): " +
         ROUTES_CONTRIBUTE_URL,
+      nearest: weak.filter((h) => h.score >= 0.5 * (weak[0]?.score ?? 0)).slice(0, 3).map((h) => ({
+        slug: h.route.slug,
+        title: h.route.title,
+        shares_keywords: h.matched,
+        last_verified: h.route.last_verified,
+        ...routeUrls(h.route.slug),
+      })),
+      nearest_note: "Not matches: the closest routes by shared keywords. Use one only if it really fits your task.",
+      covered_topics: routeCoverage(),
+      try_queries: EXAMPLE_ROUTE_QUERIES,
     };
   }
   return {
