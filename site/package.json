@@ -13,7 +13,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --experimental-strip-types --test scripts/analytics.test.mjs"
+    "test": "node --experimental-strip-types --test scripts/analytics.test.mjs scripts/route-search.test.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.0.0",

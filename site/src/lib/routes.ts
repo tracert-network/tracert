@@ -6,6 +6,7 @@ import { Marked, type Tokens } from "marked";
 import snapshot from "@/generated/routes.json";
 import hubSnapshot from "@/generated/route-hubs.json";
 import { SITE_ORIGIN, REPO_URL } from "@/lib/registry";
+import { EXAMPLE_ROUTE_QUERIES, buildIndex, rankRoutes, type RouteHit as SearchHit } from "@/lib/route-search";
 
 export interface Route {
   slug: string;
@@ -164,26 +165,16 @@ export function freshness(route: Route): { age_days: number | null; label: strin
 
 // ---------------------------------------------------------------- search ----
 
-const STOP = new Set(
-  "a an and are as at be by can do for from get how i in is it me my of on or the to with find need want some any this that we our you your best cheap cheapest where which".split(" "),
-);
-
-function tokens(s: string): string[] {
-  return (s.toLowerCase().match(/[a-z0-9][a-z0-9.-]*/g) ?? []).filter((t) => t.length > 1 && !STOP.has(t));
-}
-
-export interface RouteHit {
-  route: Route;
-  score: number;
-  coverage: number;
-  matched: string[];
-}
+// The ranking lives in route-search.ts (no framework imports, so plain Node can
+// test it: scripts/route-search.test.mjs). The index is built once per process.
+const INDEX = buildIndex(ROUTES);
+export type RouteHit = SearchHit<Route>;
 
 /**
  * Keyword search over intent, tags, hosts, title (weighted) and body (capped).
- * Dropped as weak (so a lone generic word doesn't surface an unrelated route):
- * hits matching under 34% of the query's keywords, hits that match only in the
- * body (never in intent/tags/hosts/title), and hits scoring under 30% of the best.
+ * Coverage is weighted by how rare each query word is among the routes, so a
+ * route sharing only generic words ("free", "uk", "price") is not a match.
+ * See rankRoutes for the rules.
  */
 export function searchRoutes(query: string, opts: { region?: string; limit?: number } = {}): {
   hits: RouteHit[];
@@ -191,61 +182,10 @@ export function searchRoutes(query: string, opts: { region?: string; limit?: num
   /** The weak hits that were dropped, best first — "nearest" suggestions for a no-match answer. */
   weak: RouteHit[];
 } {
-  const q = [...new Set(tokens(query))];
-  if (!q.length) return { hits: [], dropped_weak: 0, weak: [] };
-  const scored: RouteHit[] = [];
-  const weak: RouteHit[] = [];
-  let droppedWeak = 0;
-  for (const route of ROUTES) {
-    if (opts.region && route.region !== "global" && route.region.toUpperCase() !== opts.region.toUpperCase()) continue;
-    const fields: [string, number][] = [
-      [route.intent, 3],
-      [route.tags.join(" "), 3],
-      [route.hosts.join(" "), 3],
-      [route.title, 2],
-      [route.task_type, 1],
-      [route.region, 2],
-    ];
-    let score = 0;
-    const matched = new Set<string>();
-    for (const [text, w] of fields) {
-      const toks = new Set(tokens(text));
-      const hit = q.filter((t) => toks.has(t) || (t.length > 3 && [...toks].some((x) => x.includes(t))));
-      score += w * hit.length;
-      hit.forEach((h) => matched.add(h));
-    }
-    const fieldScoreOnly = score;
-    const bodyToks = new Set(tokens(route.body));
-    const bodyHits = q.filter((t) => bodyToks.has(t));
-    score += Math.min(5, bodyHits.length);
-    bodyHits.forEach((h) => matched.add(h));
-    if (score === 0) continue;
-    const fieldScore = fieldScoreOnly;
-    const coverage = matched.size / q.length;
-    if (coverage < 0.34 || fieldScore === 0) {
-      droppedWeak++;
-      // Body-only matches are noise even as suggestions ("world" in a footnote).
-      if (fieldScore > 0) weak.push({ route, score, coverage, matched: [...matched] });
-      continue;
-    }
-    scored.push({ route, score, coverage, matched: [...matched] });
-  }
-  scored.sort((a, b) => b.score - a.score || b.coverage - a.coverage);
-  const top = scored[0]?.score ?? 0;
-  const strong = scored.filter((h) => h.score >= 0.3 * top);
-  droppedWeak += scored.length - strong.length;
-  weak.push(...scored.filter((h) => h.score < 0.3 * top));
-  weak.sort((a, b) => b.score - a.score || b.coverage - a.coverage);
-  return { hits: strong.slice(0, Math.max(1, Math.min(opts.limit ?? 3, 10))), dropped_weak: droppedWeak, weak };
+  return rankRoutes(INDEX, query, opts);
 }
 
-/** Example queries that each return a route — offered when a search finds nothing. */
-export const EXAMPLE_ROUTE_QUERIES = [
-  "laser cutting quote uk",
-  "list an mcp server in registries",
-  "free llm api tiers",
-  "where to launch a developer tool",
-];
+export { EXAMPLE_ROUTE_QUERIES };
 
 /**
  * What the routes cover, grouped by topic hub (plus any route in no hub) —
