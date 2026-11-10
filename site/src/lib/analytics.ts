@@ -28,6 +28,12 @@ export interface Caller {
   host?: string;
   /** Our own traffic: UA tracert-internal/-verify/-e2e or header x-tracert-internal: 1. */
   internal?: boolean;
+  /**
+   * Whether the request carried a header every real browser sends (Sec-Fetch-*
+   * or Accept-Language). False on a browser user agent means a script wearing
+   * one. Undefined when the headers were not available.
+   */
+  browserHeaders?: boolean;
 }
 
 const CANONICAL_HOSTS = new Set(["tracert.site", "www.tracert.site"]);
@@ -125,11 +131,15 @@ const INTERNAL_UA = /tracert-(internal|verify|e2e)/i;
 
 // MCP clientInfo names. Catalogs, registries and uptime/health checkers connect,
 // list tools and leave; real clients are hosts a person or an agent runtime uses.
-const PROBE_STRONG = /probe|prober|health|check|scan|verif|conformance|sonda/i;
+// The lists grow from what GA shows: every name here was seen probing the site.
+const PROBE_STRONG =
+  /probe|prober|health|check|scan|verif|conformance|sonda|audit|census|survey|snapshot|grad(er|ing)|measur|observatory|uptime|mcp-?mon\b/i;
 const REAL_MCP_CLIENT =
   /claude|cursor|vscode|visual studio|windsurf|codeium|cline|roo-?code|continue|zed|goose|chatgpt|openai|gemini|copilot|mcp-remote|inspector|raycast|librechat|n8n|langchain|langgraph|llamaindex|mastra|ai-sdk|cherry|5ire|witsy|msty|lm ?studio|warp|kiro|opencode|codex|runtime|agent-sdk|smolagents|crewai|autogen|pydantic/i;
+// The last alternative is a client named after a website ("mcpwell.com",
+// "agent-tools.cloud"): that is the site's crawler, not an app someone uses.
 const PROBE_WEAK =
-  /index|registry|catalog|monitor|introspect|crawl|bot|beat|scout|collector|enrich|watch|inventory|harbor|test|glama|posthog|directory|lookup|vet|rank|bench|marketplace|atlas|wellknown|pulse|station|keeper/i;
+  /index|registry|catalog|monitor|introspect|crawl|bot|beat|scout|collector|enrich|watch|inventory|harbor|test|glama|posthog|directory|lookup|vet|rank|bench|marketplace|atlas|wellknown|pulse|station|keeper|cost\b|reliab|sales|mcpyp|yellow|sniff|scrape|ingest|stats?\b|\bevals?\b|\.(com|io|ai|dev|cloud|net|org|app|sh|st|xyz)\b/i;
 
 export function mcpClientKind(name: string): "registry_probe" | "mcp_client" {
   if (PROBE_STRONG.test(name)) return "registry_probe";
@@ -137,19 +147,105 @@ export function mcpClientKind(name: string): "registry_probe" | "mcp_client" {
   return PROBE_WEAK.test(name) ? "registry_probe" : "mcp_client";
 }
 
+// Browser user agents are the easiest thing to fake, and scanners mostly paste
+// an old one. Chrome and Firefox both ship a major roughly every 31 and 29 days
+// (anchors: Chrome 131 on 2024-11-12, Firefox 133 on 2024-11-26), so the
+// current major can be estimated from the date without a lookup table to maintain.
+const DAY_MS = 86_400_000;
+const currentMajor = (anchor: number, shipped: string, daysPerMajor: number, now: number) =>
+  anchor + Math.floor((now - Date.parse(shipped)) / (daysPerMajor * DAY_MS));
+
+/**
+ * A browser user agent that is probably not a person's browser: a malformed
+ * UA, a release about a year or more out of date, or a request without the
+ * headers every real browser sends. Evidence, not proof: old devices exist.
+ */
+export function browserLooksAutomated(ua: string, browserHeaders?: boolean, now = Date.now()): boolean {
+  if (browserHeaders === false) return true;
+  if (/^user-agent:/i.test(ua)) return true;
+  const chrome = ua.match(/(?:Chrome|Chromium|CriOS)\/(\d+)/);
+  if (chrome) return Number(chrome[1]) < currentMajor(131, "2024-11-12", 31, now) - 10;
+  const firefox = ua.match(/(?:Firefox|FxiOS)\/(\d+)/);
+  // A wider window: Firefox ESR stays on one major for about a year.
+  if (firefox) return Number(firefox[1]) < currentMajor(133, "2024-11-26", 29, now) - 16;
+  const ios = ua.match(/\bOS (\d+)[_ ]/);
+  if (/iPhone|iPad|iPod/.test(ua) && ios) return Number(ios[1]) < 16;
+  const safari = ua.match(/Version\/(\d+)/);
+  if (safari) return Number(safari[1]) < 15;
+  return false;
+}
+
 /**
  * One label to filter on when asking "who is actually here":
- * internal | ai_assistant | registry_probe | mcp_client | crawler | browser | tool.
+ * internal | ai_assistant | registry_probe | mcp_client | crawler | browser |
+ * browser_like | tool.
  * Best-effort heuristics over the UA and (for MCP) the clientInfo name.
+ *  - registry_probe: a catalog, registry or health checker, by its MCP client
+ *    name or, when there is none, by the product name in its user agent.
+ *  - browser_like: a browser user agent that browserLooksAutomated flags.
+ *    Plausible people are `browser`.
  */
-export function trafficClass(caller: Pick<Caller, "ua" | "internal">, mcpClient?: string): string {
+export function trafficClass(caller: Pick<Caller, "ua" | "internal" | "browserHeaders">, mcpClient?: string): string {
   const ua = caller.ua || "";
   if (caller.internal || INTERNAL_UA.test(ua) || (mcpClient && INTERNAL_UA.test(mcpClient))) return "internal";
   if (AI_ASSISTANT_UA.test(ua)) return "ai_assistant";
   if (mcpClient) return mcpClientKind(mcpClient);
   if (CRAWLER_UA.test(ua)) return "crawler";
-  if (agentFamily(ua) === "browser") return "browser";
-  return "tool";
+  if (agentFamily(ua) === "browser") return browserLooksAutomated(ua, caller.browserHeaders) ? "browser_like" : "browser";
+  return PROBE_STRONG.test(agentName(ua)) ? "registry_probe" : "tool";
+}
+
+// Callers whose tool call could be someone getting work done. Probes, crawlers,
+// our own checks and fake browsers call tools too, but only to look at them.
+const REAL_CALLER_CLASSES = new Set(["ai_assistant", "mcp_client", "tool", "browser"]);
+// What tool testers type into a search box.
+const TEST_QUERY = /^(test(ing)?|hello( world)?|hi|foo|bar|ping|example|sample|asdf|x+)$/i;
+
+/**
+ * The north-star proxy: one `real_tool_call` event for each call that looks
+ * like use rather than inspection. That means a tool that exists, called by
+ * a caller that is not internal, a probe, a crawler or a fake browser, with a
+ * query that is not a tester's placeholder. Covers MCP tools/call and the
+ * keyless HTTP equivalents (/api/routes/search, POST /api/routes/outcome).
+ * Every call is still in mcp_request / agent_fetch; this event only saves the
+ * reader from re-deriving the filter, so its count can be read directly.
+ */
+export function realToolCalls(caller: Caller, events: GaEvent[], knownTools: readonly string[]): GaEvent[] {
+  const out: GaEvent[] = [];
+  for (const e of events) {
+    const p = e.params;
+    const str = (v: string | number | undefined) => (typeof v === "string" ? v : undefined);
+    let tool: string | undefined;
+    let source: "mcp" | "http" | undefined;
+    if (e.name === "mcp_request" && p.rpc_method === "tools/call") {
+      tool = str(p.tool);
+      source = "mcp";
+    } else if (e.name === "agent_fetch" && p.endpoint_type === "routes_search" && p.method === "GET") {
+      tool = (str(p.query) ?? "").length >= 2 ? "find_routes" : undefined;
+      source = "http";
+    } else if (e.name === "agent_fetch" && p.endpoint_type === "route_outcome_api" && p.method === "POST") {
+      tool = "report_route_outcome";
+      source = "http";
+    }
+    if (!tool || !source || !knownTools.includes(tool)) continue;
+    const mcpClient = str(p.mcp_client);
+    if (!REAL_CALLER_CLASSES.has(trafficClass(caller, mcpClient))) continue;
+    const query = str(p.query);
+    if (query !== undefined && TEST_QUERY.test(query.trim())) continue;
+    out.push({
+      name: "real_tool_call",
+      params: {
+        tool,
+        source,
+        mcp_client: mcpClient,
+        query,
+        capability_id: p.capability_id,
+        route_slug: p.route_slug,
+        outcome: p.outcome,
+      },
+    });
+  }
+  return out;
 }
 
 // The hosted MCP endpoint is stateless, so only `initialize` carries clientInfo.
@@ -196,7 +292,7 @@ export async function sendServerEvents(req: Caller, events: GaEvent[]): Promise<
   const body = {
     client_id: clientId,
     non_personalized_ads: true,
-    user_properties: { visitor_type: { value: family === "browser" ? "human_browser" : "agent_or_tool" } },
+    user_properties: { visitor_type: { value: trafficClass(req) === "browser" ? "human_browser" : "agent_or_tool" } },
     events: events.slice(0, 25).map((e) => {
       const mcpClient = typeof e.params.mcp_client === "string" ? e.params.mcp_client : undefined;
       const params: Params = {
@@ -234,6 +330,7 @@ export function callerFromHeaders(h: { get(name: string): string | null }): Call
     ua: h.get("user-agent") || "",
     host: host || undefined,
     internal: h.get("x-tracert-internal") === "1" || undefined,
+    browserHeaders: Boolean(h.get("sec-fetch-mode") || h.get("sec-fetch-dest") || h.get("accept-language")),
   };
 }
 

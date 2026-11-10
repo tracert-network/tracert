@@ -12,12 +12,16 @@ import {
   isDocumentLoad,
   isLikelyBrowser,
   mcpEvents,
+  realToolCalls,
   recallMcpClient,
   rememberMcpClient,
   sendServerEvents,
   serverAnalyticsEnabled,
   type GaEvent,
 } from "@/lib/analytics";
+import { TOOL_META } from "@/lib/gateway/tool-catalog";
+
+const TOOL_NAMES = Object.keys(TOOL_META);
 
 export async function proxy(request: NextRequest, event: NextFetchEvent) {
   if (!serverAnalyticsEnabled()) return NextResponse.next();
@@ -43,13 +47,17 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
       else e.params.mcp_client = recallMcpClient(caller);
     }
   } else if (kind) {
-    events = [{ name: "agent_fetch", params: { endpoint_type: kind, path, method: request.method } }];
+    // A keyless route search is demand evidence whether or not it matched, so
+    // keep what was asked (hits used to record only that a search happened).
+    const query = kind === "routes_search" ? request.nextUrl.searchParams.get("q")?.trim() || undefined : undefined;
+    events = [{ name: "agent_fetch", params: { endpoint_type: kind, path, method: request.method, query } }];
   } else if (!isLikelyBrowser(caller.ua)) {
     events = [{ name: "agent_fetch", params: { endpoint_type: "page", path, method: request.method } }];
   } else if (isDocumentLoad(request)) {
     events = [{ name: "page_request", params: { endpoint_type: "page", path } }];
   }
 
+  events.push(...realToolCalls(caller, events, TOOL_NAMES));
   if (events.length) event.waitUntil(sendServerEvents(caller, events));
   return NextResponse.next();
 }
