@@ -44,6 +44,9 @@ jobs:
           node-version: 22
       - run: npm ci
         working-directory: site
+      # Analytics classifier: catalog probes, fake browsers and real tool calls.
+      - run: npm test
+        working-directory: site
       - run: npm run build
         working-directory: site
 

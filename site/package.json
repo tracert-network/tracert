@@ -12,7 +12,8 @@
     "predev": "node scripts/copy-schema.mjs && node scripts/build-gateway-registry.mjs && node scripts/build-routes.mjs",
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "node --experimental-strip-types --test scripts/analytics.test.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.0.0",
