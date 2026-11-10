@@ -94,7 +94,7 @@ Labels: **observed** = read on the community's own rules page on 2026-11-07 (thr
 - **Gotchas** (third-party): subreddits differ a lot. Many have weekly self-promotion threads. Brand-new or low-karma accounts are commonly filtered. AI-written post text is increasingly removed on sight.
 
 ### www.producthunt.com — free, personal account, no upvote asks
-- **Access** (2026-11-07): /launch fetched OK (observed). help.producthunt.com/en/articles/17350772-launch-guide returned 404 to the fetcher, though search still indexes it.
+- **Access** (2026-11-07): /launch fetched OK (observed). On 2026-11-10, /launch returned HTTP 403 to a plain read-only fetch (not re-checked). help.producthunt.com/en/articles/17350772-launch-guide returned 404 to the fetcher, though search still indexes it.
 - **Rules**:
   - Free to use. Company accounts are prohibited. Makers are encouraged to submit their own products, and a third-party hunter gives "no discernible advantage" (observed).
   - You can relaunch "as often as you have new significant product iterations" (observed).
@@ -175,3 +175,4 @@ Labels: **observed** = read on the community's own rules page on 2026-11-07 (thr
 
 ## Changelog
 - 2026-11-07 — created (research run, no posting).
+- 2026-11-10 — verified (routine, partial): 3/4 runnable checks held (Show HN rules, HN bans on generated text and automated posting, Lobsters 70-day new-user limits). producthunt.com/launch returned 403 to a plain fetch, so not re-checked. Check 5 (Reddit) is human-only by design. last_verified left at 2026-11-07.

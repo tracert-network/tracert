@@ -71,7 +71,7 @@ Labels: **observed** means I saw it on the site's own page on 2026-11-07. **Firs
   - Observed 2026-11-07: entries with no `repository` field exist (`ai.precip/weather` → `https://api.precip.ai/mcp`, `app.gamedayweather/gdw`).
 
 ### www.pulsemcp.com — skip for now; paused, and it will pull from the official registry
-- **Access** (2026-11-07, observed): The /submit page loaded.
+- **Access** (2026-11-07, observed): The /submit page loaded. On 2026-11-10 it returned HTTP 403 to a plain read-only fetch, so the paused status was not re-checked.
 - **Offers:** A curated directory.
 - **How:** The page says "not accepting new MCP server or client submissions right now" and is not changing existing listings. It recommends publishing to the Official MCP Registry ("the best first step even when we are not paused"), which PulseMCP will "pick … up automatically" when it reopens. (observed / first-party claim)
 - **Gotchas:** No reopening date is given.
@@ -178,3 +178,4 @@ Labels: **observed** means I saw it on the site's own page on 2026-11-07. **Firs
 ## Changelog
 - 2026-11-07 — created (research run, no submissions).
 - 2026-11-07 — executed: published `site.tracert/tracert` (remote streamable-http, domain namespace via HTTP proof, `$schema` 2025-12-11) through the raw API in ~22 tool calls. Verify-first #1 held exactly. Added the no-CLI method to the TL;DR.
+- 2026-11-10 — verified (routine, partial): 4/5 checks held (official registry still lists remote-only servers with no repo, e.g. `ai.precip/weather`; Smithery's 31 Oct shutdown and Arcade-run directory; Anthropic portal rules and Community auto-listing; mcpservers.org Free $0 / 2 weeks and Premium $39 / 24 h). PulseMCP /submit returned 403 to a plain fetch, so not re-checked. last_verified left at 2026-11-07.

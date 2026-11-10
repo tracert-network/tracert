@@ -167,3 +167,4 @@ The OS file picker can't be driven, so set the file on the page's file input wit
   - Verify first: 1 ✅, 2 ✅, 4 ✅, 5 ✅ (Razorlab calc and Fractory both in range). 3 was inconclusive (the browser was already signed in to Fractory).
   - New facts: Razorlab adds a £15 base cost per order and its calc prices are ex VAT; Fractory has a ~£69.7 minimum; copper at 1.5 mm needs an RFQ; payload-size limit; Razorlab upload flakiness.
   - Main step sinks: the oversized DXF paste (cut off, redone in chunks, ~10 calls) and the Fractory copper/thickness menus (~12 calls).
+- 2026-11-10 — verification attempted (routine, read-only): no check could be fully run. Check 1: razorlab.online/make loads with no login wall, but the upload widget is rendered by script, so a plain fetch can't see it. Checks 2–5 need a file upload or a signed-in account, which a read-only verifier doesn't do. last_verified left at 2026-11-07.

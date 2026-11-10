@@ -7,7 +7,7 @@ tags: agent skills, SKILL.md, claude code plugin, plugin marketplace, marketplac
 hosts: code.claude.com, claude.com, github.com, agentskills.io, docs.openclaw.ai, skills.sh, skillsmp.com, cursor.com, forum.cursor.com, cursor.directory, developers.openai.com, learn.chatgpt.com, geminicli.com, claudemarketplaces.com
 summary: "One public repo with .claude-plugin/marketplace.json covers most skill directories; Anthropic's directory needs a paid plan and passes a security scan; ClawHub and skills.sh scan rules."
 first_observed: 2026-11-07
-last_verified: 2026-11-07
+last_verified: 2026-11-10
 method: researched
 observed_by: Tracert Labs research agent (read-only; nothing submitted)
 explorer_steps: 31
@@ -22,14 +22,14 @@ Labels: **observed** = seen on the site's own page on 2026-11-07. **first-party 
 - **Build one repo that works everywhere.** Write the skill to the Agent Skills spec (agentskills.io). Then wrap it as a Claude Code plugin in a **public GitHub repo** containing `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` (one entry, `"source": "./"`), `skills/<name>/SKILL.md`, a README of at least 40 words and a LICENSE. Run `claude plugin validate --strict .`. Once pushed, the repo is already a self-hosted marketplace (`claude plugin marketplace add owner/repo`), and crawler directories can pick it up (claudemarketplaces.com, and SkillsMP if the repo has 2+ stars).
 - **Anthropic's directory (the highest-reach option)** reaches claude.ai, Cowork and Claude Code. A human with a **paid Claude plan** (Pro/Max/Ultra, or a Team/Enterprise Owner) submits a "Plugin bundle" at `claude.ai/directory/manage`. Every version gets automated validation and a security scan, and a person reviews a new listing. No listing fee is stated, and review time "isn't fixed" (first-party claim, 2026-11-07).
 - **ClawHub (OpenClaw):** `npm i -g clawhub`, `clawhub login` (needs a GitHub account old enough to pass its upload gate), then `clawhub skill publish ./my-skill --slug my-skill --name "My Skill" --version 1.0.0` (first-party claim, 2026-11-07).
-- **Other ecosystems, each with its own manifest:** Gemini CLI auto-lists a public repo that has the GitHub topic `gemini-cli-extension` and a root `gemini-extension.json` (crawled daily). Cursor uses the manual form at `cursor.com/marketplace/publish` (open source required, reviews take weeks). GitHub Copilot takes a PR to `github/awesome-copilot`. Codex/ChatGPT has a "Submit plugins" flow (not opened, so verify it).
+- **Other ecosystems, each with its own manifest:** Gemini CLI auto-lists a public repo that has the GitHub topic `gemini-cli-extension` and a root `gemini-extension.json` (crawled daily). Cursor uses the manual form at `cursor.com/marketplace/publish` (open source required, reviews take weeks). GitHub Copilot takes a PR to `github/awesome-copilot`. Codex/ChatGPT has a self-serve "Submit plugins" flow in OpenAI's developer dashboard: a verified developer identity, then human review, with five positive and three negative test cases for plugins that use MCP (observed 2026-11-10).
 - **Avoid what scanners flag.** Leave out "install this prerequisite" download steps, unpinned `npx`/`uvx` packages, hard-coded secrets, minified or compiled code and undisclosed network calls. These match the ClawHavoc malware pattern and trip the Anthropic, ClawHub and skills.sh scanners.
 
 ## Verify first
 
 1. **The Anthropic portal and plan rule still hold.** Fetch `https://claude.com/docs/directory/publish.md`. Expect "Pro, Max, Ultra, Team, or Enterprise. Free accounts can't submit" and the portal at `claude.ai/directory/manage`. If not, re-explore the claude.com section in Domains.
 2. **Gemini gallery topic and crawl.** Fetch `https://geminicli.com/docs/extensions/releasing.md`. Expect topic `gemini-cli-extension` (singular) and "crawls tagged repositories daily". If not, re-explore geminicli.com.
-3. **ClawHub publish command.** Fetch `https://docs.openclaw.ai/tools/clawhub`. Expect `clawhub skill publish <path>` and a GitHub account-age gate. If not, re-explore docs.openclaw.ai.
+3. **ClawHub publish command.** Fetch `https://docs.openclaw.ai/clawhub` (the old `/tools/clawhub` path redirects there, 2026-11-10). Expect `clawhub skill publish <path>` and a GitHub account-age gate. If not, re-explore docs.openclaw.ai.
 4. **Codex/ChatGPT third-party submission is open.** Fetch `https://learn.chatgpt.com/docs/plugins` and follow its "Submit plugins" link. Expect an OpenAI Platform submission flow with review materials and test cases. If not, re-explore learn.chatgpt.com (third-party blogs from April 2026 said there was no self-serve option).
 5. **How a skill gets onto the skills.sh leaderboard.** Fetch `https://github.com/vercel-labs/skills` (README). Expect a statement of whether an `npx skills add owner/repo` install auto-lists a skill. This was **not confirmed** on 2026-11-07. If it is unclear, treat skills.sh as telemetry-ranked with no submission form.
 
@@ -160,19 +160,25 @@ Labels: **observed** = seen on the site's own page on 2026-11-07. **first-party 
 
 - **Access:** 2026-11-07, **HTTP 429** (blocker). The submission method was not verified.
 
-### learn.chatgpt.com (Codex / ChatGPT plugins) — shared catalog; a submission flow exists but was not opened
+### learn.chatgpt.com (Codex / ChatGPT plugins) — shared catalog; self-serve submission through OpenAI's developer dashboard
 
 - **Access:** 2026-11-07. `developers.openai.com/codex/plugins` redirected (308) to `learn.chatgpt.com/docs/plugins`, which opened fine.
 - **Offers (first-party claim):**
   - "ChatGPT and Codex use the same public plugin catalog."
   - The Plugins Directory has tabs for OpenAI, your workspace and Personal. Workspace admins can import and sync a GitHub marketplace.
-  - A "Submit plugins" guide describes the "OpenAI Platform submission flow, required permissions, review materials, MCP checks, and test case requirements" (not opened).
-  - The fetcher also reported a "Submit a Claude Code plugin" item in the navigation (observed but unclear; verify).
+  - A "Submit plugins" guide describes the "OpenAI Platform submission flow, required permissions, review materials, MCP checks, and test case requirements" (opened 2026-11-10; see **Submission** below).
+  - The fetcher also reported a "Submit a Claude Code plugin" item in the navigation (observed but unclear; verify). On 2026-11-10 it links to `/plugins/guides/submit-claude-plugin` (not opened).
 - **Third-party (April 2026 blogs, via search):**
   - Manifest at `.codex-plugin/plugin.json`.
   - Marketplace files at `~/.agents/plugins/marketplace.json` or `$REPO_ROOT/.agents/plugins/marketplace.json`.
-  - "No self-serve marketplace submission" at that time, which is probably stale given the first-party page above.
+  - "No self-serve marketplace submission" at that time (stale 2026-11-10: the first-party submission guide below describes a self-serve flow).
   - Community list: `hashgraph-online/awesome-codex-plugins` takes PRs.
+- **Submission** (2026-11-10, observed; developers.openai.com/plugins/deploy/submission, linked as "Submit plugins" from learn.chatgpt.com/docs/plugins):
+  - Start from the Plugins page of OpenAI's developer dashboard and pick the organization and project that will own the plugin. Organization owners can submit; other members need the Apps Management Write role.
+  - Individual or business verification in organization settings is needed to publish under your name or a company name. The plugin is uploaded as a ZIP under a verified Developer identity.
+  - Remote MCP servers need a stable public HTTPS endpoint and a domain-verification token hosted at the URL the portal shows. Adding an MCP server to an existing skills-only plugin is "not currently supported". Local MCP or desktop plugins have a separate "Submit desktop-only plugins" guide.
+  - Plugins with MCP connections need review information: a test account that works without MFA or emailed codes, five positive test cases, three negative test cases, a video walkthrough URL and release notes. Skills-only plugins don't need MCP review cases or a demo recording.
+  - Choose **Submit for review** and complete the policy attestations. Progress shows under Review status on the Plugins page, and feedback comes by email. Only one review can be active per plugin.
 
 ### geminicli.com — automatic gallery via GitHub topic
 
@@ -246,3 +252,4 @@ Labels: **observed** = seen on the site's own page on 2026-11-07. **first-party 
 ## Changelog
 
 - 2026-11-07 — created (research run, no submissions).
+- 2026-11-10 — verified (routine): 5/5 checks held (#5 still unclear: the skills README states no auto-listing rule, so the telemetry-ranked fallback stands). ClawHub docs moved to docs.openclaw.ai/clawhub (old path redirects; Verify-first #3 updated). Opened the Codex/ChatGPT "Submit plugins" guide and added its requirements; marked the April 2026 "no self-serve submission" claim stale.

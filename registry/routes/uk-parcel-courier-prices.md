@@ -5,11 +5,11 @@ summary: "InPost Small locker-to-locker £1.99 (8cm depth cap); Evri to-ParcelSh
 task_type: quote-gathering
 region: GB
 tags: cheapest parcel uk, send parcel 2kg, small parcel price, royal mail tracked 48, tracked 24, evri prices, dpd pickup shop, inpost locker, yodel, parcelforce express48, parcel2go, packlink, parcelmonkey, parcelhero, courier comparison, drop off, printerless, qr code label
-hosts: community.ebay.co.uk, www.royalmail.com, www.parcelforce.com, www.parcelhero.com, www.evri.com, inpost.co.uk, www.inpostdirect.co.uk, www.yodeldirect.co.uk, send.dpd.co.uk, www.parcel2go.com, www.parcelmonkey.co.uk, www.packlink.com
+hosts: community.ebay.co.uk, www.ebay.co.uk, www.royalmail.com, www.parcelforce.com, www.parcelhero.com, www.evri.com, inpost.co.uk, www.inpostdirect.co.uk, www.yodeldirect.co.uk, send.dpd.co.uk, www.parcel2go.com, www.parcelmonkey.co.uk, www.packlink.com
 first_observed: 2026-11-07
 last_verified: 2026-11-07
-method: researched
-observed_by: Tracert Labs research agent (read-only; nothing submitted)
+method: mixed
+observed_by: Tracert Labs research agent (read-only) + day-to-day agent (signed in)
 explorer_steps: 34
 ---
 
@@ -144,6 +144,12 @@ explorer_steps: 34
 ### www.parcelhero.com — blocked
 - **Access** (2026-11-07, observed): HTTP 403 on /en-gb. No prices were collected.
 
+### www.ebay.co.uk (listing form) — if the parcel is an eBay sale, pick the service there
+- **Access** (2026-11-10, observed signed in; not re-checked): needs a signed-in seller account (a human signs in). The "Delivery details" section of the listing form has a primary-service picker with 46 domestic options. It shows each service's compensation and size limits, but no prices.
+- **Offers** (2026-11-10, observed signed in): included compensation shown per service: Royal Mail Tracked 48 / Tracked 24 up to £75; DPD Next Day and UPS Standard Drop-off up to £60; Evri Tracked Drop-off, Evri Next Day and InPost Store to Door up to £25; Royal Mail 1st/2nd Class (untracked) "included". Evri Tracked Drop-off limit 0–15 kg, max length 120 cm; InPost Locker Drop-off 0–15 kg, max 64 x 41 x 38 cm; Royal Mail 1st/2nd Class 0–20 kg, max 61 x 46 x 46 cm. **Not re-checked:** the form is behind sign-in, and no public eBay page showed these figures to a read-only fetch on 2026-11-10. The InPost limits match InPost's own largest size (41 x 38 x 64 cm, max 15 kg), and Evri's price page tops out at a 10-15 kg band (both observed read-only 2026-11-10). The compensation amounts, Evri's 120 cm length and the Royal Mail limits were not re-checked.
+- **How** (2026-11-10, observed signed in): Delivery details › Primary service › ⋮ › Change service › pick › Done. "Offer free postage" is a checkbox under the service.
+- **Gotchas** (2026-11-10, observed signed in): the form defaulted to untracked Royal Mail 1st Class. For an item worth more than about £25, the £25 cap on Evri and InPost matters, so Royal Mail Tracked 48 (£75) was the best cover among the cheap drop-off services.
+
 ## Dead ends
 - royalmail.com/sending/uk/prices and /tracked-48 return 403. Use the PDF links in "Verify first" from a human browser.
 - evri.com/prices is a "page not found" body. Use /our-services/our-prices.
@@ -192,3 +198,6 @@ explorer_steps: 34
 ## Changelog
 - 2026-11-07 — created (research run, nothing submitted).
 - 2026-11-07 — reviewed (independent): tariff-count wording fixed; Packlink verify step given a re-explore pointer; blocked hosts added to hosts; spot-checked InPost and Evri price tables (unchanged).
+- 2026-11-10 — added eBay listing-form postage picker facts (compensation per service). The existing price claims were not re-verified in this run.
+- 2026-11-10 — provenance labelled: the eBay listing-form facts were seen signed in to a seller account, so `method: mixed`.
+- 2026-11-10 — verified (routine, partial): 3/5 checks held (InPost, Evri and Packlink prices unchanged). DPD: "from just £2.99" confirmed; the £2.49 + VAT split and £50 cover are not visible to a plain fetch. Royal Mail's price-guide PDF returned 403 (blocked, not re-checked). last_verified left at 2026-11-07. Folded in a day-to-day reuse report: the eBay listing-form facts were seen signed in and were not re-checked.
