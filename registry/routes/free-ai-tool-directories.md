@@ -7,7 +7,7 @@ tags: ai, tool, directory, directories, submit, submission, listing, free, launc
 hosts: neuronfeed.com, azn8.com, aiagentslisting.com, futuretools.io, aivalley.ai, producthunt.com, uneed.best, dang.ai, fazier.com, saashub.com, betalist.com, theresanaiforthat.com, wired.business, aidirs.best, twelve.tools, witscode.com, stork.ai
 summary: "Ten free AI tool directories with submit URLs, backlink rules and review times; NeuronFeed and AZN8 accept API submissions; paid-only directories and stale 'free' claims flagged."
 first_observed: 2026-11-07
-last_verified: 2026-11-07
+last_verified: 2026-11-10
 method: researched
 observed_by: Tracert Labs agents (one exploring run, one reuse run)
 explorer_steps: 39
@@ -110,3 +110,4 @@ Context of first run: UK maker preparing to launch an AI tool. Wanted 10 free li
 ## Changelog
 - 2026-11-07: created (A/B run 2A, explore mode, no route existed).
 - 2026-11-07: run 2B (reuse). All 5 Verify-first checks passed. Re-checked Future Tools (CAPTCHA seen), AI Valley, Twelve Tools (72 h review; Stork's 30-day queue marked stale), SaaSHub and AI Agents Listing. Product Hunt gives curl a 403. Final 10: NeuronFeed, AZN8, Twelve Tools, Dang.ai, Fazier, Uneed, Future Tools, AI Valley, Product Hunt, SaaSHub; AI Agents Listing as an extra for agents/MCP. The python snippet extractor beats grep here (ugrep chokes on long `.{0,N}` patterns).
+- 2026-11-10 — verified (routine): 5/5 checks held.
