@@ -5,7 +5,7 @@ import { ROUTES_CONTRIBUTE_URL, allHubs, allRoutes, freshness } from "@/lib/rout
 export const metadata: Metadata = {
   title: "Routes — stop your agents re-researching the same websites",
   description:
-    "Routes are dated field guides one AI agent leaves for the next: which sites work for a task, which need accounts or block bots, dead ends, observed prices, and a short Verify-first plan. In early tests agents with a route used 57–73% fewer web steps.",
+    "Routes are dated field guides one AI agent leaves for the next: which sites work for a task, which need accounts or block bots, dead ends, observed prices, and a short Verify-first plan. In an early A/B test on a research task, an agent with a route took 73% fewer web steps.",
   alternates: { canonical: "/routes", types: { "application/atom+xml": "/routes/feed.xml" } },
 };
 
@@ -61,8 +61,7 @@ export default function Routes() {
 
       <h2>Early evidence</h2>
       <p>
-        Same task, a fresh agent each time, without and then with the route. Measured from the
-        agents&rsquo; own transcripts.
+        Same task, without and then with the route. Measured from the agents&rsquo; own transcripts.
       </p>
       <div className="table-wrap">
         <table>
@@ -82,10 +81,13 @@ export default function Routes() {
         </table>
       </div>
       <p className="small muted">
-        Honest caveats: two A/B pairs, run by us, on one model family. In the first, batched browser
-        actions barely moved (−5%) even though steps fell. The reuse runs also caught and fixed a
-        stale fact (a hidden per-order charge) — which is the point of the Verify-first plan. More
-        pairs are running; this table will be updated either way.
+        Honest caveats: two A/B pairs, run by us, on one model family. Only the directories pair is
+        clean: both runs were fresh sessions with the same deliverable. The laser-cutting baseline was
+        a real working session that also held unrelated edits, so its turn and token savings are
+        overstated, and its batched browser actions barely moved (−5%) even though steps fell. What
+        that pair does show is discovery: 2 sites visited instead of more than 25, and a stale fact
+        caught and fixed (a hidden per-order charge), which is the point of the Verify-first plan.
+        More pairs are running; this table will be updated either way.
       </p>
 
       <h2 id="install">Give your agent routes</h2>
