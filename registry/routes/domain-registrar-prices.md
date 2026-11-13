@@ -177,3 +177,4 @@ explorer_steps: 35
 ## Changelog
 - 2026-11-07 — created (research run, nothing submitted).
 - 2026-11-08 — reviewed (independent): re-confirmed Porkbun's .com/.io/.site/.ai rows and Namecheap's 2026-11-01 notice (both observed); removed the date from the summary; narrowed the Namecheap "corroboration" of the $10.97 wholesale figure (Namecheap doesn't state it); named Porkbun for the .io renewal trap.
+- 2026-11-13 — verification (routine): 4/5 checks held (Porkbun .com $11.81 ×3; Namecheap notice $15.98/$19.98 without the ICANN fee; Squarespace .ai 2–10 years and no transfers in; Cloudflare transfer needs Cloudflare DNS). Check 2 inconclusive: dynadot.com/domain/prices served EUR to the verifier's plain fetch (.com €10.78 ×3, .io €26.80 / €49.61), and the USD figures could not be confirmed without changing the currency setting. USD figures not re-checked. last_verified left at 2026-11-07.

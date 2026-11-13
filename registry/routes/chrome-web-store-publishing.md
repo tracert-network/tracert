@@ -7,7 +7,7 @@ region: global
 tags: chrome web store, publish chrome extension, chrome developer dashboard, developer registration fee, manifest v3, mv2 deprecation, privacy practices, permission justification, remote hosted code, single purpose, rejection reasons, chrome web store api, edge add-ons, partner center, firefox add-ons, amo, addons.mozilla.org, extension signing, web-ext, data_collection_permissions, trader declaration
 hosts: developer.chrome.com, learn.microsoft.com, extensionworkshop.com, blog.mozilla.org
 first_observed: 2026-11-07
-last_verified: 2026-11-07
+last_verified: 2026-11-13
 method: researched
 observed_by: Tracert Labs research agent (read-only; nothing submitted)
 explorer_steps: 34
@@ -250,3 +250,4 @@ explorer_steps: 34
 ## Changelog
 - 2026-11-07 — created (research run, nothing submitted).
 - 2026-11-08 — reviewed (independent): re-confirmed the 2-slot default (blog dated 2026-08-20) and MV2 removal from the store on 2026-08-31; labelled the Edge and Firefox MV2 statements in the TL;DR, and limited the Firefox data-collection rule in the summary to new extensions.
+- 2026-11-13 — verified (routine): 5/5 checks held.
