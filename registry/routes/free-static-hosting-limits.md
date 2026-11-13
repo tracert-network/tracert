@@ -44,7 +44,7 @@ explorer_steps: 33
   - **Deploys, projects and logs:** 100 deployments per day. 200 projects. 1 hour of runtime logs.
 - **Custom domains and TLS** (observed): 50 domains per project on Hobby. TLS details were not fetched today.
 - **Rules** (observed, https://vercel.com/docs/limits/fair-use-guidelines):
-  - Hobby is restricted to "non-commercial personal use only".
+  - Hobby is restricted to "non-commercial personal use only". (Not re-confirmed 2026-11-13: neither the Hobby page nor the fair-use page, as served as markdown to a plain fetch, contains this wording or a commercial-usage section any more. Both still show last_updated 2026-09-14, so this may be a change to the export rather than to the policy. Unverified, not marked stale.)
   - Commercial use means financial gain for "anyone involved in any part of the production", including a paid employee or consultant writing the code.
   - Examples given: payment processing, advertising a product or service, being paid to build or host the site, affiliate linking as the primary purpose, and ads such as AdSense.
   - Donations do not count as commercial use.
@@ -210,3 +210,4 @@ explorer_steps: 33
 ## Changelog
 - 2026-11-07 — created (research run, nothing submitted).
 - 2026-11-08 — reviewed (independent): re-confirmed Vercel Hobby's non-commercial rule and 30-day pause (added Vercel's "in most cases" qualifier), and Netlify Free's 300-credit hard limit and all-projects pause; Deno post date and six-month wording now observed first-party, with the April 2027 figure marked as a calculation.
+- 2026-11-13 — verification (routine): 4/5 checks held (Netlify 300 credits, 15/deploy, 20/GB, 2/10k requests; Cloudflare Workers Free 100,000 requests/day and 10 ms CPU, static assets "free and unlimited", Paid $5/month; Deno Deploy "six months before shutting down", still no exact date; Firebase discrepancy unchanged: pricing page 360 MB/day, docs 10 GB/month). Check 1 partial: Vercel Hobby limits, the 30-day pause and last_updated 2026-09-14 held, but the "non-commercial personal use only" wording no longer appears in the markdown either Vercel page serves. Labelled unverified. last_verified left at 2026-11-07.
