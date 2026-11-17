@@ -7,7 +7,7 @@ region: global
 tags: product launch, startup directory, launch platform, product hunt alternative, betalist, uneed, peerlist launchpad, fazier, tinylaunch, startupbase, microlaunch, launching next, devhunt, sideprojectors, indie hackers, free backlink, dofollow, launch badge, skip the queue, saas launch
 hosts: betalist.com, microlaunch.net, www.uneed.best, fazier.com, www.tinylaunch.com, www.launchingnext.com, devhunt.org, startupbase.io, www.sideprojectors.com, help.peerlist.io, www.producthunt.com
 first_observed: 2026-11-07
-last_verified: 2026-11-07
+last_verified: 2026-11-17
 method: researched
 observed_by: Tracert Labs research agent (read-only; nothing submitted)
 explorer_steps: 34
@@ -27,7 +27,7 @@ Scope: general launch platforms and startup directories. AI-tool-specific direct
 
 ## Verify first
 1. **BetaList is still paid-only.** Fetch https://betalist.com/faq and expect "All submissions are paid. There is no free submission option." If it says otherwise, re-explore the betalist.com section.
-2. **Uneed's free line rules are unchanged.** Fetch https://www.uneed.best/pricing and expect free "Join the line" at "at least 50 days out", Fast-track $14.99 and Skip the line $39.99. If not, re-explore the uneed.best section.
+2. **Uneed's free line rules are unchanged.** Fetch https://www.uneed.best/pricing and expect free "Join the line" at "at least 50 days out", Fast-track $19.99 and Skip the line $39.99. If not, re-explore the uneed.best section.
 3. **StartupBase's free tier still requires the badge.** Fetch https://startupbase.io/launch and expect "Free forever", "Launches in ~4–5 weeks" and "StartupBase badge required on your site". If not, re-explore the startupbase.io section.
 4. **Fazier Basic still requires a link back.** Fetch https://fazier.com/submit and expect Basic free, "Reviewed & listed within 30 days", and a link to Fazier on your homepage or footer. If not, re-explore the fazier.com section.
 5. **Microlaunch still has no visible free tier.** Fetch https://microlaunch.net/premium and expect only Launch Pro, Launch Plus and Launch Everywhere. If a free option appears, re-explore the microlaunch.net section.
@@ -40,7 +40,7 @@ At-a-glance status on 2026-11-07. Free and paid details come from each provider'
 |---|---|---|---|---|---|
 | BetaList | No (paid-only) | n/a | n/a | price hidden until end of form | Yes (featured Nov 5–7, 2026) |
 | Microlaunch | Not shown on its pages; third parties disagree | not published | unknown | $39 (code LAUNCH20; list $49) | Yes ("November`26" board) |
-| Uneed | Yes | at least 50 days | No badge; upvote score 10 to stay, 20 for do-follow | $14.99 Fast-track | Yes (pricing page promotes Nov 16 offer) |
+| Uneed | Yes | at least 50 days | No badge; upvote score 10 to stay, 20 for do-follow | $19.99 Fast-track (2026-11-17) | Yes (pricing page promotes Nov 16 offer) |
 | Peerlist Launchpad | Yes (help center doesn't say free; third party says free) | weekly, Monday | none mentioned | Featured Launch $29 (third-party) | not observed (403) |
 | Fazier | Yes (Basic) | up to 30 days | Yes, link on homepage/footer | $29 Lite (list $39) | Yes (leaderboard weeks 2026/44) |
 | TinyLaunch | Yes (Standard) | not stated | badge needed for do-follow | $39 Premium | Yes (campaign tag 2026-11-02) |
@@ -73,7 +73,8 @@ At-a-glance status on 2026-11-07. Free and paid details come from each provider'
 - **Scope**: general tech products, not only AI. Categories include development, design, marketing, business and "Products For Sale".
 - **Pricing** (2026-11-07, observed, /pricing; "$" shown, no currency code):
   - Free "Join the line": date assigned "at least 50 days out". You need an upvote score of 10 to stay published and 20 for the do-follow backlink.
-  - Fast-track $14.99: slot in about 14 days, do-follow at score 10.
+  - Fast-track (stale 2026-11-17: was $14.99) $19.99 (2026-11-17, observed): slot in about 14 days, do-follow at score 10.
+  - Yearly Pro includes one free Skip the line, "worth $39.99" (2026-11-17, observed).
   - Skip the line $39.99: you choose the date, with a guaranteed do-follow backlink from a "75 DR" site.
   - Relaunch (existing Uneed product) $15.
   - Pro subscription "$99/ year" (a $139 figure is shown next to it, unlabelled). There is a Black Friday lifetime offer at $149 once, limited to 100 places, opening Nov 16.
@@ -158,11 +159,12 @@ At-a-glance status on 2026-11-07. Free and paid details come from each provider'
 - Not researched in this run (they surfaced in 2026 lists): Startup Fame, Twelve Tools, Smol Launch, PeerPush, OpenHunts, Firsto, SaaSHub. These are candidates for a follow-up.
 
 ## Observed prices
-All prices were seen on the provider's own page on 2026-11-07. Each page shows only a "$" sign with no currency code, and none states whether tax/VAT is included. "List" means the higher price shown next to the current one.
+All prices were seen on the provider's own page on the date in each row. Each page shows only a "$" sign with no currency code, and none states whether tax/VAT is included. "List" means the higher price shown next to the current one.
 
 | Date | Where | What | Price | Basis |
 |---|---|---|---|---|
-| 2026-11-07 | uneed.best/pricing | Fast-track launch (~14 days) | $14.99 | one-off; currency code not stated; tax not stated |
+| 2026-11-17 | uneed.best/pricing | Fast-track launch (~14 days) | $19.99 | one-off; currency code not stated; tax not stated |
+| 2026-11-07 | uneed.best/pricing | Fast-track launch (~14 days) (stale 2026-11-17) | $14.99 | one-off; currency code not stated; tax not stated |
 | 2026-11-07 | uneed.best/pricing | Skip the line (choose date, guaranteed do-follow) | $39.99 | one-off; currency code not stated; tax not stated |
 | 2026-11-07 | uneed.best/pricing | Relaunch (existing product) | $15 | one-off; currency code not stated; tax not stated |
 | 2026-11-07 | microlaunch.net/premium | Launch Pro | $39 (list $49, code LAUNCH20) | one-off; currency code not stated; tax not stated |
@@ -197,3 +199,4 @@ Not observed first-hand: BetaList plan prices (shown only at the end of the subm
 ## Changelog
 - 2026-11-07 — created (research run, nothing submitted).
 - 2026-11-07 — reviewed (independent): Peerlist "free" relabelled third-party in summary and TL;DR; spot-checked BetaList paid-only FAQ and Uneed free-line terms (unchanged).
+- 2026-11-17 — verified (routine): 4/5 checks held; check 2 failed on one price. Uneed Fast-track is now $19.99 (was $14.99); the free line (at least 50 days out) and Skip the line $39.99 are unchanged. Yearly Pro now includes one free Skip the line. Held: BetaList paid-only; StartupBase free forever, ~4–5 weeks, badge required; Fazier Basic free within 30 days, backlink required; Microlaunch shows only Launch Pro, Launch Plus and Launch Everywhere.

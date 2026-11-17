@@ -7,7 +7,7 @@ tags: public api, api directory, api marketplace, list my api, submit api, publi
 hosts: github.com, api.github.com, apis.guru, docs.rapidapi.com, learning.postman.com, apilist.fun, www.freepublicapis.com, apis.io, www.rfc-editor.org, agentapihub.com
 summary: "freepublicapis.com robot-checks keyless APIs; public-apis is merging again (~9 days); publicapis.dev merges in hours; APIs.guru has been stale since 2024, so use Jentic instead."
 first_observed: 2026-11-07
-last_verified: 2026-11-07
+last_verified: 2026-11-17
 method: researched
 observed_by: Tracert Labs research agent (read-only; nothing submitted)
 explorer_steps: 32
@@ -219,3 +219,4 @@ All facts were checked on 2026-11-07 and carry one of these labels: **observed**
 
 ## Changelog
 - 2026-11-07 — created (research run, no submissions).
+- 2026-11-17 — verified (routine): 5/5 checks held. public-apis merged new-API PRs on 2026-11-15; marcelscruz merges within hours (latest 2026-11-17); Jentic's bot import PRs merge within hours (2026-11-16) and the repo has an "import-openapi-to-jentic-public-apis" issue template; APIs.guru still has no data commits after 2024-03-01.

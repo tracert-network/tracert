@@ -164,3 +164,4 @@ explorer_steps: 34
 ## Changelog
 - 2026-11-07 — created (research run, nothing submitted).
 - 2026-11-07 — reviewed (independent): G2 ownership of Capterra/GetApp/Software Advice removed from summary and TL;DR (first-party source confirms only the 2026-01-29 agreement; completion third-party); spot-checked G2 free-profile timings.
+- 2026-11-17 — verification attempted (routine, read-only): 3/5 checks held (G2 free claim, 3–5 and 1–3 business days; G2 excludes B2C and alpha/beta, form at g2.com/products/new; SaaSHub featured $99 / month, cancel anytime). Check 3: alternativeto.net/faq returned HTTP 403 to a plain fetch. Check 5 needs a human browser (Capterra). last_verified left at 2026-11-07.
