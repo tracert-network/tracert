@@ -189,11 +189,37 @@ export function trafficClass(caller: Pick<Caller, "ua" | "internal" | "browserHe
   const ua = caller.ua || "";
   if (caller.internal || INTERNAL_UA.test(ua) || (mcpClient && INTERNAL_UA.test(mcpClient))) return "internal";
   if (AI_ASSISTANT_UA.test(ua)) return "ai_assistant";
-  if (mcpClient) return mcpClientKind(mcpClient);
+  if (mcpClient) {
+    const kind = mcpClientKind(mcpClient);
+    // A generic or unknown client name ("stork-relay", "mcp") doesn't clear a
+    // caller whose user agent names a catalog ("StorkMCPDirectory/1.0").
+    if (kind === "mcp_client" && !REAL_MCP_CLIENT.test(mcpClient) && probeProduct(ua)) return "registry_probe";
+    return kind;
+  }
   if (CRAWLER_UA.test(ua)) return "crawler";
   if (agentFamily(ua) === "browser") return browserLooksAutomated(ua, caller.browserHeaders) ? "browser_like" : "browser";
   return PROBE_STRONG.test(agentName(ua)) ? "registry_probe" : "tool";
 }
+
+/** The product name at the head of a non-browser UA reads as a catalog or checker. */
+function probeProduct(ua: string): boolean {
+  if (!ua || agentFamily(ua) === "browser") return false;
+  const name = agentName(ua);
+  return PROBE_STRONG.test(name) || PROBE_WEAK.test(name);
+}
+
+// The argument each tool cannot run without (the MCP handlers reject a call
+// that lacks it). A call without it is someone poking at the schema.
+const REQUIRED_ARG: Record<string, string> = {
+  search_capabilities: "query",
+  find_routes: "query",
+  get_capability: "capability_id",
+  get_quote: "capability_id",
+  invoke_capability: "capability_id",
+  get_execution: "execution_id",
+  get_route: "slug",
+  report_route_outcome: "slug",
+};
 
 // Callers whose tool call could be someone getting work done. Probes, crawlers,
 // our own checks and fake browsers call tools too, but only to look at them.
@@ -205,7 +231,8 @@ const TEST_QUERY = /^(test(ing)?|hello( world)?|hi|foo|bar|ping|example|sample|a
  * The north-star proxy: one `real_tool_call` event for each call that looks
  * like use rather than inspection. That means a tool that exists, called by
  * a caller that is not internal, a probe, a crawler or a fake browser, with a
- * query that is not a tester's placeholder. Covers MCP tools/call and the
+ * query that is not a tester's placeholder, and with the argument the tool
+ * needs (a call without it fails validation: schema poking, not use). Covers MCP tools/call and the
  * keyless HTTP equivalents (/api/routes/search, POST /api/routes/outcome).
  * Every call is still in mcp_request / agent_fetch; this event only saves the
  * reader from re-deriving the filter, so its count can be read directly.
@@ -228,6 +255,7 @@ export function realToolCalls(caller: Caller, events: GaEvent[], knownTools: rea
       source = "http";
     }
     if (!tool || !source || !knownTools.includes(tool)) continue;
+    if (p.missing_arg) continue;
     const mcpClient = str(p.mcp_client);
     if (!REAL_CALLER_CLASSES.has(trafficClass(caller, mcpClient))) continue;
     const query = str(p.query);
@@ -394,6 +422,10 @@ export function mcpEvents(payload: unknown): GaEvent[] {
       ev.params.query = typeof args.query === "string" ? args.query : undefined;
       ev.params.route_slug = typeof args.slug === "string" ? args.slug : undefined;
       ev.params.outcome = typeof args.outcome === "string" ? args.outcome : undefined;
+      // Only the name of a missing required argument is recorded, never its value.
+      const need = ev.params.tool ? REQUIRED_ARG[ev.params.tool as string] : undefined;
+      const val = need ? args[need] : undefined;
+      if (need && !(typeof val === "string" && val.trim().length > 0)) ev.params.missing_arg = need;
     }
     out.push(ev);
   }
