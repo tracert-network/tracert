@@ -7,7 +7,7 @@ region: global
 tags: transactional email, email API, free tier, cheapest email API, SMTP relay, Resend, Postmark, Amazon SES, SES sandbox, SendGrid free plan, Twilio SendGrid, Mailgun, Brevo, Mailjet, MailerSend, Loops, Plunk, SPF, DKIM, DMARC, return-path, deliverability, spam folder, Gmail bulk sender requirements, Yahoo sender requirements, one-click unsubscribe
 hosts: resend.com, postmarkapp.com, aws.amazon.com, docs.aws.amazon.com, sendgrid.com, www.twilio.com, www.mailgun.com, www.brevo.com, help.brevo.com, www.mailersend.com, www.mailjet.com, loops.so, www.useplunk.com, support.google.com, senders.yahooinc.com
 first_observed: 2026-11-07
-last_verified: 2026-11-07
+last_verified: 2026-11-17
 method: researched
 observed_by: Tracert Labs research agent (read-only; nothing submitted)
 explorer_steps: 33
@@ -32,7 +32,7 @@ All figures dated 2026-11-07. Labels: **observed** = read on the provider's own 
 2. **Resend Free is 3,000/mo with a 100/day cap, and Pro is $20/mo for 50,000.** Fetch resend.com/pricing. If the numbers differ, re-explore Resend.
 3. **MailerSend Free is 500/mo and needs approval plus a card.** Fetch www.mailersend.com/pricing. Expect "500 emails /month" and the approval/credit-card wording. If not, re-explore MailerSend.
 4. **SES sandbox limits and the credit-based free tier.** Fetch docs.aws.amazon.com/ses/latest/dg/request-production-access.html (expect 200/24h, 1/sec, 96-hour response) and aws.amazon.com/ses/pricing/ (expect $0.10 per 1,000 à la carte and "up to $200 in AWS Free Tier credits"). If not, re-explore SES.
-5. **Brevo Free is 300 emails/day.** This needs a real browser at www.brevo.com/pricing/, because the fetcher saw only the page title. If it can't be confirmed, keep Brevo labelled first-party claim only; if it differs, re-explore the Brevo section.
+5. **Brevo Free is 300 emails/day.** Fetch www.brevo.com/pricing/ and expect the FAQ line "up to 300 emails per day" (a plain fetch has shown it since 2026-11-17; on 2026-11-07 the fetcher saw only the page title). If it can't be confirmed, keep Brevo labelled first-party claim only; if it differs, re-explore the Brevo section.
 
 ## Domains
 
@@ -90,7 +90,8 @@ All figures dated 2026-11-07. Labels: **observed** = read on the provider's own 
 - **Rules** (2026-11-07, first-party claim via search snippets): A Mailgun comparison page says sign-up needs no credit card, and another Mailgun page says the free tier has no time limit. A sandbox domain exists for tests while your own domain is verified. Its recipient restrictions weren't confirmed.
 - **Gotchas:** One-day log retention makes debugging delivery hard on the free plan.
 
-### www.brevo.com / help.brevo.com — 300/day free per Brevo's own copy; not verified on the pricing page
+### www.brevo.com / help.brevo.com — 300/day free (pricing-page FAQ, observed 2026-11-17)
+- **Free plan** (2026-11-17, observed, www.brevo.com/pricing/ via plain fetch): the FAQ says that once Brevo approves the account for sending, you can send up to 300 emails per day. The paid tiers weren't re-read.
 - **Access** (2026-11-07, blocker): www.brevo.com/pricing/ and www.brevo.com/products/transactional-email/ returned only the page title to the fetcher (content renders client-side). help.brevo.com returned HTTP 403.
 - **Pricing** (2026-11-07, first-party claim via search snippets of brevo.com pages, not opened):
   - **Free:** 300 emails/day, "forever free", no credit card required.
@@ -215,3 +216,4 @@ All figures dated 2026-11-07. Labels: **observed** = read on the provider's own 
 ## Changelog
 - 2026-11-07 — created (research run, nothing submitted).
 - 2026-11-07 — reviewed (independent): SendGrid retirement date noted as May 27/28, 2025 (two Twilio entries); Brevo verify step given a re-explore pointer; angle-bracket placeholders put in code spans; spot-checked SES sandbox limits (unchanged).
+- 2026-11-17 — verified (routine): 5/5 checks held. SendGrid 100/day for 60 days and Essentials $19.95/mo; Resend Free 3,000/mo, 100/day, Pro $20 for 50,000; MailerSend 500/mo, approval and card wording; SES 200/24h, 1/sec, 96-hour response, $0.10 per 1,000 and up to $200 Free Tier credits. Brevo's pricing page now serves its text to a plain fetch, and its FAQ confirms 300/day after account approval, now labelled observed.

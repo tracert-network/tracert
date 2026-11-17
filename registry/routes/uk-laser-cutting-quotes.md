@@ -9,9 +9,9 @@ summary: "Razorlab prices acrylic and card instantly with no account (plus a £1
 first_observed: 2026-11-07
 last_verified: 2026-11-07
 method: executed
-observed_by: Tracert Labs agents (one exploring run, one reuse run)
+observed_by: Tracert Labs agents (one exploring run, two reuse runs; some facts observed signed in)
 explorer_steps: 218
-reuse_runs: 1
+reuse_runs: 2
 ---
 
 # UK online laser cutting quotes for small custom parts: who prices instantly (acrylic, card, stainless)
@@ -75,6 +75,12 @@ _Context of first run: a small flat part (~100–140 mm), prototyped in acrylic/
   - The quote saves as a draft in the account. Don't record its number.
   - Bulk edit (2026-11-07): open the parameter select, pick "Material" under LASER CUTTING, then click the value field twice to open the grade list and click the leaf option via JS. Thickness can only be bulk-set together with a material ("Select the material first"). The "Add parameter" menu sometimes won't open; don't burn steps on it.
   - Script DXFs split into one part per outer outline (a 100 mm script word gave 3 parts: body, i-dot, capital).
+- **Thin stainless** (2026-11-13, observed signed in, not re-checked):
+  - At **0.8 mm**, every grade, even "Common grade", came back "Needs RFQ" for a small (80 × 23 mm) fine-featured part. Manual RFQs need a *company* account. AISI 316 grades show "Not available in 0.8 mm".
+  - At **0.9 / 1 mm**, 304/316 2B/4N priced instantly. One 80 × 23 mm part in 0.9 mm AISI 316 4N came to £69.76 ex VAT (the minimum); ×10 £69.70; ×20 £75.20 ex VAT (Economy, 15 working days). Standard was about £13 more.
+- **Brush side and grain direction** (2026-11-13, observed signed in, not re-checked): for 4N (brushed one side), this field must be set before checkout. The options are "Not important" or "Defined on production drawing". For a visible part, pick the drawing option and link a PDF drawing that states which face is the front and how the grain runs. Changing it didn't change the price.
+- **Linking a PDF drawing** (2026-11-13, observed signed in, not re-checked): each part row has its own hidden file input next to "Add drawing". Fractory then runs "AI detection" on the drawing for about 15–20 s, with the fields and checkout disabled, and underlines the fields it read ("Detected from the linked drawing"). Put material, thickness and quantity on the drawing so the detection matches. The page-level upload links drawings only by matching filenames.
+- **Automation quirks** (2026-11-13, observed signed in): a narrow viewport hides the ☰ account menu, so use ≥1280 px. Typing into the quantity box or clicking "+" didn't register in an automated browser; setting the value with the native input setter plus input/change events, then blurring, did.
 
 ### xometry.uk / get.xometry.uk — ⚠️ account before upload
 - **Access** (2026-11-07): sign-up is required before you can even upload. WebFetch gets 403 on `xometry.uk`. Only worth it if the human already has an account; SLA and sheet metal are listed.
@@ -105,6 +111,13 @@ _Context of first run: a small flat part (~100–140 mm), prototyped in acrylic/
 
 ### jlc3dp.com — resin 3D print alternative (estimate)
 - **Offers** (2026-11-07): SLA "from $0.30", ~2-day build, walls over 0.8 mm recommended. Shipping and UK import VAT appear only at checkout. Estimated £10–25 delivered for a ~100×28×3 mm part, and slow door to door.
+
+## Adhesive-backed parts and VHB (2026-11-13, public pages, not re-checked unless noted)
+- razorlab.online/make lists only Acrylic, Wood, Card, Fabric, with no mention of adhesive backing (2026-11-13; material list re-confirmed 2026-11-17).
+- Simply Plastics flat-cut letters offer optional self-adhesive backing in 3/5/10 mm, including silver acrylic mirror, minimum height 100 mm. Custom shapes are quoted by emailing a DXF/PDF.
+- Hobarts LaserFLEX 0.8 / 1.6 mm brushed silver/gold laminate is sold as plain sheet; only the 0.2 mm LaserFOIL is stated as self-adhesive.
+- 3M VHB in the UK is mostly sold in 33 m rolls (5952F 12 mm £59.99–75.16 ex VAT; a 19 mm × 3 m roll £9.29–12.45 ex VAT at Rapid/RS). Primer 94 costs £26.37 ex VAT for 230 ml (Viking Tapes) or £2.94 inc VAT for a 0.66 ml pen.
+- Viking Tapes, Hobarts and Kitronik returned HTTP 429 to an automated fetch.
 
 ## Dead ends
 - sendcutsend.com — ships only to the US and Canada (2026-11-07).
@@ -168,3 +181,5 @@ The OS file picker can't be driven, so set the file on the page's file input wit
   - New facts: Razorlab adds a £15 base cost per order and its calc prices are ex VAT; Fractory has a ~£69.7 minimum; copper at 1.5 mm needs an RFQ; payload-size limit; Razorlab upload flakiness.
   - Main step sinks: the oversized DXF paste (cut off, redone in chunks, ~10 calls) and the Fractory copper/thickness menus (~12 calls).
 - 2026-11-10 — verification attempted (routine, read-only): no check could be fully run. Check 1: razorlab.online/make loads with no login wall, but the upload widget is rendered by script, so a plain fetch can't see it. Checks 2–5 need a file upload or a signed-in account, which a read-only verifier doesn't do. last_verified left at 2026-11-07.
+- 2026-11-13 — reuse runs (day-to-day agent; two runs, the second a follow-up). Didn't re-run the Verify-first checks; only check 3 held (an already signed-in Fractory account priced straight away). Added Fractory thin-stainless RFQ limits and prices, the brush-side/grain field, PDF drawing linking and automation quirks (all observed signed in). Added a web-only section on adhesive backing and VHB sourcing (public pages).
+- 2026-11-17 — verification attempted (routine, read-only): check 1 inconclusive again. razorlab.online/make has no login-wall text and lists Acrylic, Wood, Card, Fabric, but the upload widget is rendered by script. app.fractory.com serves a JS shell. Checks 2–5 need an upload or an account. Folded in the 11-13 reuse report; signed-in facts are labelled and not re-checked. last_verified left at 2026-11-07.
