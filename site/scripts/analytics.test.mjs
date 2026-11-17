@@ -3,7 +3,7 @@
 // so the cases are the evidence. Run: npm test (Node strips the TS types).
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { browserLooksAutomated, mcpClientKind, realToolCalls, trafficClass } from "../src/lib/analytics.ts";
+import { browserLooksAutomated, mcpClientKind, mcpEvents, realToolCalls, trafficClass } from "../src/lib/analytics.ts";
 
 const TOOLS = ["search_capabilities", "get_capability", "get_quote", "invoke_capability", "get_execution", "find_routes", "get_route", "report_route_outcome"];
 const NOV_2026 = Date.parse("2026-11-09");
@@ -46,6 +46,12 @@ test("traffic class by user agent", () => {
   // An MCP client name, when known, decides.
   assert.equal(trafficClass({ ua: "python-requests/2.33.0" }, "glama"), "registry_probe");
   assert.equal(trafficClass({ ua: "node" }, "claude-ai"), "mcp_client");
+  // A generic client name doesn't clear a UA that names a catalog (seen 2026-11-17).
+  assert.equal(trafficClass({ ua: "StorkMCPDirectory/1.0 (+https://www.stork.ai/mcp)" }, "stork-relay"), "registry_probe");
+  // ...but a known app name still wins, and a plain SDK UA stays a client.
+  assert.equal(trafficClass({ ua: "StorkMCPDirectory/1.0" }, "claude-ai"), "mcp_client");
+  assert.equal(trafficClass({ ua: "python-httpx/0.28.1" }, "mcp"), "mcp_client");
+  assert.equal(trafficClass({ ua: CHROME(155), browserHeaders: true }, "stork-relay"), "mcp_client");
 });
 
 test("browser user agents: stale, malformed or header-less ones are browser_like", () => {
@@ -97,6 +103,24 @@ test("real_tool_call: use, not inspection", () => {
   assert.equal(real(script, [call({ tool: "find_routes", query: " test " })]).length, 0);
   assert.equal(real({ ...script, internal: true }, [call({ tool: "find_routes", query: "uk laser cutting quote" })]).length, 0);
   assert.equal(real(script, [call({ tool: "find_routes", mcp_client: "tracert-verify", query: "uk laser cutting quote" })]).length, 0);
+  // Calls without the argument the tool needs are schema poking. Seen 2026-11-12/13:
+  // one python-httpx2 run called every tool, most of them with no arguments.
+  const rpc = (name, args) => mcpEvents({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name, arguments: args } });
+  const httpx = { ip: "203.0.113.9", ua: "python-httpx2/2.14.0" };
+  for (const tool of ["get_capability", "get_quote", "invoke_capability", "get_execution", "get_route", "report_route_outcome"]) {
+    const ev = rpc(tool, {});
+    assert.ok(ev[0].params.missing_arg, tool);
+    assert.equal(real(httpx, ev).length, 0, tool);
+  }
+  assert.equal(real(httpx, rpc("find_routes", { query: "  " })).length, 0);
+  assert.equal(real(httpx, rpc("get_execution", { execution_id: "tr_exec_abc" })).length, 1);
+  assert.equal(real(httpx, rpc("get_route", { slug: "uk-laser-cutting-quotes" })).length, 1);
+  assert.equal(real(httpx, rpc("search_capabilities", { query: "Python documentation" })).length, 1);
+  // The value of an argument is never added, only the name of a missing one.
+  assert.equal(rpc("get_execution", { execution_id: "tr_exec_abc" })[0].params.execution_id, undefined);
+  assert.equal(real(script, [call({ tool: "search_capabilities", mcp_client: "stork-relay", query: "weather in Paris" })]).length, 1);
+  assert.equal(real({ ip: "", ua: "StorkMCPDirectory/1.0 (+https://www.stork.ai/mcp)" }, [call({ tool: "search_capabilities", mcp_client: "stork-relay", query: "weather in Paris" })]).length, 0);
+
   // Listing tools is not a call.
   assert.equal(real(script, [{ name: "mcp_request", params: { rpc_method: "tools/list" } }]).length, 0);
 
