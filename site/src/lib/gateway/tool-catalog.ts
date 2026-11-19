@@ -38,10 +38,10 @@ export const TOOL_META = {
       "Returns exact, expiring terms for one intended invocation: amount, currency, expiry and payment offers. Free capabilities return an explicit zero quote — no wallet or payment handshake is ever required for free routes.",
   },
   invoke_capability: {
-    title: "Execute a capability",
+    title: "Run a free capability (read-only)",
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     description:
-      "Executes a free read and returns a TRACE Receipt binding the request, terms, outcome and evidence (with a sha256 commitment over the canonical output you can independently reproduce). This hosted gateway is READ-ONLY: capabilities that write external state are refused with a pointer to the local router. Send an idempotency_key (8-128 chars) so retries never double-execute.",
+      "Runs one free, read-only capability call and returns a TRACE Receipt binding the request, terms, outcome and evidence (with a sha256 commitment over the canonical output you can independently reproduce). This hosted gateway only reads: capabilities that write external state are refused with a pointer to the local router. Send an idempotency_key (8-128 chars) so a retry returns the same receipt instead of running twice.",
   },
   get_execution: {
     title: "Retrieve an execution receipt",
