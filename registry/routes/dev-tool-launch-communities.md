@@ -176,3 +176,4 @@ Labels: **observed** = read on the community's own rules page on 2026-11-07 (thr
 ## Changelog
 - 2026-11-07 — created (research run, no posting).
 - 2026-11-10 — verified (routine, partial): 3/4 runnable checks held (Show HN rules, HN bans on generated text and automated posting, Lobsters 70-day new-user limits). producthunt.com/launch returned 403 to a plain fetch, so not re-checked. Check 5 (Reddit) is human-only by design. last_verified left at 2026-11-07.
+- 2026-11-20 — verified (routine, partial): 3/4 runnable checks held (Show HN rules incl. "quickly-generated one-offs"; HN guidelines still say "Don't post generated text or AI-edited text" and "please don't automate posting"; Lobsters first-70-days limits and the "less than a quarter" self-promo rule). producthunt.com/launch returned 403 again, so not re-checked. Check 5 (Reddit) is human-only by design. last_verified left at 2026-11-07.

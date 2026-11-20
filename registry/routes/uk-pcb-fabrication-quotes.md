@@ -7,7 +7,7 @@ region: GB
 tags: pcb fabrication, pcb prototype, pcb quote, pcb assembly, pcba, uk vat, import vat, 135 pound threshold, customs, jlcpcb, pcbway, seeed fusion, eurocircuits, aisler, osh park, pcb train, newbury electronics, cheap pcb uk
 hosts: jlcpcb.com, cart.jlcpcb.com, www.pcbway.com, www.seeedstudio.com, aisler.net, community.aisler.net, oshpark.com, docs.oshpark.com, www.eurocircuits.com, www.pcbtrain.co.uk
 first_observed: 2026-11-07
-last_verified: 2026-11-07
+last_verified: 2026-11-20
 method: researched
 observed_by: Tracert Labs research agent (read-only; nothing submitted)
 explorer_steps: 33
@@ -16,7 +16,7 @@ explorer_steps: 33
 # UK PCB prototype prices: JLCPCB vs PCBWay vs Seeed vs Aisler vs Eurocircuits vs OSH Park vs PCB Train (with shipping, VAT and customs)
 
 ## TL;DR — fastest path
-- **JLCPCB has the clearest UK VAT rule.** Its Customs, Duties and Taxes page (last updated 2026-09-09) says JLCPCB collects the VAT for **individual** customers on orders of 0–135 GBP. Local customs collects it for company customers at any value, and for everyone above 135 GBP. The homepage headline is "From $2.00 / 5 pcs" and assembly is "From $8.00" (USD). The page didn't show the board spec behind the $2 headline.
+- **JLCPCB has the clearest UK VAT rule.** Its Customs, Duties and Taxes page (last updated 2026-11-10; UK row unchanged when re-checked 2026-11-20) says JLCPCB collects the VAT for **individual** customers on orders of 0–135 GBP. Local customs collects it for company customers at any value, and for everyone above 135 GBP. The homepage headline is "From $2.00 / 5 pcs" and assembly is "From $8.00" (USD). The page didn't show the board spec behind the $2 headline.
 - **OSH Park was the only fab with a current published per-area price and no upload needed** (Aisler's per-area table dates from 2023). Its 2-layer "Prototype" service costs $5 per sq in for a set of 3 boards, takes 9–12 calendar days, and ships free worldwide. It says nothing about VAT or customs and offers no assembly. Expect UK import VAT and carrier handling on delivery, but that is unverified.
 - **Aisler says it charges no taxes at checkout for non-EU orders,** so UK import taxes fall on you. Eurocircuits' VAT guide says EU-to-non-EU export invoices exclude VAT, but it also lists a UK entity with a GB VAT number, so its UK treatment is unconfirmed. Aisler's own wording: "we do not charge any taxes during checkout", and the courier may ask for duties before delivery. Aisler's standard post (Deutsche Post or DHL Warenpost) is free and untracked.
 - **PCB Train (a division of Newbury Electronics, Berkshire) is UK-domestic, so there's no import step.** UK mainland shipping is published: Royal Mail £5.00, next-day express from £10.00. No board prices appear on its public pages, and the basket links to a login page.
@@ -24,7 +24,7 @@ explorer_steps: 33
 - **Skip trying to read UK VAT lines from fetched pages.** For PCBWay, Seeed and OSH Park, the actual VAT and duty treatment only shows at checkout, so a human needs to check it.
 
 ## Verify first
-1. **JLCPCB UK VAT rule unchanged** — fetch jlcpcb.com/help/article/18-Customs,-Duties-and-Taxes — expect a UK row "0-135GBP: For Individual customers, VAT collected by JLCPCB; For company customers, VAT collected by local customs; >135GBP VAT collected by local customs", last updated Sep 09, 2026 — if not → re-explore Domains › jlcpcb.com.
+1. **JLCPCB UK VAT rule unchanged** — fetch jlcpcb.com/help/article/18-Customs,-Duties-and-Taxes — expect a UK row "0-135GBP: For Individual customers, VAT collected by JLCPCB; For company customers, VAT collected by local customs; >135GBP VAT collected by local customs" (the page said last updated Sep 09, 2026 on 2026-11-07 and Nov 10, 2026 on 2026-11-20) — if not → re-explore Domains › jlcpcb.com.
 2. **OSH Park price and free shipping** — fetch docs.oshpark.com/services/ (oshpark.com/pricing redirects there) — expect Prototype "$5 per sq in", "Per set of 3", "shipped for free to anywhere in the world" — if not → re-explore Domains › docs.oshpark.com.
 3. **Aisler charges no tax for non-EU** — fetch community.aisler.net/t/a-quick-primer-about-shipping-at-aisler/672 — expect "we do not charge any taxes during checkout" for customers outside the EU, plus free untracked standard post — if not → re-explore Domains › aisler.
 4. **PCB Train UK shipping** — fetch www.pcbtrain.co.uk/quick-online-quote/shipping-charges/ — expect UK mainland Royal Mail 3 working days GBP 5.00 and express next day by 6 pm GBP 10.00 — if not → re-explore Domains › pcbtrain.
@@ -36,7 +36,7 @@ explorer_steps: 33
 - **Access** (2026-11-07, observed): Help and home pages fetch fine. The jlcpcb.com/quote link redirects to cart.jlcpcb.com/quote. That calculator is rendered by JavaScript: a text fetch showed "$0.00", "No data" for dimensions, and an "Add gerber file" prompt (zip/rar, max 100 MB). A text fetch couldn't confirm whether typing dimensions by hand gives a price without an upload. Login wasn't required to load the page.
 - **Pricing** (2026-11-07, observed, homepage): FR-4 PCBs "From $2.00 / 5 pcs". The listing covers 1–32 layers, and the page doesn't show a board size or layer limit for the headline. PCB Assembly "From $8.00". Setup and per-joint fees weren't shown. "payments must be made in US dollars."
 - **Lead time** (2026-11-07, observed): FR-4 "Build Time: 24 hours". Assembly "typically require[s] 2–5 days". Most orders arrive "within 2–7 business days". Carriers are DHL, FedEx and UPS, and all shipments are tracked. The quote page says paid orders before 6 pm GMT+8, Monday to Saturday, enter production the same day.
-- **UK VAT rules** (2026-11-07, observed, Customs, Duties and Taxes page, last updated Sep 09, 2026): UK "0-135GBP: For Individual customers, VAT collected by JLCPCB; For company customers, VAT collected by local customs"; ">135GBP VAT collected by local customs". The page also says "All duties and taxes for international shipments are the responsibility of the customer." It doesn't mention IOSS, DDP or clearance fees.
+- **UK VAT rules** (2026-11-07, observed, Customs, Duties and Taxes page, last updated Sep 09, 2026; re-checked 2026-11-20, observed: the page now says last updated Nov 10, 2026 and the UK rows read the same): UK "0-135GBP: For Individual customers, VAT collected by JLCPCB; For company customers, VAT collected by local customs"; ">135GBP VAT collected by local customs". The page also says "All duties and taxes for international shipments are the responsibility of the customer." It doesn't mention IOSS, DDP or clearance fees.
 - **UK VAT options at payment** (2026-11-07, first-party claim via search snippet of cart.jlcpcb.com payMethod page): "UK-VAT (VAT collected by JLCPCB and remitted to competent tax authority)" vs "FCA (Freight, customs clearance, taxes and duties are buyer's responsibility)".
 - **Gotchas**: The Shipping Methods page (last updated Sep 09, 2026) lists its options in an image only, so a text fetch can't see UK carriers or times. The page also says duties "are not able to be estimated/calculated by JLCPCB". A JLCPCB Q&A titled "Low-cost shipping to UK duty paid" exists (help/answers/detail/73) but wasn't opened. Whether you count as an individual or a company changes who collects VAT.
 
@@ -144,3 +144,4 @@ explorer_steps: 33
 ## Changelog
 - 2026-11-07 — created (research run, nothing submitted).
 - 2026-11-07 — reviewed (independent): summary and TL;DR no longer say Eurocircuits/PCBWay leave VAT to import (unconfirmed in body); OSH Park "only per-area price" qualified; spot-checked JLCPCB UK VAT rule and OSH Park pricing (unchanged).
+- 2026-11-20 — verified (routine): 5/5 checks held. JLCPCB's Customs, Duties and Taxes page now says last updated Nov 10, 2026; its UK 0-135 GBP and >135 GBP rows are unchanged, and the check no longer pins the old date.
