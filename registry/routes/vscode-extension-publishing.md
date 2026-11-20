@@ -7,7 +7,7 @@ region: global
 tags: vs code extension, publish extension, vsce, ovsx, open vsx, visual studio marketplace, cursor extensions, windsurf extensions, vscodium, gitpod, personal access token, trusted publishing, oidc, verified publisher, namespace claim, pre-release, vsix
 hosts: code.visualstudio.com, devblogs.microsoft.com, developer.microsoft.com, aka.ms, cdn.vsassets.io, github.com, cursor.com, docs.windsurf.com, docs.devin.ai, ona.com, blogs.eclipse.org
 first_observed: 2026-11-07
-last_verified: 2026-11-07
+last_verified: 2026-11-20
 method: researched
 observed_by: Tracert Labs research agent (read-only; nothing submitted)
 explorer_steps: 35
@@ -246,3 +246,4 @@ explorer_steps: 35
 ## Changelog
 - 2026-11-07 — created (research run, nothing submitted).
 - 2026-11-07 — reviewed (independent): no changes (spot-checked global PAT decommission date 27 Jan 2027 on devblogs and Marketplace Trusted Publishing via `vsce publish --oidc` plus the 1 Dec 2026 date on code.visualstudio.com).
+- 2026-11-20 — verified (routine): 5/5 checks held.

@@ -72,7 +72,7 @@ explorer_steps: 33
 - **Gotchas**: there are no prices, minimums or wall rules on the page. Lead time reads "From 2" with the unit missing. Carriers named are FedEx, UPS, DHL and EMS, with no UK VAT notes. The page doesn't say whether the quote flow needs login (not checked).
 
 ### craftcloud3d.com (Craftcloud, by All3DP) — a marketplace; quotes without registration
-- **Access** (2026-11-07, observed): the home page loaded. The /faq page returned 404. A support.craftcloud3d.com article loaded only its title, with the body apparently rendered client-side.
+- **Access** (2026-11-20, observed): a plain fetch of the home page now gets a 403 Cloudflare "Enable JavaScript and cookies" challenge, so the offers below were not re-checked. (2026-11-07, observed): the home page loaded. The /faq page returned 404. A support.craftcloud3d.com article loaded only its title, with the body apparently rendered client-side.
 - **Offers** (2026-11-07, observed):
   - "No registration required" for quoting.
   - "Transparent pricing, no minimum order".
@@ -186,3 +186,4 @@ explorer_steps: 33
 ## Changelog
 - 2026-11-07 — created (research run, nothing submitted).
 - 2026-11-07 — reviewed (independent): summary says nylon/TPU (TPU is offered); JLCPCB VAT rule re-labelled observed on jlcpcb.com; spot-checked 3DPRINTUK minimums and per-cm³ rates and JLC3DP "from" prices (unchanged).
+- 2026-11-20 — verified (routine, partial): 4/5 checks held (3DPRINTUK £40 + VAT Express/Economy and £500 + VAT Trade minimums, 18p and 11p per cm³ + VAT; JLC3DP SLA from $0.30 / 2 days and MJF, SLS, FDM from $1.00 / 3 days; Hark Tech £4.60 per part, £6.90 per order, tracked delivery from £3.45, free over £40; Shapeways "© 2008 - 2026" and "Get a Quote"). craftcloud3d.com now returns a 403 Cloudflare challenge to a plain fetch, so its claims were not re-checked. last_verified left at 2026-11-07.
