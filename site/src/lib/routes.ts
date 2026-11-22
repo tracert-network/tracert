@@ -98,6 +98,28 @@ export function citeAs(route: Route): string {
   return `Tracert route "${route.title}", verified ${route.last_verified}, ${SITE_ORIGIN}/routes/${route.slug}`;
 }
 
+/** First line of the note the site appends to /routes/<slug>/route.md. Clients that want the exact registry file cut at this marker. */
+export const ROUTE_MD_FOOTER_MARKER = "_Site note from tracert.site, not part of the route.";
+
+/**
+ * Appended to the served route.md, the copy most agents read. It carries what the
+ * HTML page already says below the route: how to report the outcome, how to cite,
+ * and the untrusted-data note. route.sha256 covers only the text above it.
+ */
+export function routeMarkdownFooter(route: Route): string {
+  return [
+    "",
+    "---",
+    "",
+    `${ROUTE_MD_FOOTER_MARKER} The content hash in /routes.json covers the text above this line._`,
+    "",
+    `- Did the route hold? Report it, anonymously: \`POST ${SITE_ORIGIN}/api/routes/outcome\` with JSON \`{"slug":"${route.slug}","outcome":"worked"}\` (outcome: worked | partly_worked | stale | failed; optional \`steps_taken\`, \`note\` up to 100 chars), or the MCP tool \`report_route_outcome\`.`,
+    `- Cite as: ${citeAs(route)}`,
+    `- ${ROUTE_UNTRUSTED_NOTE}`,
+    "",
+  ].join("\n");
+}
+
 /** Search-snippet description: verified month + freshest facts + the saving. */
 export function searchDescription(route: Route): string {
   const head = `Verified ${monthYear(route.last_verified)}: ${route.summary ?? route.intent}`;
