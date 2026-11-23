@@ -1,0 +1,211 @@
+{
+  "schema": "tracert-agent-demand/v0.1",
+  "editions": [
+    {
+      "id": "2026-11",
+      "from": "2026-11-10",
+      "to": "2026-11-22",
+      "partial": true,
+      "generated_at": "2026-11-23T17:04:15Z",
+      "min_callers": 3,
+      "totals": {
+        "route_reads": 3394,
+        "route_callers": 141,
+        "searches": 8,
+        "search_misses": 3,
+        "outcome_reports": 0,
+        "page_views": 24,
+        "route_page_views": 3
+      },
+      "largest_caller_share": 0.369,
+      "readers": [
+        {
+          "kind": "crawler",
+          "reads": 1561,
+          "callers": 40
+        },
+        {
+          "kind": "browser",
+          "reads": 1199,
+          "callers": 26
+        },
+        {
+          "kind": "browser_like",
+          "reads": 387,
+          "callers": 38
+        },
+        {
+          "kind": "tool",
+          "reads": 231,
+          "callers": 37
+        },
+        {
+          "kind": "registry_probe",
+          "reads": 15,
+          "callers": 5
+        },
+        {
+          "kind": "ai_assistant",
+          "reads": 1,
+          "callers": 1
+        }
+      ],
+      "routes": [
+        {
+          "slug": "free-ai-tool-directories",
+          "reads": 1322,
+          "crawler_reads": 464,
+          "callers": 85
+        },
+        {
+          "slug": "saas-review-sites-free-listing",
+          "reads": 246,
+          "crawler_reads": 112,
+          "callers": 33
+        },
+        {
+          "slug": "startup-launch-directories",
+          "reads": 232,
+          "crawler_reads": 68,
+          "callers": 37
+        },
+        {
+          "slug": "llm-api-free-tiers",
+          "reads": 194,
+          "crawler_reads": 82,
+          "callers": 39
+        },
+        {
+          "slug": "mcp-server-registries",
+          "reads": 138,
+          "crawler_reads": 64,
+          "callers": 30
+        },
+        {
+          "slug": "free-static-hosting-limits",
+          "reads": 126,
+          "crawler_reads": 75,
+          "callers": 29
+        },
+        {
+          "slug": "ai-agent-marketplaces",
+          "reads": 99,
+          "crawler_reads": 31,
+          "callers": 29
+        },
+        {
+          "slug": "podcast-directory-submission",
+          "reads": 93,
+          "crawler_reads": 64,
+          "callers": 25
+        },
+        {
+          "slug": "public-api-directories",
+          "reads": 89,
+          "crawler_reads": 48,
+          "callers": 29
+        },
+        {
+          "slug": "dev-tool-launch-communities",
+          "reads": 78,
+          "crawler_reads": 45,
+          "callers": 31
+        },
+        {
+          "slug": "uk-3d-printing-quotes",
+          "reads": 73,
+          "crawler_reads": 47,
+          "callers": 25
+        },
+        {
+          "slug": "uk-parcel-courier-prices",
+          "reads": 72,
+          "crawler_reads": 49,
+          "callers": 26
+        },
+        {
+          "slug": "uk-laser-cutting-quotes",
+          "reads": 68,
+          "crawler_reads": 46,
+          "callers": 26
+        },
+        {
+          "slug": "package-registry-trusted-publishing",
+          "reads": 66,
+          "crawler_reads": 48,
+          "callers": 26
+        },
+        {
+          "slug": "lcsc-part-stock-check-for-pcb-assembly",
+          "reads": 64,
+          "crawler_reads": 50,
+          "callers": 20
+        },
+        {
+          "slug": "uk-pcb-fabrication-quotes",
+          "reads": 60,
+          "crawler_reads": 38,
+          "callers": 26
+        },
+        {
+          "slug": "transactional-email-free-tiers",
+          "reads": 57,
+          "crawler_reads": 35,
+          "callers": 28
+        },
+        {
+          "slug": "new-site-search-indexing",
+          "reads": 55,
+          "crawler_reads": 33,
+          "callers": 24
+        },
+        {
+          "slug": "vscode-extension-publishing",
+          "reads": 54,
+          "crawler_reads": 36,
+          "callers": 22
+        },
+        {
+          "slug": "agent-skill-directories",
+          "reads": 52,
+          "crawler_reads": 29,
+          "callers": 26
+        },
+        {
+          "slug": "jetbrains-marketplace-plugin-publishing",
+          "reads": 45,
+          "crawler_reads": 26,
+          "callers": 23
+        },
+        {
+          "slug": "chrome-web-store-publishing",
+          "reads": 42,
+          "crawler_reads": 26,
+          "callers": 22
+        },
+        {
+          "slug": "domain-registrar-prices",
+          "reads": 42,
+          "crawler_reads": 28,
+          "callers": 20
+        },
+        {
+          "slug": "custom-domain-email-forwarding-free",
+          "reads": 27,
+          "crawler_reads": 17,
+          "callers": 17
+        }
+      ],
+      "routes_below_threshold": {
+        "routes": 0,
+        "reads": 0
+      },
+      "queries": [],
+      "queries_below_threshold": {
+        "queries": 6,
+        "searches": 8
+      },
+      "outcomes": []
+    }
+  ]
+}
