@@ -219,7 +219,7 @@ export default async function DemandEditionPage({ params }: { params: Promise<{ 
         <ul>
           <li>
             <strong>Source:</strong>{" "}tracert.site&rsquo;s server-side analytics, which record each fetch of a page or
-            machine endpoint and never pass on visitors&rsquo; IP addresses. Page views by people come from the browser tag, so they only
+            machine endpoint and never pass on visitors&rsquo; IP addresses. Page views by people come from a small first-party script on each page (no cookies), so they only
             count browsers that ran JavaScript. Tracert&rsquo;s own checks and tools are left out.
           </li>
           <li>

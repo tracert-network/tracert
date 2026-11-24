@@ -15,7 +15,7 @@ export function GET() {
         readers: `Traffic classes from ${CLASSIFIER_URL}.`,
         min_callers: "A route or query is listed only when at least this many distinct callers read or asked it; the rest are summed in *_below_threshold.",
         largest_caller_share: "Share of route reads made by the single busiest caller.",
-        page_views: "Browser-tag page views (people whose browsers ran JavaScript).",
+        page_views: "Page views reported by the site's own page script (browsers that ran JavaScript; no cookies).",
       },
       html: `${SITE_ORIGIN}/demand`,
       editions: allEditions().map((e) => ({ ...e, url: `${SITE_ORIGIN}/demand/${e.id}` })),
