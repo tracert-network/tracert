@@ -7,7 +7,7 @@ tags: ai, tool, directory, directories, submit, submission, listing, free, launc
 hosts: neuronfeed.com, azn8.com, promptfrenzy.com, otra.city, aiagentslisting.com, futuretools.io, aivalley.ai, producthunt.com, uneed.best, dang.ai, fazier.com, saashub.com, betalist.com, theresanaiforthat.com, wired.business, aidirs.best, twelve.tools, witscode.com, stork.ai
 summary: "Twelve free AI tool directories with submit URLs, backlink rules and review times; NeuronFeed, AZN8, PromptFrenzy and otra.city accept API submissions; paid-only directories and stale 'free' claims flagged."
 first_observed: 2026-11-07
-last_verified: 2026-11-10
+last_verified: 2026-11-24
 method: researched
 observed_by: Tracert Labs agents (explore run + reuse run); promptfrenzy.com + otra.city entries are first-party (Tracert's operator)
 explorer_steps: 39
@@ -42,7 +42,7 @@ Context of first run: UK maker preparing to launch an AI tool. Wanted 10 free li
 - **Gotchas**: no superlatives or invented traction; descriptions are edited to house style.
 
 ### azn8.com: agent-first SaaS directory, REST + MCP, auto-publish
-- **Access** (2026-11-07, first-party docs): account needed, created via `POST /api/v1/agents/register` (name, email, password). A real inbox is needed for the verification link. Then sign in → `POST /api/v1/api-keys`. No CAPTCHA on the API. Send a browser-like User-Agent (Cloudflare 1010).
+- **Access** (2026-11-07, first-party docs): account needed, created via `POST /api/v1/agents/register` (name, email, password). A real inbox is needed for the verification link. Then sign in → `POST /api/v1/api-keys`. No CAPTCHA on the API. (stale 2026-11-23: "Send a browser-like User-Agent (Cloudflare 1010)"; a GET to `/api/v1/schema` with curl's and python-requests' default User-Agent returned 200, re-observed with curl's default User-Agent 2026-11-24. POST endpoints not re-checked.)
 - **Offers**: free path with no badge/backlink/phone/work email. The link is followed (first-party claim). `/agent-directories.json` is a 1,748-row catalog of other directories (third-party, mostly tiny, unverified).
 - **How**: `POST /api/v1/listings` with Bearer key. Required `name` ≤80, `website_url`, `tagline` ≤160. Optional description ≤4000, categories, pricing_model, pricing_summary, features, cta_label. MCP at `https://azn8.com/mcp`.
 - **Gotchas**: not AI-specific, and its traffic is unknown.
@@ -129,3 +129,5 @@ Context of first run: UK maker preparing to launch an AI tool. Wanted 10 free li
 - 2026-11-10 — verified (routine): 5/5 checks held.
 - 2026-11-22: added promptfrenzy.com (first-party entry, same operator as Tracert; from its README, not independently observed). `last_verified` unchanged: the Verify-first checks were not re-run.
 - 2026-11-22: added otra.city (first-party entry, same operator as Tracert; from its `/llms.txt` and submit contract, not independently observed, nothing submitted). `last_verified` unchanged.
+- 2026-11-23 — day-to-day reuse report (read-only): AZN8's user-agent block marked stale; default curl and python-requests User-Agents got 200 on `GET /api/v1/schema`.
+- 2026-11-24 — verified (routine): 5/5 checks held (NeuronFeed `POST /api/submit`, free, 48 h review; AZN8 `free_listing_does_not_require` includes badge and backlink, `auto_publish: true`; Uneed "Join the line… at least 50 days out", free; BetaList Lite/Standard/Premium, all paid; Dang.ai free with backlink, up to 4 weeks, and Fazier free with backlink, within 30 days). Folded in the 2026-11-23 reuse report.

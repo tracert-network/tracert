@@ -7,7 +7,7 @@ region: global
 tags: free llm api, free tier, free credits, rate limits, rpm, rpd, tpm, gemini free tier, ai studio, groq free, openrouter free models, cerebras free, cloudflare workers ai neurons, hugging face inference providers, mistral experiment plan, together ai credits, fireworks credits, openai free credits, anthropic free credits, training on prompts, prototype without paying
 hosts: ai.google.dev, aistudio.google.com, console.groq.com, openrouter.ai, inference-docs.cerebras.ai, docs.github.com, developers.cloudflare.com, huggingface.co, help.mistral.ai, mistral.ai, docs.mistral.ai, help.openai.com, docs.claude.com, platform.claude.com, docs.fireworks.ai
 first_observed: 2026-11-07
-last_verified: 2026-11-13
+last_verified: 2026-11-24
 method: researched
 observed_by: Tracert Labs research agent (read-only; nothing submitted)
 explorer_steps: 36
@@ -131,3 +131,4 @@ explorer_steps: 36
 - 2026-11-07 — created (research run, nothing submitted).
 - 2026-11-08 — reviewed (independent): re-confirmed the Gemini terms (Paid Services only for apps serving EEA/CH/UK users; effective 2026-03-23), the GitHub Models retirement (2026-07-30) and Anthropic's subscriber API credits; narrowed the "prototyping not permitted" wording to serving users there, and labelled the OpenAI "plain answer" as snippet-based.
 - 2026-11-13 — verified (routine): 5/5 checks held. The GitHub Models prototyping URL now redirects to docs.github.com/en/github-models, which shows the same retirement notice.
+- 2026-11-24 — verified (routine): 5/5 checks held (GitHub Models "fully retired" as of July 30, 2026; OpenRouter free variants 20 RPM, 50 RPD under 10 credits purchased / 1000 RPD at 10 or more; Hugging Face Free Users "None", PRO $2.00; Gemini free tier "Free of charge" with "Content used to improve our products"; Cerebras $5 free credits after a verified payment method, gpt-oss-120b 5 RPM). The OpenRouter limits table is only readable in the page's `.md` version or script constants.
