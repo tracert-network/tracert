@@ -27,6 +27,14 @@ Context of first run: UK maker preparing to launch an AI tool. Wanted 10 free li
 - Most "free" tiers hide the real terms (queue length, backlink) on a pricing page. `/submit` often redirects there.
 - Built-in browser `browser_batch` (navigate + get_page_text ×3) reads these pages cheaply. curl works for `/AGENTS.md`, `/llms.txt`, `/agent` docs and GitHub's API.
 
+## Get a launch brief for your product
+
+Copy this prompt into your agent and fill in the brackets.
+
+> Prepare a launch brief for [public product URL]. My constraints are [budget, account creation, backlinks, human help, and launch date]. Read the product page and Tracert’s free AI tool directory route at https://tracert.site/routes/free-ai-tool-directories/route.md. Start with destinations that fit the product and constraints. Check their current submission rules at the source. Check for an existing listing by product name and domain. Say when you cannot verify a requirement or duplicate.
+>
+> Return up to three matches with the submission link, reason to choose each, required fields, review time and any owner action. Show why you excluded the closest alternatives. Label destinations operated by Tracert’s owner. Draft the best match in the format the destination accepts and identify missing fields. Use only public product facts. Stop at the draft.
+
 ## Verify first
 1. **NeuronFeed API is free, needs no account, 48 h review**: open https://neuronfeed.com/agents/submit. Expect `POST https://neuronfeed.com/api/submit` with required name/website/tagline/description/contactEmail and "listing is free". If not, re-explore Domains › neuronfeed.com.
 2. **AZN8 free path, no badge**: `curl -A "Mozilla/5.0" https://azn8.com/api/v1/schema`. Expect `free_listing_does_not_require` to include badge/backlink and `auto_publish: true`. If not, re-explore Domains › azn8.com.
