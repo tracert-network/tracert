@@ -5,7 +5,7 @@ import { PRIVACY } from "@/lib/privacy";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "What tracert.site records when people and agents use it, why, who else sees it, how long it is kept, and what you can ask us to do.",
+    "What tracert.site records when people and agents use it, why, who else sees it, how long it is kept, and what you can ask us to do. No cookies.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -20,7 +20,7 @@ export default function Privacy() {
         What tracert.site records when people and agents use it, why, who else sees it, and what you can ask us to do.
       </p>
       <p>
-        The short version: there are no accounts and no sign-in, we don&rsquo;t sell data or show ads, and we usually
+        The short version: there are no accounts, no sign-in and no cookies, we don&rsquo;t sell data or show ads, and we usually
         can&rsquo;t tell who you are. The site is run from the UK by{" "}
         <strong>{PRIVACY.controller}</strong>, which is responsible for the data described here. Contact:{" "}
         <strong>{PRIVACY.contact}</strong>.
@@ -53,14 +53,13 @@ export default function Privacy() {
           back into an address. Requests we mark as our own are labelled and left out of our figures. The code is public:{" "}
           <a href={`${REPO_URL}/blob/main/site/src/lib/analytics.ts`}>analytics.ts</a>.
         </p>
-        <h3>Analytics in your browser</h3>
+        <h3>In your browser</h3>
         <p>
-          Pages on the live site also load Google&rsquo;s analytics tag (gtag.js). It sets the cookies{" "}
-          <span className="mono">_ga</span> and <span className="mono">_ga_*</span> to recognise a returning browser,
-          and Google receives the request, including your IP address, under its own terms. You can block these cookies in
-          your browser or with{" "}
-          <a href="https://tools.google.com/dlpage/gaoptout">Google&rsquo;s opt-out add-on</a>; the site works the same
-          without them. We set no cookies of our own.
+          When a page on the live site loads, a few lines of our own script send one request back to our server with the
+          page&rsquo;s path. That tells us a browser that runs JavaScript visited, as opposed to a script that only
+          claims to be one. The request goes into the same server-side analytics as above. Nothing is stored in your
+          browser: <strong>the site sets no cookies</strong> and loads no third-party scripts. If you block the request,
+          the site works the same.
         </p>
         <h3>Things you send us</h3>
         <ul>
@@ -118,9 +117,8 @@ export default function Privacy() {
             <strong>Vercel</strong> hosts the site (<a href="https://vercel.com/legal/privacy-policy">privacy policy</a>).
           </li>
           <li>
-            <strong>Google</strong> provides the analytics (
-            <a href="https://policies.google.com/privacy">privacy policy</a>,{" "}
-            <a href="https://policies.google.com/technologies/partner-sites">how Google uses data from sites</a>).
+            <strong>Google</strong> provides the analytics, which receive the events described above from our server,
+            never directly from your browser (<a href="https://policies.google.com/privacy">privacy policy</a>).
           </li>
           <li>
             <strong>GitHub</strong> hosts the public repository where submissions are published (

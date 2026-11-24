@@ -1,8 +1,9 @@
 // Server-side usage analytics for traffic that never runs JavaScript: agents
 // and tools fetching machine endpoints (/llms.txt, /index.json, manifests,
 // schemas, /api/mcp) and non-browser fetches of ordinary pages. Browser page
-// loads are recorded as page_request (gtag.js records page_view separately for
-// browsers that run it), so ad-blocked and headless visitors are visible too.
+// loads are recorded as page_request (the first-party page ping records
+// js_page_view separately for browsers that run it), so headless visitors and
+// ones that block the ping are visible too.
 // Sending happens in event.waitUntil — it never delays or alters the response.
 import { NextResponse } from "next/server";
 import type { NextFetchEvent, NextRequest } from "next/server";
@@ -31,6 +32,8 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   if (caller.zdr) response.headers.set(ZDR_HEADER, "applied");
   if (!serverAnalyticsEnabled()) return response;
   const path = request.nextUrl.pathname;
+  // The page ping records its own event (app/api/pv/route.ts).
+  if (path === "/api/pv") return NextResponse.next();
   const kind = endpointType(path);
 
   let events: GaEvent[] = [];

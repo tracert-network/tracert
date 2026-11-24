@@ -3,7 +3,7 @@
 // so the cases are the evidence. Run: npm test (Node strips the TS types).
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { browserLooksAutomated, callerFromHeaders, mcpClientKind, mcpEvents, realToolCalls, serverEventBody, tlsContradictsUa, trafficClass, zdrEvent } from "../src/lib/analytics.ts";
+import { beaconPath, browserLooksAutomated, callerFromHeaders, mcpClientKind, mcpEvents, realToolCalls, serverEventBody, tlsContradictsUa, trafficClass, zdrEvent } from "../src/lib/analytics.ts";
 
 const TOOLS = ["search_capabilities", "get_capability", "get_quote", "invoke_capability", "get_execution", "find_routes", "get_route", "report_route_outcome"];
 const NOV_2026 = Date.parse("2026-11-09");
@@ -236,4 +236,23 @@ test("zero data retention: counted, nothing the call contained is kept", () => {
   // The name of a missing argument survives (never a value).
   const poke = mcpEvents({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "get_route", arguments: {} } })[0];
   assert.equal(zdrEvent(poke).params.missing_arg, "slug");
+});
+
+test("page ping keeps only a plain same-site path", () => {
+  assert.equal(beaconPath(JSON.stringify({ path: "/routes/free-ai-tool-directories" })), "/routes/free-ai-tool-directories");
+  assert.equal(beaconPath(JSON.stringify({ path: "/" })), "/");
+  for (const bad of [
+    "not json",
+    "null",
+    "5",
+    JSON.stringify({}),
+    JSON.stringify({ path: 42 }),
+    JSON.stringify({ path: "https://evil.example/x" }),
+    JSON.stringify({ path: "//evil.example/x" }),
+    JSON.stringify({ path: "/a b" }),
+    JSON.stringify({ path: "/<script>" }),
+    JSON.stringify({ path: "/" + "x".repeat(250) }),
+  ]) {
+    assert.equal(beaconPath(bad), undefined, bad.slice(0, 40));
+  }
 });

@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Script from "next/script";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
-import { GA_MEASUREMENT_ID } from "@/lib/analytics";
+import { PageBeacon } from "./page-beacon";
 import "./globals.css";
 
-// GA4 browser tag — production deployments only (VERCEL_ENV is set at build).
-// Agent traffic that never runs JS is tracked server-side (src/proxy.ts).
 // Self-hosted at build time by next/font: browsers make no request to Google for type.
 const plexSans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex-sans", display: "swap" });
 const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono", display: "swap" });
 
-const GA_ENABLED = process.env.VERCEL_ENV === "production";
+// First-party page ping (no cookies, no third-party script) — production
+// deployments only (VERCEL_ENV is set at build). Agent traffic that never runs
+// JS is tracked server-side (src/proxy.ts).
+const ANALYTICS_ENABLED = process.env.VERCEL_ENV === "production";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tracert.site"),
@@ -94,17 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <span>© 2026 Tracert</span>
           </div>
         </footer>
-        {GA_ENABLED && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="ga4-init" strategy="afterInteractive">
-              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_MEASUREMENT_ID}');`}
-            </Script>
-          </>
-        )}
+        {ANALYTICS_ENABLED && <PageBeacon />}
       </body>
     </html>
   );

@@ -1,7 +1,9 @@
 // Usage analytics → Google Analytics 4 (property "tracert.site", account "Tracert").
 //
 // Two paths:
-//  - Browser: the gtag.js tag in app/layout.tsx (humans; production only).
+//  - Browser: a first-party page ping (app/page-beacon.tsx → /api/pv), sent on
+//    through the same server path, so browsers get no cookies and no third-party
+//    script. Its event is js_page_view (production only).
 //  - Server: GA4 Measurement Protocol, from src/proxy.ts and the MCP route. Most
 //    of Tracert's real traffic is agents fetching /llms.txt, /index.json,
 //    manifests and /api/mcp — none of which run JavaScript, so a browser tag
@@ -95,7 +97,7 @@ export function agentFamily(ua: string): string {
   return /mozilla\/.*(chrome|safari|firefox|edg)/i.test(ua) ? "browser" : "other";
 }
 
-/** A browser that will (probably) run gtag.js itself — don't double count it server-side. */
+/** A browser that will (probably) run the page ping itself — don't double count it server-side. */
 export function isLikelyBrowser(ua: string): boolean {
   return agentFamily(ua) === "browser";
 }
@@ -446,8 +448,8 @@ export function callerFromHeaders(h: { get(name: string): string | null }): Call
 /**
  * A real top-level page load by a browser-like client — not a Next.js
  * prefetch or client-side RSC navigation. Counted server-side as page_request
- * so visitors who block gtag.js (or headless browsers) still show up; it is a
- * separate event from gtag's page_view, so nothing is double counted.
+ * so visitors who block the page ping (or headless browsers) still show up; it is a
+ * separate event from the ping's js_page_view, so nothing is double counted.
  */
 export function isDocumentLoad(req: { method: string; headers: { get(name: string): string | null } }): boolean {
   const h = req.headers;
@@ -457,6 +459,22 @@ export function isDocumentLoad(req: { method: string; headers: { get(name: strin
   const dest = h.get("sec-fetch-dest");
   if (dest) return dest === "document";
   return (h.get("accept") ?? "").includes("text/html");
+}
+
+/**
+ * The page path a /api/pv ping reports, or undefined unless it is a plain
+ * same-site path. Only the path is kept; anything else in the body is ignored.
+ */
+export function beaconPath(body: string): string | undefined {
+  let path: unknown;
+  try {
+    path = (JSON.parse(body) as { path?: unknown } | null)?.path;
+  } catch {
+    return undefined;
+  }
+  if (typeof path !== "string" || !path.startsWith("/") || path.startsWith("//") || path.length > 200) return undefined;
+  if (/[\s<>"'`\\]/.test(path)) return undefined;
+  return path;
 }
 
 /** Which kind of machine endpoint a path is, or undefined for ordinary pages. */
