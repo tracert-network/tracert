@@ -34,6 +34,13 @@ export interface Caller {
    * one. Undefined when the headers were not available.
    */
   browserHeaders?: boolean;
+  /**
+   * The client's TLS fingerprint (JA4) from Vercel's x-vercel-ja4-digest
+   * header. It says which TLS library made the connection, which a script
+   * can't change by editing its user agent. Used only to classify; never sent
+   * to GA. Undefined off Vercel.
+   */
+  ja4?: string;
 }
 
 const CANONICAL_HOSTS = new Set(["tracert.site", "www.tracert.site"]);
@@ -175,6 +182,28 @@ export function browserLooksAutomated(ua: string, browserHeaders?: boolean, now 
   return false;
 }
 
+// JA4 = <protocol, TLS version, SNI, cipher count, extension count, ALPN>_<cipher hash>_<extension hash>.
+const JA4 = /^[tqd][0-9a-z]{2}[di]\d{4}[0-9a-z]{2}_([0-9a-f]{12})_[0-9a-f]{12}$/i;
+// The cipher hash of Chromium's TLS stack (BoringSSL), shared by Chrome, Edge,
+// Brave, Opera, Android Chrome and WebView. Seen on real Chrome visits to
+// tracert.site in November 2026 (t13d1516h2_8daaf6152771_…, t13d1517h2_8daaf6152771_…).
+// If Chrome ever changes its cipher list, add the new hash here (Vercel →
+// Firewall → Traffic → Top JA4 Digests shows what current Chrome sends).
+const CHROMIUM_CIPHER_HASHES = new Set(["8daaf6152771"]);
+
+/**
+ * The user agent claims Chromium but the TLS handshake didn't come from
+ * Chromium: a script wearing a Chrome user agent. Chromium only for now;
+ * Firefox and Safari claims are left alone until there's evidence for them.
+ * iOS Chrome (CriOS) uses Apple's TLS stack, so it is never checked. A missing
+ * or malformed fingerprint never flags.
+ */
+export function tlsContradictsUa(ua: string, ja4?: string): boolean {
+  if (!ja4 || !/\b(?:Chrome|Chromium)\/\d+/.test(ua)) return false;
+  const m = ja4.trim().match(JA4);
+  return Boolean(m && !CHROMIUM_CIPHER_HASHES.has(m[1].toLowerCase()));
+}
+
 /**
  * One label to filter on when asking "who is actually here":
  * internal | ai_assistant | registry_probe | mcp_client | crawler | browser |
@@ -182,10 +211,12 @@ export function browserLooksAutomated(ua: string, browserHeaders?: boolean, now 
  * Best-effort heuristics over the UA and (for MCP) the clientInfo name.
  *  - registry_probe: a catalog, registry or health checker, by its MCP client
  *    name or, when there is none, by the product name in its user agent.
- *  - browser_like: a browser user agent that browserLooksAutomated flags.
- *    Plausible people are `browser`.
+ *  - browser_like: a browser user agent that browserLooksAutomated flags, or
+ *    one whose TLS fingerprint contradicts it (tlsContradictsUa). Plausible
+ *    people are `browser`. Caveat: a person behind a corporate proxy that
+ *    re-terminates TLS shows the proxy's fingerprint and lands here too.
  */
-export function trafficClass(caller: Pick<Caller, "ua" | "internal" | "browserHeaders">, mcpClient?: string): string {
+export function trafficClass(caller: Pick<Caller, "ua" | "internal" | "browserHeaders" | "ja4">, mcpClient?: string): string {
   const ua = caller.ua || "";
   if (caller.internal || INTERNAL_UA.test(ua) || (mcpClient && INTERNAL_UA.test(mcpClient))) return "internal";
   if (AI_ASSISTANT_UA.test(ua)) return "ai_assistant";
@@ -197,7 +228,9 @@ export function trafficClass(caller: Pick<Caller, "ua" | "internal" | "browserHe
     return kind;
   }
   if (CRAWLER_UA.test(ua)) return "crawler";
-  if (agentFamily(ua) === "browser") return browserLooksAutomated(ua, caller.browserHeaders) ? "browser_like" : "browser";
+  if (agentFamily(ua) === "browser") {
+    return browserLooksAutomated(ua, caller.browserHeaders) || tlsContradictsUa(ua, caller.ja4) ? "browser_like" : "browser";
+  }
   return PROBE_STRONG.test(agentName(ua)) ? "registry_probe" : "tool";
 }
 
@@ -359,6 +392,7 @@ export function callerFromHeaders(h: { get(name: string): string | null }): Call
     host: host || undefined,
     internal: h.get("x-tracert-internal") === "1" || undefined,
     browserHeaders: Boolean(h.get("sec-fetch-mode") || h.get("sec-fetch-dest") || h.get("accept-language")),
+    ja4: h.get("x-vercel-ja4-digest") || undefined,
   };
 }
 
