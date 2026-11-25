@@ -3,7 +3,7 @@
 // so the cases are the evidence. Run: npm test (Node strips the TS types).
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { browserLooksAutomated, mcpClientKind, mcpEvents, realToolCalls, trafficClass } from "../src/lib/analytics.ts";
+import { browserLooksAutomated, callerFromHeaders, mcpClientKind, mcpEvents, realToolCalls, tlsContradictsUa, trafficClass } from "../src/lib/analytics.ts";
 
 const TOOLS = ["search_capabilities", "get_capability", "get_quote", "invoke_capability", "get_execution", "find_routes", "get_route", "report_route_outcome"];
 const NOV_2026 = Date.parse("2026-11-09");
@@ -79,6 +79,54 @@ test("browser user agents: stale, malformed or header-less ones are browser_like
   assert.equal(trafficClass({ ua: CHROME(47), browserHeaders: true }), "browser_like");
   assert.equal(trafficClass({ ua: CHROME(9999), browserHeaders: true }), "browser");
   assert.equal(trafficClass({ ua: CHROME(9999), browserHeaders: false }), "browser_like");
+});
+
+test("a Chrome user agent over a non-Chromium TLS stack is browser_like", () => {
+  // Fingerprints seen on tracert.site, Nov 2026 (Vercel Firewall → Traffic).
+  const REAL_CHROME = "t13d1516h2_8daaf6152771_d8a2da3f94cd";
+  const REAL_CHROME_ECH = "t13d1517h2_8daaf6152771_cb7bf5808d99";
+  // 398 of 399 requests from one hosting /24 with a Chrome/145 UA, sending
+  // Accept-Language, reading route pages around the clock.
+  const SCRIPT = "t13d1011h2_61a7ad8aa9b6_f9531d972513";
+  const cls = (ua, ja4) => trafficClass({ ua, browserHeaders: true, ja4 });
+  // trafficClass also checks staleness against today, so the class asserts use
+  // a far-future major; tlsContradictsUa is checked on the real Chrome/145 UA.
+  const V = 9999;
+
+  assert.equal(tlsContradictsUa(CHROME(145), SCRIPT), true);
+  assert.equal(tlsContradictsUa(CHROME(145), REAL_CHROME), false);
+  assert.equal(cls(CHROME(V), SCRIPT), "browser_like");
+  // Real Chrome, with and without the extra extension, is still a person.
+  assert.equal(cls(CHROME(V), REAL_CHROME), "browser");
+  assert.equal(cls(CHROME(V), REAL_CHROME_ECH), "browser");
+  assert.equal(cls(CHROME(V), REAL_CHROME.toUpperCase()), "browser");
+  // Edge and Android Chrome share Chromium's cipher list.
+  const EDGE = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${V}.0.0.0 Safari/537.36 Edg/${V}.0.0.0`;
+  const ANDROID = `Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${V}.0.0.0 Mobile Safari/537.36`;
+  assert.equal(cls(EDGE, REAL_CHROME), "browser");
+  assert.equal(cls(ANDROID, REAL_CHROME), "browser");
+  assert.equal(cls(EDGE, SCRIPT), "browser_like");
+
+  // No fingerprint (off Vercel) or a malformed one changes nothing.
+  assert.equal(cls(CHROME(V), undefined), "browser");
+  assert.equal(cls(CHROME(V), ""), "browser");
+  assert.equal(cls(CHROME(V), "not-a-ja4"), "browser");
+  assert.equal(cls(CHROME(V), "t13d1011h2_61a7ad8aa9b6"), "browser");
+  // Only Chromium claims are checked: Firefox, Safari and iOS Chrome (CriOS,
+  // Apple's TLS stack) keep their class whatever the fingerprint says.
+  assert.equal(cls(FIREFOX(V), SCRIPT), "browser");
+  assert.equal(cls("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.1 Safari/605.1.15", SCRIPT), "browser");
+  assert.equal(cls(`Mozilla/5.0 (iPhone; CPU iPhone OS 27_2_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/${V}.0.0.0 Mobile/15E148 Safari/604.1`, SCRIPT), "browser");
+  // A stale Chrome is browser_like on its own; a good fingerprint doesn't clear it.
+  assert.equal(trafficClass({ ua: CHROME(47), browserHeaders: true, ja4: REAL_CHROME }), "browser_like");
+  // Crawlers and tools keep their own classes.
+  assert.equal(cls("Mozilla/5.0 (compatible; ExaUser/1.0; +https://exauser.crawler.exa.ai)", SCRIPT), "crawler");
+});
+
+test("callerFromHeaders reads the TLS fingerprint", () => {
+  const headers = (o) => ({ get: (k) => o[k.toLowerCase()] ?? null });
+  assert.equal(callerFromHeaders(headers({ "x-vercel-ja4-digest": "t13d1011h2_61a7ad8aa9b6_f9531d972513" })).ja4, "t13d1011h2_61a7ad8aa9b6_f9531d972513");
+  assert.equal(callerFromHeaders(headers({})).ja4, undefined);
 });
 
 test("real_tool_call: use, not inspection", () => {
