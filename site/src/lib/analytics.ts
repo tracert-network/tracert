@@ -12,7 +12,12 @@
 // No raw IP is ever sent: client_id is a salted daily hash of IP + user agent
 // (salt includes the secret, rotates daily), so visitors can't be re-identified
 // from GA and can't be linked across days.
-import { createHash } from "node:crypto";
+//
+// Zero data retention: a caller that sends `x-tracert-zdr: 1` is still counted,
+// but sendServerEvents keeps nothing the call contained (no query, path, route,
+// capability, note or user agent) and gives it a random, single-use client id.
+// See ZDR_KEEP below for the full list of what survives.
+import { createHash, randomBytes } from "node:crypto";
 
 export const GA_MEASUREMENT_ID = "G-PFBBZD6EWC";
 // GA4_MP_ENDPOINT overrides the collector for local testing (or GA's /debug/mp/collect validator).
@@ -41,7 +46,15 @@ export interface Caller {
    * to GA. Undefined off Vercel.
    */
   ja4?: string;
+  /**
+   * The caller asked for zero data retention (header `x-tracert-zdr: 1`). The
+   * call is counted, but none of its content is kept: see zdrEvent.
+   */
+  zdr?: boolean;
 }
+
+/** Request header a caller sends to ask for zero data retention; echoed as `applied` on the response. */
+export const ZDR_HEADER = "x-tracert-zdr";
 
 const CANONICAL_HOSTS = new Set(["tracert.site", "www.tracert.site"]);
 export interface GaEvent {
@@ -280,7 +293,7 @@ export function realToolCalls(caller: Caller, events: GaEvent[], knownTools: rea
     if (e.name === "mcp_request" && p.rpc_method === "tools/call") {
       tool = str(p.tool);
       source = "mcp";
-    } else if (e.name === "agent_fetch" && p.endpoint_type === "routes_search" && p.method === "GET") {
+    } else if (e.name === "agent_fetch" && p.endpoint_type === "routes_search" && (p.method === "GET" || p.method === "POST")) {
       tool = (str(p.query) ?? "").length >= 2 ? "find_routes" : undefined;
       source = "http";
     } else if (e.name === "agent_fetch" && p.endpoint_type === "route_outcome_api" && p.method === "POST") {
@@ -343,33 +356,66 @@ function daily(ip: string, ua: string): { clientId: string; sessionId: string } 
 
 const clip = (v: string | undefined, n = 100) => (v === undefined ? undefined : v.slice(0, n));
 
-/** Send events via the GA4 Measurement Protocol. Never throws; never blocks longer than ~2s. */
-export async function sendServerEvents(req: Caller, events: GaEvent[]): Promise<void> {
-  if (!serverAnalyticsEnabled() || events.length === 0) return;
-  // Deploy URLs (tracert-<hash>-robinblocks.vercel.app) are our own checks, not visitors.
-  if (req.host && !CANONICAL_HOSTS.has(req.host)) return;
-  const { clientId, sessionId } = daily(req.ip, req.ua);
+/** A random client/session id for a zero-retention call: links to nothing, not even the caller's other calls. */
+function singleUse(): { clientId: string; sessionId: string } {
+  const r = randomBytes(12);
+  return { clientId: `${r.readUInt32BE(0)}.${r.readUInt32BE(4)}`, sessionId: String(r.readUInt32BE(8)) };
+}
+
+// What a zero-retention call keeps: that it happened, which endpoint or tool,
+// and what kind of software called (class and product name, not the full user
+// agent). Nothing the caller asked or read: no query, region, path, route,
+// capability or note. The name of a missing argument is kept (never its value).
+const ZDR_KEEP = new Set(["endpoint_type", "method", "rpc_method", "tool", "source", "missing_arg", "mcp_client", "mcp_client_version"]);
+// An outcome report is something the caller chose to send us for keeping, so
+// its route and verdict stay; its free-text note does not.
+const ZDR_KEEP_OUTCOME = new Set(["route_slug", "outcome", "steps_taken"]);
+
+/** The event a zero-retention call is recorded as. */
+export function zdrEvent(e: GaEvent): GaEvent {
+  const isOutcome = e.name === "route_outcome" || (e.name === "real_tool_call" && e.params.tool === "report_route_outcome");
+  const params: Params = {};
+  for (const [k, v] of Object.entries(e.params)) {
+    if (ZDR_KEEP.has(k) || (isOutcome && ZDR_KEEP_OUTCOME.has(k))) params[k] = v;
+  }
+  return { name: e.name, params };
+}
+
+/** The Measurement Protocol body for a caller's events (exported for tests). */
+export function serverEventBody(req: Caller, events: GaEvent[]) {
+  const { clientId, sessionId } = req.zdr ? singleUse() : daily(req.ip, req.ua);
   const family = agentFamily(req.ua);
-  const body = {
+  return {
     client_id: clientId,
     non_personalized_ads: true,
     user_properties: { visitor_type: { value: trafficClass(req) === "browser" ? "human_browser" : "agent_or_tool" } },
-    events: events.slice(0, 25).map((e) => {
-      const mcpClient = typeof e.params.mcp_client === "string" ? e.params.mcp_client : undefined;
+    events: events.slice(0, 25).map((raw) => {
+      const e = req.zdr ? zdrEvent(raw) : raw;
+      const mcpClient = typeof raw.params.mcp_client === "string" ? raw.params.mcp_client : undefined;
       const params: Params = {
         session_id: sessionId,
         engagement_time_msec: 1,
         agent_family: family,
         agent_name: clip(agentName(req.ua), 40),
         traffic_class: trafficClass(req, mcpClient),
-        user_agent: clip(req.ua),
+        user_agent: req.zdr ? undefined : clip(req.ua),
+        zdr: req.zdr ? 1 : undefined,
       };
       for (const [k, v] of Object.entries(e.params)) {
         if (v !== undefined && v !== "") params[k] = typeof v === "string" ? clip(v) : v;
       }
+      for (const k of Object.keys(params)) if (params[k] === undefined) delete params[k];
       return { name: e.name, params };
     }),
   };
+}
+
+/** Send events via the GA4 Measurement Protocol. Never throws; never blocks longer than ~2s. */
+export async function sendServerEvents(req: Caller, events: GaEvent[]): Promise<void> {
+  if (!serverAnalyticsEnabled() || events.length === 0) return;
+  // Deploy URLs (tracert-<hash>-robinblocks.vercel.app) are our own checks, not visitors.
+  if (req.host && !CANONICAL_HOSTS.has(req.host)) return;
+  const body = serverEventBody(req, events);
   const url = `${MP_ENDPOINT}?measurement_id=${GA_MEASUREMENT_ID}&api_secret=${encodeURIComponent(process.env.GA4_API_SECRET ?? "")}`;
   try {
     await fetch(url, {
@@ -393,6 +439,7 @@ export function callerFromHeaders(h: { get(name: string): string | null }): Call
     internal: h.get("x-tracert-internal") === "1" || undefined,
     browserHeaders: Boolean(h.get("sec-fetch-mode") || h.get("sec-fetch-dest") || h.get("accept-language")),
     ja4: h.get("x-vercel-ja4-digest") || undefined,
+    zdr: (h.get(ZDR_HEADER) ?? "").trim() === "1" || undefined,
   };
 }
 
