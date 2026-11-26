@@ -3,7 +3,7 @@
 // so the cases are the evidence. Run: npm test (Node strips the TS types).
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { browserLooksAutomated, callerFromHeaders, mcpClientKind, mcpEvents, realToolCalls, tlsContradictsUa, trafficClass } from "../src/lib/analytics.ts";
+import { browserLooksAutomated, callerFromHeaders, mcpClientKind, mcpEvents, realToolCalls, serverEventBody, tlsContradictsUa, trafficClass, zdrEvent } from "../src/lib/analytics.ts";
 
 const TOOLS = ["search_capabilities", "get_capability", "get_quote", "invoke_capability", "get_execution", "find_routes", "get_route", "report_route_outcome"];
 const NOV_2026 = Date.parse("2026-11-09");
@@ -183,4 +183,57 @@ test("real_tool_call: use, not inspection", () => {
   assert.equal(real(script, [fetch({ endpoint_type: "route_outcome_api", path: "/api/routes/outcome", method: "POST" })]).length, 1);
   assert.equal(real(script, [fetch({ endpoint_type: "route_outcome_api", path: "/api/routes/outcome", method: "GET" })]).length, 0);
   assert.equal(real(script, [fetch({ endpoint_type: "llms_txt", path: "/llms.txt", method: "GET" })]).length, 0);
+  // POST search (query in the body, so not in a URL) counts the same as GET.
+  const post = fetch({ endpoint_type: "routes_search", path: "/api/routes/search", method: "POST", query: "llm api free tiers" });
+  assert.equal(real({ ip: "203.0.113.7", ua: "curl/8.7.1" }, [post]).length, 1);
+});
+
+test("zero data retention: counted, nothing the call contained is kept", () => {
+  const headers = (o) => ({ get: (k) => o[k.toLowerCase()] ?? null });
+  assert.equal(callerFromHeaders(headers({ "x-tracert-zdr": "1" })).zdr, true);
+  assert.equal(callerFromHeaders(headers({ "x-tracert-zdr": " 1 " })).zdr, true);
+  assert.equal(callerFromHeaders(headers({ "x-tracert-zdr": "0" })).zdr, undefined);
+  assert.equal(callerFromHeaders(headers({})).zdr, undefined);
+
+  const ua = "exa-connect/1.0 (+https://exa.ai)";
+  const caller = { ip: "203.0.113.20", ua, host: "tracert.site" };
+  const search = { name: "agent_fetch", params: { endpoint_type: "routes_search", path: "/api/routes/search", method: "POST", query: "where to list my ai tool", region: "GB" } };
+  const call = mcpEvents({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "get_route", arguments: { slug: "free-ai-tool-directories" } } })[0];
+  const cap = mcpEvents({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "get_capability", arguments: { capability_id: "qr-server.create-qr-code" } } })[0];
+  const gap = { name: "route_search_gap", params: { query: "find a plumber near me", region: "GB" } };
+  const page = { name: "agent_fetch", params: { endpoint_type: "route_md", path: "/routes/free-ai-tool-directories/route.md", method: "GET" } };
+  const outcome = { name: "route_outcome", params: { route_slug: "free-ai-tool-directories", outcome: "worked", steps_taken: 4, note: "AZN8 schema moved", source: "http" } };
+  const events = [search, call, cap, gap, page, outcome, ...realToolCalls(caller, [search, call], TOOLS)];
+  const leaked = ["where to list", "plumber", "GB", "free-ai-tool-directories/route.md", "qr-server", "AZN8", ua, "203.0.113.20"];
+
+  // Without the header everything is recorded as before (that is the demand signal).
+  const normal = serverEventBody(caller, events);
+  assert.equal(normal.events[0].params.query, "where to list my ai tool");
+  assert.equal(normal.events[0].params.user_agent, ua);
+  assert.equal(normal.events[0].params.zdr, undefined);
+  assert.equal(serverEventBody(caller, events).client_id, normal.client_id);
+
+  // With it: no query, region, path, route read, capability, note or user agent anywhere.
+  const zdrCaller = { ...caller, zdr: true };
+  const body = serverEventBody(zdrCaller, events);
+  const text = JSON.stringify(body);
+  for (const s of leaked) assert.ok(!text.includes(s), `leaked ${s}`);
+  // ...but the calls are still counted, by endpoint, tool and kind of caller.
+  assert.equal(body.events.length, events.length);
+  assert.deepEqual(body.events.map((e) => e.name), events.map((e) => e.name));
+  assert.equal(body.events[0].params.endpoint_type, "routes_search");
+  assert.equal(body.events[0].params.method, "POST");
+  assert.equal(body.events[1].params.tool, "get_route");
+  assert.equal(body.events[0].params.zdr, 1);
+  assert.equal(body.events[0].params.traffic_class, "tool");
+  assert.ok(body.events.some((e) => e.name === "real_tool_call" && e.params.tool === "find_routes"));
+  // An outcome report keeps the route and verdict the caller sent for keeping, not its note.
+  const kept = body.events.find((e) => e.name === "route_outcome").params;
+  assert.deepEqual([kept.route_slug, kept.outcome, kept.steps_taken, kept.note], ["free-ai-tool-directories", "worked", 4, undefined]);
+  // A single-use analytics id: two zero-retention calls from the same caller don't link.
+  assert.notEqual(serverEventBody(zdrCaller, events).client_id, body.client_id);
+  assert.notEqual(body.client_id, normal.client_id);
+  // The name of a missing argument survives (never a value).
+  const poke = mcpEvents({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "get_route", arguments: {} } })[0];
+  assert.equal(zdrEvent(poke).params.missing_arg, "slug");
 });

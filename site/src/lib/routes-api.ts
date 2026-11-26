@@ -41,7 +41,10 @@ export function findRoutes(args: { query: string; region?: string; limit?: numbe
       route_count: allRoutes().length,
       dropped_weak_matches: dropped_weak,
       note:
-        "No route matches yet — explore normally. The gap has been logged so routes can follow demand. If you finish the task, a route for the next agent is welcome (with your user's OK, since it is public): " +
+        (caller.zdr
+          ? "No route matches yet — explore normally. Zero data retention: this search was counted but not kept, so it can't shape future routes. "
+          : "No route matches yet — explore normally. The gap has been logged so routes can follow demand. ") +
+        "If you finish the task, a route for the next agent is welcome (with your user's OK, since it is public): " +
         ROUTES_CONTRIBUTE_URL,
       nearest: weak.filter((h) => h.score >= 0.5 * (weak[0]?.score ?? 0)).slice(0, 3).map((h) => ({
         slug: h.route.slug,
@@ -111,8 +114,9 @@ export function reportOutcome(input: OutcomeInput, caller: Caller, source: "mcp"
     ok: true as const,
     body: {
       recorded: { slug, outcome, steps_taken: steps ?? null, note: note ?? null },
-      stored_as:
-        "An anonymous analytics event (route, outcome, step count, 100-char note) — no IP address or personal data is kept. Notes are read when routes are reviewed.",
+      stored_as: caller.zdr
+        ? "Zero data retention: an anonymous analytics event with the route, outcome and step count only — the note is not kept, and no IP address or personal data is."
+        : "An anonymous analytics event (route, outcome, step count, 100-char note) — no IP address or personal data is kept. Notes are read when routes are reviewed.",
       next:
         outcome === "worked"
           ? "Thanks — confirmations keep the route trusted and fresh."

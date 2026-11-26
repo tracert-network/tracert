@@ -17,6 +17,7 @@ import {
   rememberMcpClient,
   sendServerEvents,
   serverAnalyticsEnabled,
+  ZDR_HEADER,
   type GaEvent,
 } from "@/lib/analytics";
 import { TOOL_META } from "@/lib/gateway/tool-catalog";
@@ -24,8 +25,11 @@ import { TOOL_META } from "@/lib/gateway/tool-catalog";
 const TOOL_NAMES = Object.keys(TOOL_META);
 
 export async function proxy(request: NextRequest, event: NextFetchEvent) {
-  if (!serverAnalyticsEnabled()) return NextResponse.next();
   const caller = callerFromHeaders(request.headers);
+  const response = NextResponse.next();
+  // Confirm a zero-retention request was seen (sendServerEvents does the scrubbing).
+  if (caller.zdr) response.headers.set(ZDR_HEADER, "applied");
+  if (!serverAnalyticsEnabled()) return response;
   const path = request.nextUrl.pathname;
   const kind = endpointType(path);
 
@@ -40,16 +44,32 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
     } else {
       events = [{ name: "mcp_request", params: { rpc_method: `http_${request.method.toLowerCase()}` } }];
     }
-    // Stateless transport: only initialize names the client. Carry it forward.
+    // Stateless transport: only initialize names the client. Carry it forward
+    // (not for zero-retention callers: nothing about them is remembered).
     for (const e of events) {
       const named = typeof e.params.mcp_client === "string" ? e.params.mcp_client : undefined;
+      if (caller.zdr) continue;
       if (named) rememberMcpClient(caller, named);
       else e.params.mcp_client = recallMcpClient(caller);
     }
   } else if (kind) {
     // A keyless route search is demand evidence whether or not it matched, so
     // keep what was asked (hits used to record only that a search happened).
-    const query = kind === "routes_search" ? request.nextUrl.searchParams.get("q")?.trim() || undefined : undefined;
+    // POST carries it in a JSON body, so it never appears in a URL.
+    let query: string | undefined;
+    if (kind === "routes_search") {
+      if (request.method === "POST") {
+        try {
+          const body = JSON.parse(await request.clone().text()) as { q?: unknown; query?: unknown };
+          const q = typeof body.q === "string" ? body.q : typeof body.query === "string" ? body.query : undefined;
+          query = q?.trim() || undefined;
+        } catch {
+          query = undefined;
+        }
+      } else {
+        query = request.nextUrl.searchParams.get("q")?.trim() || undefined;
+      }
+    }
     events = [{ name: "agent_fetch", params: { endpoint_type: kind, path, method: request.method, query } }];
   } else if (!isLikelyBrowser(caller.ua)) {
     events = [{ name: "agent_fetch", params: { endpoint_type: "page", path, method: request.method } }];
@@ -59,7 +79,7 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
 
   events.push(...realToolCalls(caller, events, TOOL_NAMES));
   if (events.length) event.waitUntil(sendServerEvents(caller, events));
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
