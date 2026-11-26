@@ -62,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <li><a href="/llms.txt">/llms.txt</a></li>
                 <li><a href="/index.json">/index.json</a></li>
                 <li><a href="/routes.json">/routes.json</a></li>
+                <li><a href="/demand.json">/demand.json</a></li>
                 <li><a href="/schemas/manifest/v0.1">/schemas/manifest/v0.1</a></li>
                 <li><a href="/schemas/receipt/v0.1">/schemas/receipt/v0.1</a></li>
               </ul>
@@ -70,6 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <p className="footer-heading">Routes</p>
               <ul className="footer-list">
                 <li><Link href="/agents">Agent entry point</Link></li>
+                <li><Link href="/demand">What agents asked for</Link></li>
                 <li><Link href="/publish">Publish a capability</Link></li>
                 <li><Link href="/use">Connect an agent</Link></li>
                 <li><Link href="/about">Why Tracert exists</Link></li>
