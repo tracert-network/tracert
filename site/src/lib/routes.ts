@@ -280,3 +280,86 @@ export function renderRouteHtml(route: Route): string {
   const body = route.body.replace(/^# .+\n+/, "").replace(/<!--[\s\S]*?-->/g, "");
   return md.parse(body, { async: false }) as string;
 }
+
+// ------------------------------------------------------- page structure ----
+
+/** "How to launch a software product" from "How to launch a software product: where to list it, …". */
+export function hubShortTitle(hub: Hub): string {
+  return hub.title.split(":")[0].trim();
+}
+
+export function hubRouteCount(hub: Hub): number {
+  return hub.sections.reduce((n, s) => n + s.routes.filter((r) => getRoute(r.slug)).length, 0);
+}
+
+/** Hub sections whose order is the point (shown as numbered steps). */
+const SEQUENCE_HEADINGS = new Set(["The launch sequence", "Make it", "The stack"]);
+export function isSequence(heading: string): boolean {
+  return SEQUENCE_HEADINGS.has(heading);
+}
+
+/** Where a route sits in a hub's numbered sequence, with its neighbours. */
+export function sequencePosition(slug: string): { hub: Hub; step: number; total: number; prev?: Route; next?: Route } | null {
+  for (const hub of HUBS) {
+    for (const section of hub.sections) {
+      if (!isSequence(section.heading)) continue;
+      const steps = section.routes.map((r) => getRoute(r.slug)).filter((r): r is Route => !!r);
+      const i = steps.findIndex((r) => r.slug === slug);
+      if (i >= 0) return { hub, step: i + 1, total: steps.length, prev: steps[i - 1], next: steps[i + 1] };
+    }
+  }
+  return null;
+}
+
+/** First sentence of a hub's "why" line: the short label for a step. */
+export function firstSentence(text: string): string {
+  const m = text.match(/^.*?[.!?](?=\s|$)/);
+  return (m ? m[0] : text).trim();
+}
+
+export type RouteSectionKind = "context" | "tldr" | "verify" | "prompt" | "domains" | "other";
+export interface RouteSection {
+  kind: RouteSectionKind;
+  heading: string | null;
+  html: string;
+}
+
+function sectionKind(heading: string, text: string): RouteSectionKind {
+  const h = heading.toLowerCase();
+  if (h.startsWith("tl;dr")) return "tldr";
+  if (h.startsWith("verify")) return "verify";
+  if (h.startsWith("domains")) return "domains";
+  if (/^>\s/m.test(text) && /prompt/i.test(text)) return "prompt";
+  return "other";
+}
+
+/**
+ * The route body split at its "## " headings (outside code fences), each part
+ * rendered on its own so the page can lay sections out by kind. Same content
+ * and the same escaping as renderRouteHtml.
+ */
+export function renderRouteSections(route: Route): RouteSection[] {
+  const body = route.body.replace(/^# .+\n+/, "").replace(/<!--[\s\S]*?-->/g, "");
+  const parts: { heading: string | null; lines: string[] }[] = [{ heading: null, lines: [] }];
+  let fenced = false;
+  for (const line of body.split("\n")) {
+    if (/^(```|~~~)/.test(line)) fenced = !fenced;
+    if (!fenced && line.startsWith("## ")) parts.push({ heading: line.slice(3).trim(), lines: [] });
+    else parts.at(-1)!.lines.push(line);
+  }
+  return parts
+    .map(({ heading, lines }) => {
+      const text = lines.join("\n").trim();
+      return {
+        kind: heading === null ? ("context" as const) : sectionKind(heading, text),
+        heading,
+        html: text ? (md.parse(text, { async: false }) as string) : "",
+      };
+    })
+    .filter((s) => s.heading !== null || s.html);
+}
+
+/** Inline Markdown in a heading (code spans, emphasis), escaped like the body. */
+export function renderInline(text: string): string {
+  return md.parseInline(text, { async: false }) as string;
+}
