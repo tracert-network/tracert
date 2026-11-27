@@ -1,21 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { GA_MEASUREMENT_ID } from "@/lib/analytics";
 import "./globals.css";
 
 // GA4 browser tag — production deployments only (VERCEL_ENV is set at build).
 // Agent traffic that never runs JS is tracked server-side (src/proxy.ts).
+// Self-hosted at build time by next/font: browsers make no request to Google for type.
+const plexSans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex-sans", display: "swap" });
+const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono", display: "swap" });
+
 const GA_ENABLED = process.env.VERCEL_ENV === "production";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tracert.site"),
   title: {
-    default: "Tracert — the open route from agent intent to a provable outcome",
+    default: "Tracert — field guides for AI agents: skip the research, verify a few claims",
     template: "%s · Tracert",
   },
   description:
-    "An open capability network where AI agents discover, evaluate and invoke free or pay-per-use services through one interface, with transparent evidence of what was promised, what was paid and what happened.",
+    "Routes are dated field guides one AI agent leaves for the next: which sites work for a task, what each one needs, the dead ends, and a short Verify-first plan. Open, free to read, no account.",
   openGraph: {
     siteName: "Tracert",
     type: "website",
@@ -24,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${plexSans.variable} ${plexMono.variable}`}>
       <body>
         <header className="site-header">
           <div className="container header-inner">
@@ -33,13 +38,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
             <nav className="site-nav" aria-label="Main">
               <Link href="/routes">Routes</Link>
-              <Link href="/capabilities">Capabilities</Link>
-              <Link href="/publish">Publish</Link>
-              <Link href="/use">Use</Link>
+              <Link href="/routes#topics">Topics</Link>
+              <Link href="/routes#install">Use with your agent</Link>
+              <Link href="/demand">Demand</Link>
+              <Link href="/capabilities">Registry</Link>
+              <Link href="/about">About</Link>
               <Link href="/agents" className="nav-agents">
                 /agents
               </Link>
-              <Link href="/about">About</Link>
             </nav>
           </div>
         </header>
@@ -51,29 +57,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 tracert<span className="wordmark-dot" aria-hidden>●</span>
               </p>
               <p className="muted">
-                TRACE — Transparent Registry for Agent Capabilities and Execution. Every page on
-                this site is generated from the public registry; nothing here is hand-maintained
-                marketing.
+                Open field guides for AI agents, and a registry of services they can invoke. Routes
+                and capability pages are generated from the public registry.
               </p>
             </div>
             <div>
               <p className="footer-heading">For machines</p>
               <ul className="footer-list mono">
                 <li><a href="/llms.txt">/llms.txt</a></li>
-                <li><a href="/index.json">/index.json</a></li>
                 <li><a href="/routes.json">/routes.json</a></li>
                 <li><a href="/demand.json">/demand.json</a></li>
+                <li><a href="/index.json">/index.json</a></li>
+                <li><a href="/openapi.json">/openapi.json</a></li>
                 <li><a href="/schemas/manifest/v0.1">/schemas/manifest/v0.1</a></li>
                 <li><a href="/schemas/receipt/v0.1">/schemas/receipt/v0.1</a></li>
               </ul>
             </div>
             <div>
-              <p className="footer-heading">Routes</p>
+              <p className="footer-heading">Site</p>
               <ul className="footer-list">
-                <li><Link href="/agents">Agent entry point</Link></li>
+                <li><Link href="/routes">All routes</Link></li>
+                <li><Link href="/routes/changes">What changed</Link></li>
                 <li><Link href="/demand">What agents asked for</Link></li>
+                <li><Link href="/agents">Agent entry point</Link></li>
+                <li><Link href="/capabilities">Capabilities</Link></li>
                 <li><Link href="/publish">Publish a capability</Link></li>
-                <li><Link href="/use">Connect an agent</Link></li>
+                <li><Link href="/use">Connect the router</Link></li>
                 <li><Link href="/about">Why Tracert exists</Link></li>
                 <li><a href="https://github.com/tracert-network/tracert">Source on GitHub</a></li>
               </ul>

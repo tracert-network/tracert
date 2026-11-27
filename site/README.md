@@ -2,7 +2,7 @@
 
 The public face of [Tracert](../README.md) — human routes, an agent entry point, capability pages and machine exports, **all generated from the [registry](../registry/) at build time.** No hand-maintained marketing for a capability: every fact on a capability page comes from its TRACE Manifest.
 
-Next.js (App Router), fully static. Zero UI dependencies; a small hand-rolled design system that adapts to light and dark.
+Next.js (App Router), fully static. Zero UI dependencies; a small hand-rolled design system that adapts to light and dark. Type is IBM Plex Sans and Mono, self-hosted at build time by `next/font`.
 
 ## Develop
 
@@ -16,7 +16,7 @@ The site reads the registry from a sibling `../registry` by default. Point elsew
 
 ## Routes
 
-**Human:** `/` (routes fork for humans vs agents) · `/about` · `/publish` · `/use` · `/capabilities` · `/capabilities/<id>`
+**Human:** `/` (routes first: the saving, the launch topic, three ways to give an agent routes, then the registry) · `/about` · `/publish` · `/use` · `/capabilities` · `/capabilities/<id>`
 
 **Machine:**
 

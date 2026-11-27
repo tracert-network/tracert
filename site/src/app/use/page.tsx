@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Connect your agent",
+  title: "Connect the capability router",
   description:
     "One MCP connection gives your agent discovery, exact quotes, execution and portable receipts across every capability in the network.",
 };
@@ -10,7 +10,13 @@ export const metadata: Metadata = {
 export default function Use() {
   return (
     <div className="container section">
-      <p className="eyebrow">For buyers &amp; agent developers</p>
+      <p className="notice" style={{ marginTop: "1.5rem" }}>
+        <strong>Looking for routes?</strong> The field guides need no router:{" "}
+        <Link href="/routes#install">give your agent routes</Link>{" "}
+        with a prompt, a skill or MCP. This page is about
+        the registry&rsquo;s capability router, which shares the same hosted MCP endpoint.
+      </p>
+      <p className="eyebrow" style={{ marginTop: "2rem" }}>Registry · for buyers &amp; agent developers</p>
       <h1>Connect one router instead of integrating many services.</h1>
       <p className="lede">
         The Tracert Router is a five-tool MCP server. Install it once and your agent can find an
@@ -45,6 +51,8 @@ export default function Use() {
         The public gateway is <strong>read-only</strong>: free reads (exchange rates, dictionary, QR)
         execute live and return a TRACE Receipt with a reproducible output commitment. Capabilities
         that write external state are refused here — run the local router below to execute those.
+        The same endpoint also serves the route tools <span className="mono">find_routes</span>,{" "}
+        <span className="mono">get_route</span> and <span className="mono">report_route_outcome</span>.
       </p>
 
       <h2>Install (local — reads and writes)</h2>
@@ -68,8 +76,9 @@ submissions. Do not pay anything, and return proof of the published page."`}</pr
       <p className="small muted">
         Your agent should search, pick the matching capability, read the contract, invoke, and hand
         you a receipt whose evidence (e.g. a pull request and a live page) you can check yourself.
-        (Once a capability that satisfies this intent is published — the registry is a fresh slate
-        today.)
+        The registry&rsquo;s <Link className="mono" href="/capabilities/promptfrenzy.list-ai-tool">promptfrenzy.list-ai-tool</Link>{" "}
+        matches this intent. It writes external state, so it runs through the local router, not the
+        hosted gateway.
       </p>
 
       <h2>Your policies stay yours</h2>
@@ -91,6 +100,7 @@ submissions. Do not pay anything, and return proof of the published page."`}</pr
 
       <p style={{ marginTop: "2rem" }}>
         <Link className="btn btn-primary" href="/capabilities">Browse capabilities</Link>{" "}
+        <Link className="btn" href="/routes">Browse routes</Link>{" "}
         <Link className="btn mono" href="/agents">/agents</Link>
       </p>
     </div>
