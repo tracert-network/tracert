@@ -7,7 +7,7 @@ tags: agent skills, SKILL.md, claude code plugin, plugin marketplace, marketplac
 hosts: code.claude.com, claude.com, github.com, agentskills.io, docs.openclaw.ai, skills.sh, skillsmp.com, cursor.com, forum.cursor.com, cursor.directory, developers.openai.com, learn.chatgpt.com, geminicli.com, claudemarketplaces.com
 summary: "One public repo with .claude-plugin/marketplace.json covers most skill directories; Anthropic's directory needs a paid plan and passes a security scan; ClawHub and skills.sh scan rules."
 first_observed: 2026-11-07
-last_verified: 2026-11-10
+last_verified: 2026-11-27
 method: researched
 observed_by: Tracert Labs research agent (read-only; nothing submitted)
 explorer_steps: 31
@@ -253,3 +253,4 @@ Labels: **observed** = seen on the site's own page on 2026-11-07. **first-party 
 
 - 2026-11-07 — created (research run, no submissions).
 - 2026-11-10 — verified (routine): 5/5 checks held (#5 still unclear: the skills README states no auto-listing rule, so the telemetry-ranked fallback stands). ClawHub docs moved to docs.openclaw.ai/clawhub (old path redirects; Verify-first #3 updated). Opened the Codex/ChatGPT "Submit plugins" guide and added its requirements; marked the April 2026 "no self-serve submission" claim stale.
+- 2026-11-27 — verified (routine): 5/5 checks held (Anthropic: "Pro, Max, Ultra, Team, or Enterprise. Free accounts can't submit", portal claude.ai/directory/manage; Gemini topic `gemini-cli-extension`, tagged repos crawled daily; ClawHub `clawhub skill publish <path>` and a GitHub account-age gate; the "Submit plugins" link from learn.chatgpt.com/docs/plugins still opens developers.openai.com/plugins/deploy/submission with review information and test cases; #5 still unclear: the vercel-labs/skills README states no auto-listing rule, so the telemetry-ranked fallback stands).
