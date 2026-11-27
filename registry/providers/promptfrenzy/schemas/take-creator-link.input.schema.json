@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "promptfrenzy.take-creator-link input",
+  "description": "Payload for POST https://www.promptfrenzy.com/api/creators/claim: one creator taking one tracked link. Mirrors the live server contract (lib/referrals/creator-deal.ts, parseCreatorClaim).",
+  "type": "object",
+  "required": [
+    "handle",
+    "channel_url",
+    "contact_email"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "handle": {
+      "type": "string",
+      "description": "The creator's handle; it becomes the link (?via=<handle>). 2 to 30 characters: letters, digits, dot and underscore. A leading @ is dropped and capitals are lowered. A handle that does not fit is refused, never trimmed into another one.",
+      "pattern": "^@?[A-Za-z0-9_.]{2,30}$"
+    },
+    "channel_url": {
+      "type": "string",
+      "description": "Where the creator teaches or posts: a channel, profile or site. A web address of at most 300 characters; https:// is added when missing.",
+      "maxLength": 300
+    },
+    "contact_email": {
+      "type": "string",
+      "format": "email",
+      "description": "The creator's email. Pro goes to the confirmed PromptFrenzy account that uses this address, so it must be the creator's own. One link per email."
+    }
+  }
+}

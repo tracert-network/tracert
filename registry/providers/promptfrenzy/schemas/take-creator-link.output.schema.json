@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "promptfrenzy.take-creator-link output",
+  "description": "HTTP 201 (new link) or 200 (the same creator asking again) from POST /api/creators/claim. GET progress_url returns the same shape. Mirrors the live server contract, read from the live site on 27/11/2026.",
+  "type": "object",
+  "required": [
+    "handle",
+    "link",
+    "made_a_picture",
+    "unlocks_at",
+    "unlocked",
+    "reward",
+    "terms",
+    "terms_url",
+    "progress_url"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "handle": {
+      "type": "string",
+      "description": "The handle as stored: lower case, no @."
+    },
+    "link": {
+      "type": "string",
+      "format": "uri",
+      "description": "The tracked link to share. ?via=<handle> can be added to any page on the site."
+    },
+    "made_a_picture": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "People who signed up through the link and made a picture, counted once per device."
+    },
+    "unlocks_at": {
+      "type": "integer",
+      "description": "The count at which the reward unlocks."
+    },
+    "unlocked": {
+      "type": "boolean",
+      "description": "True once the reward has been granted."
+    },
+    "reward": {
+      "type": "string",
+      "description": "The reward in words, for example \"Pro free for 3 months\"."
+    },
+    "terms": {
+      "type": "string",
+      "description": "Version of the terms the link was taken under."
+    },
+    "terms_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "The terms as plain text."
+    },
+    "progress_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "GET this for the link's counts. Counts only, never who signed up."
+    }
+  }
+}

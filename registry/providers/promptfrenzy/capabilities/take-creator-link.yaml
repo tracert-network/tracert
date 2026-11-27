@@ -1,0 +1,101 @@
+schema: https://tracert.site/schemas/manifest/v0.1
+provider:
+  id: promptfrenzy
+  name: PromptFrenzy
+  url: https://www.promptfrenzy.com
+  operator: promptfrenzy
+service:
+  id: promptfrenzy-creator-links
+  name: PromptFrenzy creator links
+  url: https://www.promptfrenzy.com/creators
+capability:
+  id: promptfrenzy.take-creator-link
+  version: 1.0.0
+  status: active
+  promise: "Give a creator who teaches character design, animation or AI art a
+    tracked PromptFrenzy link at once, on fixed public terms: Pro free for 3
+    months when the link brings 5 people who sign up and each make a picture."
+  description: "Take a tracked link (https://www.promptfrenzy.com/?via=<handle>)
+    for a creator, or as an agent acting for one. One unauthenticated call, no
+    pitch and no approval step. The terms are fixed and the same for everyone,
+    and nothing in the request can change them: when 5 people sign up through
+    the link and each makes a picture, the creator's PromptFrenzy account (the
+    confirmed account that uses the contact email) gets Pro free for 3 months. A
+    signup counts once per device, and the creator's own account never counts.
+    One link per creator. The answer carries the link and a progress address
+    that returns counts only. Asking again with the same handle and email
+    returns the same link. There is no cash payment and no revenue share."
+  tags:
+    - creators
+    - referral
+    - partner-link
+    - ai-art
+    - character-design
+  excludes:
+    - Cash payments, commission or revenue share
+    - Negotiated or custom terms; the published terms are the only terms
+    - More than one link per creator or per contact email
+    - Counting signups that are made up; those close the link
+    - Naming or listing the people who signed up through a link
+  input:
+    schema_ref: ../schemas/take-creator-link.input.schema.json
+    media_types:
+      - application/json
+    max_bytes: 4096
+  output:
+    schema_ref: ../schemas/take-creator-link.output.schema.json
+    media_types:
+      - application/json
+  errors:
+    - code: validation_failed
+      meaning: HTTP 400. A field is missing or malformed; the body names the field
+        (handle, channel_url or contact_email) and says what is wrong.
+      retriable: false
+    - code: handle_taken
+      meaning: HTTP 409, field handle. Another creator holds this handle. Pick
+        another, or add a word to it.
+      retriable: false
+    - code: email_has_link
+      meaning: HTTP 409, field contact_email. This email already holds a link; the
+        body names it. One link per creator.
+      retriable: false
+    - code: rate_limited
+      meaning: HTTP 429. This address took 5 links in the last 24 hours, or the daily
+        limit for everyone was reached. Try again tomorrow.
+      retriable: true
+    - code: server_error
+      meaning: HTTP 500. The link was not written; retry.
+      retriable: true
+  interfaces:
+    - type: native_api
+      endpoint: https://www.promptfrenzy.com/api/creators/claim
+      docs_url: https://www.promptfrenzy.com/creators.md
+  pricing:
+    free: true
+    mode: free
+  operations:
+    expected_latency_seconds:
+      p50: 1
+      p95: 3
+    timeout_seconds: 15
+    idempotency: supported
+  data_policy:
+    input_retention:
+      policy: indefinite
+      notes: The handle, channel address and contact email are kept in PromptFrenzy's
+        database for as long as the link exists; none of them is published. The
+        email is used to find the creator's account when Pro unlocks and to tell
+        them it did. The caller's user agent and referrer are kept, and the
+        caller's address only as a salted hash for the daily limit. A link and
+        its details are removed on request.
+    training_use: none
+    regions:
+      - global
+    subprocessors:
+      - supabase
+      - vercel
+  evidence:
+    public_examples: https://www.promptfrenzy.com/creators.md
+  provenance:
+    integration_status: first_party
+    adapter_operator: promptfrenzy
