@@ -4,7 +4,7 @@ import { allHubs, allRoutes, hubLastVerified } from "@/lib/routes";
 import { allEditions } from "@/lib/demand";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const statics = ["", "/routes", "/routes/changes", "/demand", "/about", "/publish", "/use", "/agents", "/capabilities"].map((p) => ({
+  const statics = ["", "/routes", "/routes/changes", "/demand", "/about", "/privacy", "/publish", "/use", "/agents", "/capabilities"].map((p) => ({
     url: `${SITE_ORIGIN}${p}`,
   }));
   const caps = allCapabilities().map(({ manifest }) => ({
