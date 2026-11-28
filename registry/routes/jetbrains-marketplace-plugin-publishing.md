@@ -7,7 +7,7 @@ region: global
 tags: jetbrains marketplace, intellij plugin, publish plugin, intellij platform gradle plugin, signPlugin, publishPlugin, verifyPlugin, plugin verifier, plugin signing, publishing token, release channels, approval guidelines, plugin review, trader status, paid plugins, freemium, unified intellij idea, github actions
 hosts: plugins.jetbrains.com, github.com, raw.githubusercontent.com, platform.jetbrains.com, blog.jetbrains.com
 first_observed: 2026-11-09
-last_verified: 2026-11-09
+last_verified: 2026-11-27
 method: researched
 observed_by: "Tracert Labs research agent (read-only; nothing submitted)"
 explorer_steps: 29
@@ -183,3 +183,4 @@ explorer_steps: 29
 
 ## Changelog
 - 2026-11-09 — created (research run, nothing submitted).
+- 2026-11-27 — verified (routine): 4/4 checks held (first publication manual, `ORG_GRADLE_PROJECT_intellijPlatformPublishingToken`; approval guidelines version 1.3 effective March 31, 2026, 30-character name limit, 40 px by 40 px SVG logo, 3–4 working days; IC/PC only for versions earlier than 2025.3 (build 253); template release.yml triggers prereleased/released, `./gradlew publishPlugin`, four secrets).

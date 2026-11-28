@@ -7,7 +7,7 @@ region: global
 tags: trusted publishing, oidc, npm publish, pypi, crates.io, jsr, github actions, gitlab ci, circleci, id-token write, provenance, attestations, pending publisher, first publish, granular access token, classic token revoked, staged publishing, 2fa, package name rules, cargo publish, deno publish
 hosts: docs.npmjs.com, github.blog, docs.pypi.org, blog.pypi.org, blog.rust-lang.org, github.com, jsr.io
 first_observed: 2026-11-09
-last_verified: 2026-11-09
+last_verified: 2026-11-27
 method: researched
 observed_by: "Tracert Labs research agent (read-only; nothing submitted)"
 explorer_steps: 31
@@ -237,3 +237,4 @@ explorer_steps: 31
 
 ## Changelog
 - 2026-11-09 — created (research run, nothing submitted).
+- 2026-11-27 — verified (routine): 5/5 checks held (npm: configured from package settings, no pending option, npm CLI 11.5.1 or later, config expires if not validated within 2 days; PyPI pending publisher does not create a project or reserve the name; crates.io PR 12346 text "initial publish requires an API token"; npm `stage publish` creates new packages; JSR link-repo step, `id-token: write`, provenance only from GitHub Actions OIDC).
