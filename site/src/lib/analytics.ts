@@ -55,6 +55,13 @@ export interface Caller {
 
 /** Request header a caller sends to ask for zero data retention; echoed as `applied` on the response. */
 export const ZDR_HEADER = "x-tracert-zdr";
+/**
+ * "1" is what the caller sends. "applied" is what route handlers see: Next.js
+ * copies headers the proxy sets on its response (the echo) over the request's,
+ * even with an explicit request-header override, so a handler reading only
+ * "1" silently kept full analytics for zero-retention calls.
+ */
+const ZDR_VALUES = new Set(["1", "applied"]);
 
 const CANONICAL_HOSTS = new Set(["tracert.site", "www.tracert.site"]);
 export interface GaEvent {
@@ -439,7 +446,7 @@ export function callerFromHeaders(h: { get(name: string): string | null }): Call
     internal: h.get("x-tracert-internal") === "1" || undefined,
     browserHeaders: Boolean(h.get("sec-fetch-mode") || h.get("sec-fetch-dest") || h.get("accept-language")),
     ja4: h.get("x-vercel-ja4-digest") || undefined,
-    zdr: (h.get(ZDR_HEADER) ?? "").trim() === "1" || undefined,
+    zdr: ZDR_VALUES.has((h.get(ZDR_HEADER) ?? "").trim()) || undefined,
   };
 }
 

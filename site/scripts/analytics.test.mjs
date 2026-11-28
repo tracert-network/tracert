@@ -192,6 +192,8 @@ test("zero data retention: counted, nothing the call contained is kept", () => {
   const headers = (o) => ({ get: (k) => o[k.toLowerCase()] ?? null });
   assert.equal(callerFromHeaders(headers({ "x-tracert-zdr": "1" })).zdr, true);
   assert.equal(callerFromHeaders(headers({ "x-tracert-zdr": " 1 " })).zdr, true);
+  // Route handlers see the proxy's echo in place of the caller's "1".
+  assert.equal(callerFromHeaders(headers({ "x-tracert-zdr": "applied" })).zdr, true);
   assert.equal(callerFromHeaders(headers({ "x-tracert-zdr": "0" })).zdr, undefined);
   assert.equal(callerFromHeaders(headers({})).zdr, undefined);
 
